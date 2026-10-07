@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>后端高频核心面试题精讲（10.01 - 10.05 五日集训）</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-light: #eff6ff;
+      --primary-border: #bfdbfe;
+      --accent: #0284c7;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --bg-body: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-sidebar: #ffffff;
+      --border-color: #e2e8f0;
+      --tag-bg: #f1f5f9;
+      --code-bg: #f1f5f9;
+      --code-color: #0f172a;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --sidebar-width: 320px;
+      --header-height: 64px;
+    }
+
+    [data-theme="dark"] {
+      --primary: #3b82f6;
+      --primary-light: #1e293b;
+      --primary-border: #1e3a8a;
+      --accent: #38bdf8;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --bg-body: #0f172a;
+      --bg-card: #1e293b;
+      --bg-sidebar: #111827;
+      --border-color: #334155;
+      --tag-bg: #334155;
+      --code-bg: #090d16;
+      --code-color: #e2e8f0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      line-height: 1.65;
+      scroll-behavior: smooth;
+    }
+
+    /* Header */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--header-height);
+      background-color: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+    }
+
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-title h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .badge-sub {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      color: white;
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .theme-toggle {
+      background: var(--tag-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .theme-toggle:hover {
+      border-color: var(--primary);
+    }
+
+    /* Main Container */
+    .container {
+      display: flex;
+      margin-top: var(--header-height);
+      min-height: calc(100vh - var(--header-height));
+    }
+
+    /* Sidebar */
+    aside.sidebar {
+      width: var(--sidebar-width);
+      position: fixed;
+      top: var(--header-height);
+      bottom: 0;
+      left: 0;
+      background-color: var(--bg-sidebar);
+      border-right: 1px solid var(--border-color);
+      overflow-y: auto;
+      padding: 20px 16px 40px;
+      z-index: 50;
+    }
+
+    .search-box {
+      margin-bottom: 16px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--bg-body);
+      color: var(--text-main);
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-box input:focus {
+      border-color: var(--primary);
+    }
+
+    .nav-day-group {
+      margin-bottom: 20px;
+    }
+
+    .nav-day-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      padding: 6px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-day-badge {
+      background: var(--tag-bg);
+      color: var(--text-muted);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+    }
+
+    .nav-list {
+      list-style: none;
+      margin-top: 4px;
+    }
+
+    .nav-item a {
+      display: block;
+      padding: 7px 10px;
+      font-size: 0.83rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-radius: 6px;
+      transition: all 0.15s ease-in-out;
+      line-height: 1.4;
+      border-left: 2px solid transparent;
+      margin-bottom: 2px;
+    }
+
+    .nav-item a:hover {
+      background-color: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .nav-item a.active {
+      background-color: var(--primary-light);
+      color: var(--primary);
+      font-weight: 600;
+      border-left-color: var(--primary);
+    }
+
+    /* Content Area */
+    main.content {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      padding: 32px 48px 80px;
+      max-width: 1060px;
+    }
+
+    .day-section {
+      margin-bottom: 64px;
+      scroll-margin-top: 80px;
+    }
+
+    .day-header {
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--border-color);
+      margin-bottom: 28px;
+    }
+
+    .day-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      background: var(--primary-light);
+      border: 1px solid var(--primary-border);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      margin-bottom: 8px;
+    }
+
+    .day-title {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .day-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-top: 4px;
+    }
+
+    /* Question Card */
+    .qa-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 28px;
+      margin-bottom: 32px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      scroll-margin-top: 84px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .qa-card:hover {
+      border-color: var(--primary-border);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .qa-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .qa-num {
+      background: var(--primary);
+      color: white;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 2px 9px;
+      border-radius: 6px;
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+
+    .qa-question {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.45;
+    }
+
+    /* Highlight Banner */
+    .highlight-box {
+      background: var(--primary-light);
+      border-left: 4px solid var(--primary);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 20px;
+      font-size: 0.92rem;
+      color: var(--text-main);
+    }
+    .highlight-box strong {
+      color: var(--primary);
+    }
+
+    /* Bonus Banner */
+    .bonus-box {
+      background: rgba(16, 185, 129, 0.08);
+      border-left: 4px solid var(--success);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: var(--text-main);
+    }
+    .bonus-box strong {
+      color: var(--success);
+    }
+
+    /* Warning Banner */
+    .warning-box {
+      background: rgba(245, 158, 11, 0.08);
+      border-left: 4px solid var(--warning);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+      font-size: 0.9rem;
+    }
+    .warning-box strong {
+      color: var(--warning);
+    }
+
+    .answer-body {
+      font-size: 0.96rem;
+      color: var(--text-main);
+    }
+
+    .answer-body h4 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin: 20px 0 10px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .answer-body p {
+      margin-bottom: 12px;
+    }
+
+    .answer-body ul, .answer-body ol {
+      margin-left: 20px;
+      margin-bottom: 16px;
+    }
+
+    .answer-body li {
+      margin-bottom: 8px;
+    }
+
+    /* Tables */
+    .custom-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 20px;
+      font-size: 0.88rem;
+    }
+
+    .custom-table th, .custom-table td {
+      border: 1px solid var(--border-color);
+      padding: 10px 14px;
+      text-align: left;
+    }
+
+    .custom-table th {
+      background-color: var(--tag-bg);
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .custom-table tr:nth-child(even) td {
+      background-color: rgba(0, 0, 0, 0.015);
+    }
+
+    [data-theme="dark"] .custom-table tr:nth-child(even) td {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Code & Pre */
+    code {
+      background-color: var(--code-bg);
+      color: var(--primary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.88em;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    pre {
+      background-color: var(--code-bg);
+      color: var(--code-color);
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 0.88rem;
+      margin: 14px 0 18px;
+      border: 1px solid var(--border-color);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      line-height: 1.5;
+    }
+
+    pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+    }
+
+    /* Status Tags */
+    .tag-yes {
+      background: #dcfce7;
+      color: #15803d;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+    .tag-no {
+      background: #fee2e2;
+      color: #b91c1c;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+    .tag-partial {
+      background: #fef3c7;
+      color: #b45309;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      aside.sidebar {
+        display: none;
+      }
+      main.content {
+        margin-left: 0;
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="header-title">
+      <span class="badge-sub">五日集训</span>
+      <h1>后端架构核心面试题精讲手册</h1>
+    </div>
+    <div class="header-actions">
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌓 切换暗黑模式</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Left Sidebar Table of Contents -->
+    <aside class="sidebar">
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="🔍 快速过滤题目..." onkeyup="filterQuestions()">
+      </div>
+
+      <!-- Day 1 Navigation -->
+      <div class="nav-day-group">
+        <div class="nav-day-title">
+          <span>10月1日 · MySQL 索引与最左原则</span>
+          <span class="nav-day-badge">Day 1</span>
+        </div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#q1-1" id="nav-q1-1">1. 聚集索引和非聚集索引区别</a></li>
+          <li class="nav-item"><a href="#q1-2" id="nav-q1-2">2. MySQL 有哪些索引类型？</a></li>
+          <li class="nav-item"><a href="#q1-3" id="nav-q1-3">3. 最左匹配原则与全表扫描</a></li>
+          <li class="nav-item"><a href="#q1-4" id="nav-q1-4">4. 联合索引各场景命中实战</a></li>
+        </ul>
+      </div>
+
+      <!-- Day 2 Navigation -->
+      <div class="nav-day-group">
+        <div class="nav-day-title">
+          <span>10月2日 · 索引优化与主从架构</span>
+          <span class="nav-day-badge">Day 2</span>
+        </div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#q2-1" id="nav-q2-1">1. 建立索引一般要考虑什么？</a></li>
+          <li class="nav-item"><a href="#q2-2" id="nav-q2-2">2. 回表、优化手段与覆盖索引</a></li>
+          <li class="nav-item"><a href="#q2-3" id="nav-q2-3">3. 常见索引失效场景汇总</a></li>
+          <li class="nav-item"><a href="#q2-4" id="nav-q2-4">4. MySQL 主从复制全过程</a></li>
+        </ul>
+      </div>
+
+      <!-- Day 3 Navigation -->
+      <div class="nav-day-group">
+        <div class="nav-day-title">
+          <span>10月3日 · 数据库调优与事务隔离</span>
+          <span class="nav-day-badge">Day 3</span>
+        </div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#q3-1" id="nav-q3-1">1. 深分页查询优化深度方案</a></li>
+          <li class="nav-item"><a href="#q3-2" id="nav-q3-2">2. 慢 SQL 实战排查与调优</a></li>
+          <li class="nav-item"><a href="#q3-3" id="nav-q3-3">3. 数据库全链路调优体系</a></li>
+          <li class="nav-item"><a href="#q3-4" id="nav-q3-4">4. 事务隔离级别、并发问题与选型</a></li>
+        </ul>
+      </div>
+
+      <!-- Day 4 Navigation -->
+      <div class="nav-day-group">
+        <div class="nav-day-title">
+          <span>10月4日 · JVM 内存与垃圾回收基础</span>
+          <span class="nav-day-badge">Day 4</span>
+        </div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#q4-1" id="nav-q4-1">1. JVM 运行时内存区域剖析</a></li>
+          <li class="nav-item"><a href="#q4-2" id="nav-q4-2">2. 垃圾收集算法与常见收集器</a></li>
+          <li class="nav-item"><a href="#q4-3" id="nav-q4-3">3. 内存溢出 (OOM) 与内存泄漏</a></li>
+          <li class="nav-item"><a href="#q4-4" id="nav-q4-4">4. GC Roots 构成与垃圾判定</a></li>
+        </ul>
+      </div>
+
+      <!-- Day 5 Navigation -->
+      <div class="nav-day-group">
+        <div class="nav-day-title">
+          <span>10月5日 · STW、CMS/G1 与生产实战</span>
+          <span class="nav-day-badge">Day 5</span>
+        </div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#q5-1" id="nav-q5-1">1. 什么是 STW (Stop The World)？</a></li>
+          <li class="nav-item"><a href="#q5-2" id="nav-q5-2">2. CMS 垃圾收集器执行阶段剖析</a></li>
+          <li class="nav-item"><a href="#q5-3" id="nav-q5-3">3. G1 垃圾收集器执行阶段与机制</a></li>
+          <li class="nav-item"><a href="#q5-4" id="nav-q5-4">4. 生产环境收集器选型与考量</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Main Content Panel -->
+    <main class="content">
+
+      <!-- ==========================================
+           DAY 1: 10月1日
+      =========================================== -->
+      <section class="day-section" id="day-1">
+        <div class="day-header">
+          <div class="day-tag">📅 10月1日 面试题</div>
+          <h2 class="day-title">第一部分：MySQL 索引底层原理与最左匹配</h2>
+          <p class="day-desc">聚焦存储引擎物理结构、B+ 树索引分类、最左前缀工作机制与查询执行命中判断。</p>
+        </div>
+
+        <!-- Q1.1 -->
+        <article class="qa-card" id="q1-1">
+          <div class="qa-header">
+            <span class="qa-num">Q1</span>
+            <h3 class="qa-question">聚集索引和非聚集索引的区别</h3>
+          </div>
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>聚集索引叶子节点<strong>存整行完整数据</strong>，决定物理存储顺序，单表有且仅有一个；非聚集索引（二级索引）叶子节点<strong>仅存索引列与主键值</strong>，需要通过主键回表查整行。
+          </div>
+          <div class="answer-body">
+            <h4>1. 核心概念对比</h4>
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>对比维度</th>
+                  <th>聚集索引（Clustered Index）</th>
+                  <th>非聚集索引 / 二级索引（Secondary Index）</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>叶子节点内容</strong></td>
+                  <td>保存完整的一整行数据（主键 + 所有列数据）。</td>
+                  <td>仅保存<strong>索引列键值 + 对应主键 ID</strong>。</td>
+                </tr>
+                <tr>
+                  <td><strong>表内数量</strong></td>
+                  <td><strong>只能有且仅有 1 个</strong>（主键 &gt; 第一个唯一非空列 &gt; 隐藏 6 字节 rowid）。</td>
+                  <td>可以建立多个（单列索引、联合索引等）。</td>
+                </tr>
+                <tr>
+                  <td><strong>物理排序关系</strong></td>
+                  <td>决定了数据行在磁盘上的物理存储逻辑顺序。</td>
+                  <td>逻辑有序，物理上与行数据存储顺序无关。</td>
+                </tr>
+                <tr>
+                  <td><strong>查询过程与性能</strong></td>
+                  <td>直接定位行数据，无需回表，查询速度极快。</td>
+                  <td>若查询非索引列，需根据主键回到聚集索引树进行<strong>回表</strong>。</td>
+                </tr>
+                <tr>
+                  <td><strong>写入/更新代价</strong></td>
+                  <td>修改主键或非顺序插入可能导致数据页分裂（Page Split）和物理数据重排。</td>
+                  <td>修改字段只需维护对应索引树结构，开销相对较小。</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <h4>2. InnoDB 聚集索引的选择策略</h4>
+            <ol>
+              <li>如果表定义了 <code>PRIMARY KEY</code>，InnoDB 直接将其用作聚集索引。</li>
+              <li>如果没有主键，选择第一个不允许为 NULL 的 <code>UNIQUE</code> 唯一索引作为聚集索引。</li>
+              <li>如果两者都没有，InnoDB 会自动在后台创建一个 6 字节长的隐式行 ID <code>DB_ROW_ID</code> 作为聚集索引。</li>
+            </ol>
+
+            <div class="bonus-box">
+              <strong>🎯 面试加分项：</strong>建议在主键设计时采用自增整数（如 <code>BIGINT AUTO_INCREMENT</code> 或有序的分布式ID Snowflake），避免 UUID 作为聚集索引，因为无序的 UUID 会导致大量的页分裂和随机写 I/O，严重降低插入性能。
+            </div>
+          </div>
+        </article>
+
+        <!-- Q1.2 -->
+        <article class="qa-card" id="q1-2">
+          <div class="qa-header">
+            <span class="qa-num">Q2</span>
+            <h3 class="qa-question">MySQL 有哪些索引类型？</h3>
+          </div>
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>回答时从<strong>数据结构、物理存储、逻辑功能</strong>三个维度结构化展开，逻辑严密清晰。
+          </div>
+          <div class="answer-body">
+            <h4>1. 按底层数据结构划分</h4>
+            <ul>
+              <li><strong>B+Tree 索引</strong>：MySQL（InnoDB/MyISAM）默认且最常用的索引。叶子节点双向链表相连、非叶子节点只存索引键，矮胖树型，支持等值、范围、前缀匹配及排序。</li>
+              <li><strong>Hash 索引</strong>：Memory 存储引擎原生支持，通过哈希表实现，等值查询时间复杂度为 $O(1)$。但不支持范围查询、排序及最左匹配（InnoDB 内部有自适应哈希索引 AHI）。</li>
+              <li><strong>Full-Text 全文索引</strong>：用于海量文本内容的分词模糊检索，InnoDB（5.6+）和 MyISAM 均支持，通过倒排索引实现。</li>
+              <li><strong>R-Tree 空间索引</strong>：用于地理空间数据类型（GIS，如 <code>GEOMETRY</code>），多维空间范围检索。</li>
+            </ul>
+
+            <h4>2. 按物理存储结构划分</h4>
+            <ul>
+              <li><strong>聚集索引（Clustered Index）</strong>：叶子节点存整行数据。</li>
+              <li><strong>非聚集索引 / 二级索引（Secondary Index）</strong>：叶子节点存主键值。</li>
+            </ul>
+
+            <h4>3. 按逻辑功能与约束划分</h4>
+            <ul>
+              <li><strong>主键索引（PRIMARY KEY）</strong>：唯一且不允许为 NULL，一张表只能有一个。</li>
+              <li><strong>唯一索引（UNIQUE）</strong>：约束字段值唯一，允许存在多个 NULL 值。</li>
+              <li><strong>普通索引（INDEX）</strong>：最基础的单列索引，无任何唯一性约束。</li>
+              <li><strong>联合索引 / 复合索引（COMPOSITE）</strong>：由多个列组合构建的索引，遵循最左前缀原则。</li>
+              <li><strong>前缀索引（PREFIX）</strong>：对长字符串字段（如 <code>VARCHAR(255)</code>）截取前 $N$ 个字符建立索引，节省空间并提高检索效率。</li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- Q1.3 -->
+        <article class="qa-card" id="q1-3">
+          <div class="qa-header">
+            <span class="qa-num">Q3</span>
+            <h3 class="qa-question">什么是最左匹配原则？联合索引为什么要遵循最左匹配原则？什么是全表扫描？</h3>
+          </div>
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>最左匹配指联合索引必须从最左字段开始连续匹配；因为 B+ 树底层是先按第一列排序，第一列相同时才按第二列排序；全表扫描指不走索引、按磁盘顺序扫描整张表的所有数据页。
+          </div>
+          <div class="answer-body">
+            <h4>1. 什么是最左匹配原则？</h4>
+            <p>在使用联合索引（如 <code>INDEX(a, b, c)</code>）检索数据时，查询条件必须从联合索引的<strong>最左第一列（a）</strong>开始匹配，且中间不能断开。如果跳过了前导列，或者遇到<strong>范围查询（如 &gt;, &lt;, between, like 'abc%'）</strong>，则范围列之后的字段将无法继续利用索引的有序性进行树二分查找。</p>
+
+            <h4>2. 联合索引为什么要遵循最左匹配原则？（底层原理）</h4>
+            <p>B+ 树是基于多列比较规则构建的复合多键索引树。在物理存储上：</p>
+            <ul>
+              <li>节点首先按照<strong>第一列 a</strong> 进行严格排序。</li>
+              <li>只有在 <strong>a 的值完全相同</strong>的局部区间内，<strong>第二列 b</strong> 才是绝对有序的。</li>
+              <li>同理，只有在 <strong>a 与 b 均相同</strong>的前提下，<strong>第三列 c</strong> 才是绝对有序的。</li>
+            </ul>
+            <p>因此：如果查询条件跳过了 <code>a</code> 直接指定 <code>b=1</code> 或 <code>c=1</code>，在全局整棵 B+ 树的范围来看，<code>b</code> 和 <code>c</code> 的排列是<strong>完全无序</strong>的！因为无序，B+ 树的快速二分折半定位彻底失效，无法进行树向下检索，只能回退为全索引扫描或全表扫描。</p>
+
+            <h4>3. 什么是全表扫描（Full Table Scan）？</h4>
+            <p>全表扫描指存储引擎从表存储文件的第一个数据页开始，顺着聚簇索引叶子节点的双向链表，<strong>从头到尾依次读取每一个数据页中的每一行记录</strong>，并逐行在内存中判断是否符合 WHERE 条件。</p>
+            <ul>
+              <li>在 <code>EXPLAIN</code> 执行计划中，<code>type = ALL</code>。</li>
+              <li><strong>代价与缺点</strong>：在大数据量场景下会产生巨大的磁盘顺序/随机 I/O，占用大量 Buffer Pool 内存，导致慢查询甚至打满服务器 I/O。但在极小表（如仅十几行）或需要返回表中 30% 以上数据时，优化器认为全表扫描比反复索引定位+回表成本更低，会主动选择全表扫描。</li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- Q1.4 -->
+        <article class="qa-card" id="q1-4">
+          <div class="qa-header">
+            <span class="qa-num">Q4</span>
+            <h3 class="qa-question">按照 abc 顺序建立联合索引，下列情况会不会走索引？</h3>
+          </div>
+          <div class="highlight-box">
+            <strong>前提条件：</strong>表上已建立联合索引 <code>idx_a_b_c (a, b, c)</code>。分析各 WHERE 条件组合的命中情况。
+          </div>
+          <div class="answer-body">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>查询语句</th>
+                  <th>是否走索引</th>
+                  <th>有效使用的索引列</th>
+                  <th>详细原因剖析</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>where a = 1 and b = 1 and c = 1</code></td>
+                  <td><span class="tag-yes">完全走索引</span></td>
+                  <td><code>a, b, c</code></td>
+                  <td>严格符合最左匹配原则，三列均为等值条件，最大化利用 B+ 树定位。</td>
+                </tr>
+                <tr>
+                  <td><code>where b = 1 and c = 1 and a = 1</code></td>
+                  <td><span class="tag-yes">完全走索引</span></td>
+                  <td><code>a, b, c</code></td>
+                  <td><strong>走索引！</strong>MySQL 查询优化器（Optimizer）会自动对条件进行等价重排，将其等价为 <code>a=1 and b=1 and c=1</code>。</td>
+                </tr>
+                <tr>
+                  <td><code>where a = 1 and c = 1</code></td>
+                  <td><span class="tag-partial">部分走索引</span></td>
+                  <td><code>a</code> 定位，<code>c</code> 过滤 (ICP)</td>
+                  <td>命中最左列 <code>a</code> 用于 B+ 树定位；但由于缺失 <code>b</code>，<code>c</code> 无法用于索引树继续定位。在 MySQL 5.6+ 开启<strong>索引下推（ICP）</strong>后，<code>c=1</code> 会在存储引擎层过滤，有效减少回表次数。</td>
+                </tr>
+                <tr>
+                  <td><code>where b = 1 and c = 1</code></td>
+                  <td><span class="tag-no">不走索引</span></td>
+                  <td>无 (走全表扫描)</td>
+                  <td>缺失最左前导列 <code>a</code>，违背最左匹配原则。在全局树结构中 <code>b</code> 处于无序状态，无法使用该索引树快速查找（若满足覆盖索引可能走全索引扫描 index，但非 ref 查找）。</td>
+                </tr>
+                <tr>
+                  <td><code>where a &gt; 1 and b = 1</code></td>
+                  <td><span class="tag-partial">部分走索引</span></td>
+                  <td><code>a</code> (范围)</td>
+                  <td><code>a</code> 列可以使用索引进行范围检索，但最左匹配原则规定：<strong>遇到范围查询停止向右匹配</strong>。因此 <code>b</code> 无法利用索引有序性进行树二分查找（<code>b=1</code> 退化为索引下推过滤条件）。</td>
+                </tr>
+                <tr>
+                  <td><code>where a = 1 and b &gt; 1</code></td>
+                  <td><span class="tag-yes">走索引</span></td>
+                  <td><code>a, b</code></td>
+                  <td><code>a=1</code> 为精确等值命中，在此基础上 <code>b</code> 是绝对有序的，因此 <code>b&gt;1</code> 可以继续充分利用索引进行范围扫描定位。</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="bonus-box">
+              <strong>🎯 面试进阶说明（精准度加分）：</strong>
+              对于 <code>where a &gt; 1 and b = 1</code>，在 EXPLAIN 中查看 <code>key_len</code>，会发现其长度仅计算了 <code>a</code> 字段的长度，证明 <code>b</code> 未参与索引定位；而对于 <code>where a = 1 and b &gt; 1</code>，<code>key_len</code> 是 <code>a</code> 和 <code>b</code> 两列长度之和。
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <!-- ==========================================
+           DAY 2: 10月2日
+      =========================================== -->
+      <section class="day-section" id="day-2">
+        <div class="day-header">
+          <div class="day-tag">📅 10月2日 面试题</div>
+          <h2 class="day-title">第二部分：索引工程实践、回表与主从复制</h2>
+          <p class="day-desc">涵盖生产建索考量因素、回表与覆盖索引极致优化、索引失效全景排查及分布式主从复制机制。</p>
+        </div>
+
+        <!-- Q2.1 -->
+        <article class="qa-card" id="q2-1">
+          <div class="qa-header">
+            <span class="qa-num">Q1</span>
+            <h3 class="qa-question">建立索引一般要考虑什么？</h3>
+          </div>
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>高频查询/排序列必建；区分度高（唯一性好）的列建；选择小字段；多用联合索引替代单列；严控单表索引数量（通常不超过 5~6 个）；频繁更新的字段慎建。
+          </div>
+          <div class="answer-body">
+            <h4>1. 哪些字段适合建索引？</h4>
+            <ul>
+              <li><strong>查询高频字段</strong>：常出现在 <code>WHERE</code> 条件、<code>JOIN ON</code> 关联条件中的列。</li>
+              <li><strong>排序与分组字段</strong>：常用于 <code>ORDER BY</code>、<code>GROUP BY</code> 或 <code>DISTINCT</code> 的列，利用索引的有序性消除内存排序（避免 <code>Using filesort</code> 和临时表 <code>Using temporary</code>）。</li>
+              <li><strong>区分度高的列（基数大 Cardinality）</strong>：选择性公式为 <code>COUNT(DISTINCT col) / COUNT(*)</code>，比值越接近 1 效果越好（如用户ID、手机号、订单号）。性别、状态等枚举值不宜单独建索引。</li>
+              <li><strong>数据类型短小、无 NULL 的字段</strong>：优先选用数值型（如 INT, BIGINT），尽量不用大字符串。对于长文本采用<strong>前缀索引</strong>（例如 <code>INDEX(email(10))</code>）。将字段设为 <code>NOT NULL</code> 避免额外的 NULL 标志位处理。</li>
+            </ul>
+
+            <h4>2. 哪些场景不建议/禁止建索引？</h4>
+            <ul>
+              <li><strong>数据量很小的表</strong>：几十行到几百行的配置表直接全表扫描更快，建索引反而增加维护代价。</li>
+              <li><strong>频繁更新的字段</strong>：写操作时每次都必须同步更新索引树，引发节点分裂与重平衡，拖慢 DML 性能。</li>
+              <li><strong>区分度极低的字段</strong>：如性别列，男女各占 50%，走索引加回表的成本远高于全表扫描。</li>
+            </ul>
+
+            <h4>3. 索引数量与结构控制</h4>
+            <ul>
+              <li><strong>优先考虑联合索引</strong>：单表尽量避免滥建多个单列索引，联合索引既能满足多个查询维度，又能实现<strong>覆盖索引</strong>。</li>
+              <li><strong>控制单表索引总数</strong>：单表通常控制在 <strong>5 个以内</strong>，过多索引严重降低 <code>INSERT/UPDATE/DELETE</code> 吞吐量，且占用磁盘空间。</li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- Q2.2 -->
+        <article class="qa-card" id="q2-2">
+          <div class="qa-header">
+            <span class="qa-num">Q2</span>
+            <h3 class="qa-question">什么是回表？怎么优化回表？什么是覆盖索引？</h3>
+          </div>
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>回表即通过二级索引找到主键后，再回到主键聚簇索引查完整行；覆盖索引指索引树本身已包含查询所需全部字段（Using index），无需回表；优化手段主要是建立联合覆盖索引与开启索引下推（ICP）。
+          </div>
+          <div class="answer-body">
+            <h4>1. 什么是回表（Table Lookup）？</h4>
+            <p>在 InnoDB 引擎中，二级索引（非聚集索引）的叶子节点只保存该索引字段的值和对应的主键 ID。当执行类似语句：</p>
+            <pre><code>SELECT id, name, age, address FROM users WHERE name = '张三';</code></pre>
+            <p>若只有 <code>idx_name (name)</code> 索引，MySQL 会执行以下两步：</p>
+            <ol>
+              <li>在 <code>idx_name</code> 树上定位到 <code>name = '张三'</code>，拿到对应记录的主键 <code>id</code>；</li>
+              <li>拿这个 <code>id</code> <strong>再次回到聚集索引树（主键 B+ 树）</strong>，重新检索该行以获取 <code>age, address</code> 等其他列。</li>
+            </ol>
+            <p>这个“<strong>二级索引定位主键 -&gt; 主键树检索整行</strong>”的过程就是<strong>回表</strong>。回表会产生额外的随机 I/O，在大批量查询时性能损耗巨大。</p>
+
+            <h4>2. 什么是覆盖索引（Covering Index）？</h4>
+            <p>如果一个索引包含了（覆盖了）所有需要查询的字段的值（即 <code>SELECT</code> 列、<code>WHERE</code> 列、<code>ORDER BY</code> 列全在索引树中），存储引擎只需读取该二级索引树即可直接返回结果，<strong>完全不需要回表</strong>。</p>
+            <ul>
+              <li>在 <code>EXPLAIN</code> 结果的 <code>Extra</code> 字段中会出现 <strong><code>Using index</code></strong>。</li>
+              <li>示例：建立联合索引 <code>idx_name_age_addr (name, age, address)</code>，上述查询直接命中覆盖索引，零次回表，性能飞跃。</li>
+            </ul>
+
+            <h4>3. 怎么优化回表？</h4>
+            <ol>
+              <li><strong>构建覆盖索引</strong>：将核心高频查询的返回列直接加到联合索引中。</li>
+              <li><strong>严禁 <code>SELECT *</code></strong>：代码中只查询业务必需字段，避免因多查一个无关列而被迫触发回表。</li>
+              <li><strong>利用索引下推（Index Condition Pushdown, ICP）</strong>：MySQL 5.6+ 默认开启。在存储引擎遍历索引时，提前判断 WHERE 中其他索引条件，直接过滤不合规记录，大幅削减回表次数（EXPLAIN 显示 <code>Using index condition</code>）。</li>
+              <li><strong>延迟关联优化（针对深分页）</strong>：先走覆盖索引分页查出主键列表，再用 <code>JOIN</code> 回主表取具体数据，大幅减少前期回表数量。</li>
+            </ol>
+          </div>
+        </article>
+
+        <!-- Q2.3 -->
+        <article class="qa-card" id="q2-3">
+          <div class="qa-header">
+            <span class="qa-num">Q3</span>
+            <h3 class="qa-question">索引失效有哪些场景？</h3>
+          </div>
+          <div class="highlight-box">
+            <strong>💡 核心速记口诀：</strong>模型数空运逻辑（模糊、型转、函数、NULL值、运算、逻辑OR），外加最左前缀与成本估算。
+          </div>
+          <div class="answer-body">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>失效场景</th>
+                  <th>典型失效 SQL 示例</th>
+                  <th>优化/正确写法</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>违背最左匹配原则</strong></td>
+                  <td>联合索引 <code>(a,b,c)</code> 查 <code>WHERE b=1 AND c=2</code></td>
+                  <td>查询条件必须带上前导列：<code>WHERE a=1 AND b=1</code></td>
+                </tr>
+                <tr>
+                  <td><strong>索引列上使用函数</strong></td>
+                  <td><code>WHERE DATE(create_time) = '2026-10-01'</code></td>
+                  <td>改用范围查询：<code>WHERE create_time &gt;= '2026-10-01' AND create_time &lt; '2026-10-02'</code></td>
+                </tr>
+                <tr>
+                  <td><strong>索引列进行表达式运算</strong></td>
+                  <td><code>WHERE age + 1 = 18</code></td>
+                  <td>将运算移至常量端：<code>WHERE age = 18 - 1</code></td>
+                </tr>
+                <tr>
+                  <td><strong>隐式类型转换</strong></td>
+                  <td>字符串字段未加引号：<code>WHERE phone = 13800138000</code>（触发 CAST 函数）</td>
+                  <td>保持类型一致：<code>WHERE phone = '13800138000'</code></td>
+                </tr>
+                <tr>
+                  <td><strong>前导通配符模糊查询</strong></td>
+                  <td><code>WHERE name LIKE '%浩'</code>（前缀无序）</td>
+                  <td>改用后置模糊：<code>WHERE name LIKE '浩%'</code>，或接入全文检索/ES</td>
+                </tr>
+                <tr>
+                  <td><strong>OR 关联未全建索引</strong></td>
+                  <td><code>WHERE a = 1 OR b = 2</code>（若 <code>b</code> 无索引）</td>
+                  <td>为 <code>b</code> 建立索引促发 <code>index_merge</code>，或拆为 <code>UNION ALL</code></td>
+                </tr>
+                <tr>
+                  <td><strong>隐式字符编码转换</strong></td>
+                  <td>两表关联 <code>ON t1.code = t2.code</code>，t1 为 utf8，t2 为 utf8mb4</td>
+                  <td>统一表及字段的 Charset 与 Collation（统一为 utf8mb4）</td>
+                </tr>
+                <tr>
+                  <td><strong>优化器 CBO 成本判定</strong></td>
+                  <td>查询结果集占全表比例过大（&gt; 20%~30%）</td>
+                  <td>优化器判定“全表顺序扫描”成本低于“大量索引扫描+随机回表”，主动弃用索引。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <!-- Q2.4 -->
+        <article class="qa-card" id="q2-4">
+          <div class="qa-header">
+            <span class="qa-num">Q4</span>
+            <h3 class="qa-question">说一下 MySQL 的主从复制过程</h3>
+          </div>
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>“1 主 2 从 3 线程，2 日志”——主库 <strong>Binlog Dump 线程</strong>，从库 <strong>I/O 线程</strong>（写中继日志）与 <strong>SQL 线程</strong>（重放数据）。
+          </div>
+          <div class="answer-body">
+            <h4>1. 核心架构与 3 大线程</h4>
+            <ul>
+              <li><strong>Master 端</strong>：<code>Binlog Dump Thread</code>（二进制日志转储线程）。</li>
+              <li><strong>Slave 端</strong>：<code>I/O Thread</code>（网络接收线程）与 <code>SQL Thread</code>（日志重放线程 / 多线程 Worker）。</li>
+              <li><strong>关键日志</strong>：Master 的 <code>Binlog</code>（二进制日志）和 Slave 的 <code>Relay Log</code>（中继日志）。</li>
+            </ul>
+
+            <h4>2. 主从复制 5 步详细流程</h4>
+            <pre><code>[ 主库 Master ]                                              [ 从库 Slave ]
+┌────────────────┐                                         ┌────────────────┐
+│ 事务提交 Write  │                                         │                │
+│       │        │                                         │                │
+│       ▼        │                                         │                │
+│   [Binlog] ────┼── (1. Dump线程推送事件) ───────────────►│  [I/O Thread]  │
+└────────────────┘                                         │       │        │
+                                                           │ (2. 顺序写入)   │
+                                                           │       ▼        │
+                                                           │  [Relay Log]   │
+                                                           │       │        │
+                                                           │ (3. 读取事件)   │
+                                                           │       ▼        │
+                                                           │  [SQL Thread]  │
+                                                           │       │        │
+                                                           │ (4. 重放写入)   │
+                                                           │       ▼        │
+                                                           │  [从库数据磁盘] │
+                                                           └────────────────┘</code></pre>
+            <ol>
+              <li><strong>主库写 Binlog</strong>：当 Master 上的事务提交时，首先将数据变更事件按照配置的格式（ROW / Statement / Mixed）追加记录到二进制日志文件（Binlog）中。</li>
+              <li><strong>从库建立连接并请求</strong>：Slave 的 <code>I/O Thread</code> 通过配置的主从账号连接 Master，并发送复制请求，带上当前已经同步的 <code>binlog 文件名</code> 和 <code>偏移量 Position</code>（或 GTID）。</li>
+              <li><strong>主库推送 Binlog</strong>：Master 接收到请求后，<code>Binlog Dump Thread</code> 根据偏移量读取之后的日志内容，打包推送给 Slave 的 I/O 线程。</li>
+              <li><strong>从库落盘中继日志</strong>：Slave 的 <code>I/O Thread</code> 将接收到的 Binlog 事件按顺序追加写入到本地的<strong>中继日志（Relay Log）</strong>中，更新复制进度。</li>
+              <li><strong>从库重放执行</strong>：Slave 的 <code>SQL Thread</code>（在 MySQL 5.7+ 中可配置多线程复制 MTS）持续监控并读取 Relay Log 中的事件，在 Slave 数据库上重新执行一次，从而实现主从数据最终一致性。</li>
+            </ol>
+
+            <h4>3. 常见复制模式扩展</h4>
+            <ul>
+              <li><strong>异步复制（Asynchronous，默认）</strong>：主库写完 Binlog 立即返回客户端成功，不等待从库响应。性能最高，但主库宕机可能丢失未传数据。</li>
+              <li><strong>半同步复制（Semi-Synchronous）</strong>：主库提交事务后至少等待一个从库确认写入 Relay Log 并返回 ACK 后才响应客户端，大幅降低数据丢失风险。</li>
+              <li><strong>组复制（MGR, MySQL Group Replication）</strong>：基于 Paxos 协议的多主/单主高可用方案，强一致性无中心节点。</li>
+            </ul>
+          </div>
+        </article>
+      </section>
+
+      <!-- ==========================================
+           DAY 3: 10月3日
+      =========================================== -->
+      <section class="day-section" id="day-3">
+        <div class="day-header">
+          <div class="day-tag">📅 10月3日 面试题</div>
+          <h2 class="day-title">第三部分：数据库实战调优与事务隔离级别深入</h2>
+          <p class="day-desc">解析深分页性能瓶颈、慢 SQL 与全链路调优体系、四大事务隔离级别及其商业数据库选型智慧。</p>
+        </div>
+
+        <!-- Q3.1 -->
+        <article class="qa-card" id="q3-1">
+          <div class="qa-header">
+            <span class="qa-num">Q1</span>
+            <h3 class="qa-question">深分页查询如何优化？</h3>
+          </div>
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>深分页（如 <code>LIMIT 1000000, 10</code>）的根本痛点是<strong>扫描百万无用行 + 百万次回表</strong>。核心解法：<strong>游标记录法</strong>（效率最高）、<strong>延迟关联</strong>（覆盖索引）、<strong>产品层截断</strong>与<strong>接入 ES</strong>。
+          </div>
+          <div class="answer-body">
+            <h4>1. 深分页为什么慢？</h4>
+            <p>执行 <code>SELECT * FROM orders ORDER BY create_time LIMIT 1000000, 10;</code> 时，MySQL 必须先扫描排序前 <code>1,000,010</code> 条记录，并通过二级索引进行 100 万次无效回表，最后抛弃前 100 万条，只返回最后 10 条。引发剧烈的磁盘随机 I/O 和 CPU 排序消耗。</p>
+
+            <h4>2. 四大生产级优化方案</h4>
+            <ol>
+              <li>
+                <strong>游标记录法 / 标签法（Seek Method / Keyset Pagination）</strong>（推荐，性能最高）
+                <p>若排序字段自增且连续（或具有唯一性，如主键 <code>id</code>），前端每次请求带上上一页最后一条记录的 <code>last_id</code>：</p>
+                <pre><code>-- 直接走主键范围扫描，无论翻到第几页耗时恒定在几毫秒：
+SELECT * FROM orders WHERE id > 1000000 ORDER BY id ASC LIMIT 10;</code></pre>
+              </li>
+              <li>
+                <strong>延迟关联（Deferred Join / 覆盖索引子查询）</strong>
+                <p>利用覆盖索引只在二级索引树上进行分页扫描（不产生回表），取到这 10 个主键 <code>id</code> 后，再通过 <code>JOIN</code> 回主表只查询这 10 条的完整列：</p>
+                <pre><code>SELECT t.* FROM orders t 
+INNER JOIN (
+    SELECT id FROM orders WHERE status = 1 ORDER BY create_time LIMIT 1000000, 10
+) AS lim ON t.id = lim.id;</code></pre>
+              </li>
+              <li>
+                <strong>业务与产品层限制</strong>
+                <p>参考 Google、京东、淘宝等业界通用做法：限制用户最大允许翻页深度（例如仅允许翻到前 100 页）；在移动端采用“上拉加载更多（无限流滚动）”，天然适配游标分页。</p>
+              </li>
+              <li>
+                <strong>接入搜索引擎（Elasticsearch）</strong>
+                <p>对于上千万级别且支持多维度动态筛选的报表系统，将数据同步至 ES，利用 ES 的 <code>search_after</code> 游标机制实现毫秒级深分页。</p>
+              </li>
+            </ol>
+          </div>
+        </article>
+
+        <!-- Q3.2 -->
+        <article class="qa-card" id="q3-2">
+          <div class="qa-header">
+            <span class="qa-num">Q2</span>
+            <h3 class="qa-question">有没有做过慢 SQL 调优？</h3>
+          </div>
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>体现真实工程经验，按照“<strong>监控捕获 -&gt; EXPLAIN 分析根因 -&gt; 针对性调优（索引/SQL/结构） -&gt; 压测验证</strong>”闭环阐述。
+          </div>
+          <div class="answer-body">
+            <h4>1. 发现与捕获慢 SQL</h4>
+            <ul>
+              <li><strong>开启慢查询日志</strong>：配置 <code>slow_query_log = 1</code>，设置阈值 <code>long_query_time = 1</code>（生产环境常设为 0.5s 或 1s），并开启 <code>log_queries_not_using_indexes</code>。</li>
+              <li><strong>APM 与云监控平台</strong>：利用 SkyWalking 链路追踪、Prometheus + Grafana、或阿里云 RDS 慢日志大盘实时告警高频慢 SQL。</li>
+            </ul>
+
+            <h4>2. 使用 EXPLAIN 分析执行计划核心指标</h4>
+            <ul>
+              <li><strong><code>type</code>（访问类型）</strong>：从好到差依次为 <code>system &gt; const &gt; eq_ref &gt; ref &gt; range &gt; index &gt; ALL</code>。调优目标是至少达到 <strong><code>range</code></strong> 或 <strong><code>ref</code></strong>，杜绝 <strong><code>ALL</code></strong>（全表扫描）。</li>
+              <li><strong><code>possible_keys</code> &amp; <code>key</code></strong>：关注是否有索引以及实际命中了哪个索引。</li>
+              <li><strong><code>rows</code> &amp; <code>filtered</code></strong>：预估扫描行数和过滤比，扫描行数过大说明索引区分度低或失效。</li>
+              <li><strong><code>Extra</code> 核心警惕项</strong>：
+                <ul>
+                  <li><span class="tag-no">Using filesort</span>：产生了内存或外部磁盘文件排序，必须针对排序列建索引优化。</li>
+                  <li><span class="tag-no">Using temporary</span>：使用了内部临时表（常见于不带索引的 GROUP BY / DISTINCT）。</li>
+                  <li><span class="tag-yes">Using index</span>：达到覆盖索引，性能极佳。</li>
+                  <li><span class="tag-partial">Using index condition</span>：使用了索引下推（ICP）。</li>
+                </ul>
+              </li>
+            </ul>
+
+            <h4>3. 典型实战调优案例</h4>
+            <ol>
+              <li><strong>消除 filesort</strong>：某接口 <code>WHERE status = 1 ORDER BY gmt_create DESC</code>，原索引仅有 <code>idx_status(status)</code> 出现 <code>Using filesort</code>，优化为联合索引 <code>idx_status_gmt (status, gmt_create)</code> 后，直接利用索引有序性输出，执行时间从 1.2s 降至 15ms。</li>
+              <li><strong>消除隐式类型转换</strong>：某订单表 <code>order_sn</code> 为 varchar，上游查询传了整型数字导致全表扫描，代码修复传参类型后耗时下降 98%。</li>
+            </ol>
+          </div>
+        </article>
+
+        <!-- Q3.3 -->
+        <article class="qa-card" id="q3-3">
+          <div class="qa-header">
+            <span class="qa-num">Q3</span>
+            <h3 class="qa-question">有没有做过数据库调优？</h3>
+          </div>
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>自顶向下展现全局技术视野：<strong>SQL与索引层面 &gt; 表结构设计层面 &gt; 架构与缓存层面 &gt; MySQL 参数配置 &gt; 硬件操作系统</strong>。
+          </div>
+          <div class="answer-body">
+            <h4>1. 数据库五层立体调优模型</h4>
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>调优层级</th>
+                  <th>优化手段与核心抓手</th>
+                  <th>性价比/收益</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>1. SQL 与索引层</strong></td>
+                  <td>消灭慢 SQL、设计覆盖索引、杜绝 <code>SELECT *</code>、规避索引失效场景。</td>
+                  <td><span class="tag-yes">极高（成本最低，效果最立竿见影）</span></td>
+                </tr>
+                <tr>
+                  <td><strong>2. 数据表设计层</strong></td>
+                  <td>选择合适小字段（如 INT 存 IP/时间戳）、字段设置 <code>NOT NULL</code>；冷热字段垂直分表；高频只读字段适度反规范化冗余。</td>
+                  <td><span class="tag-yes">高（前期架构规范）</span></td>
+                </tr>
+                <tr>
+                  <td><strong>3. 架构与缓存层</strong></td>
+                  <td>
+                    ① 引入 <strong>Redis 缓存</strong>，挡下 80%+ 读流量；<br>
+                    ② <strong>读写分离</strong>（一主多从），读写流量物理隔离；<br>
+                    ③ <strong>分库分表</strong>（ShardingSphere），单表过千万做水平分片。
+                  </td>
+                  <td><span class="tag-yes">非常高（承载高并发基石）</span></td>
+                </tr>
+                <tr>
+                  <td><strong>4. MySQL 参数调优</strong></td>
+                  <td>
+                    • <code>innodb_buffer_pool_size</code>：设为内存 60%~75%，确保热数据全在内存中；<br>
+                    • <code>innodb_log_file_size</code>：调大 Redo Log 避免频繁 Checkpoint 刷盘抖动；<br>
+                    • 刷盘策略权衡：<code>innodb_flush_log_at_trx_commit = 1</code> 与 <code>sync_binlog = 1</code>（强一致）或业务允许时调整为 <code>2 / 1000</code>；<br>
+                    • 连接池调优：配合 HikariCP 合理设置最大活跃连接，避免过大引发线程切换。
+                  </td>
+                  <td><span class="tag-partial">中等（榨干单机性能）</span></td>
+                </tr>
+                <tr>
+                  <td><strong>5. 硬件与操作系统</strong></td>
+                  <td>全线升级 PCIe NVMe SSD，做 RAID 10；Linux 将 I/O 调度器调整为 <code>none/noop</code>；调整 <code>swappiness=1</code> 避免内存换出。</td>
+                  <td><span class="tag-partial">靠资源解决瓶颈</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <!-- Q3.4 -->
+        <article class="qa-card" id="q3-4">
+          <div class="qa-header">
+            <span class="qa-num">Q4</span>
+            <h3 class="qa-question">事务的隔离级别有哪些？分别解决了什么问题？脏读、不可重复读和幻读分别是什么？MySQL 和 Oracle 分别是什么隔离级别？为什么成熟数据库选它们？</h3>
+          </div>
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>四级隔离：RU &lt; RC &lt; RR &lt; Serializable。Oracle 默认 <strong>RC</strong>，MySQL 默认 <strong>RR</strong>。选 RC 是为了极致并发与低锁开销；MySQL 选 RR 源于早期 Binlog 基于语句复制的主从一致性历史必然。
+          </div>
+          <div class="answer-body">
+            <h4>1. 三大并发并发读问题的本质区别</h4>
+            <ul>
+              <li><strong>脏读（Dirty Read）</strong>：事务 A 读到了事务 B <strong>已修改但尚未提交</strong>的数据。如果事务 B 随后回滚，事务 A 读到的就是彻底不存在的脏数据。</li>
+              <li><strong>不可重复读（Non-Repeatable Read）</strong>：事务 A 内部多次读取同一条记录。在两次读取之间，事务 B <strong>修改或删除了该行并提交</strong>，导致事务 A 前后读到的<strong>同一行数据内容不一致</strong>（侧重于 <code>UPDATE / DELETE</code>）。</li>
+              <li><strong>幻读（Phantom Read）</strong>：事务 A 按照某一范围条件读取数据集。事务 B 在该范围内<strong>新插入（INSERT）了数据并提交</strong>。事务 A 再次按相同条件查询或操作时，突然发现多出了一行记录，犹如见到了幽灵/幻影（侧重于 <code>INSERT</code> 导致的数据行数增多）。</li>
+            </ul>
+
+            <h4>2. 四种隔离级别及其解决的问题矩阵</h4>
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>隔离级别</th>
+                  <th>脏读</th>
+                  <th>不可重复读</th>
+                  <th>幻读</th>
+                  <th>并发性能</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>读未提交（Read Uncommitted）</strong></td>
+                  <td><span class="tag-no">存在</span></td>
+                  <td><span class="tag-no">存在</span></td>
+                  <td><span class="tag-no">存在</span></td>
+                  <td>最高</td>
+                </tr>
+                <tr>
+                  <td><strong>读已提交（Read Committed, RC）</strong></td>
+                  <td><span class="tag-yes">解决</span></td>
+                  <td><span class="tag-no">存在</span></td>
+                  <td><span class="tag-no">存在</span></td>
+                  <td>很高（Oracle 默认）</td>
+                </tr>
+                <tr>
+                  <td><strong>可重复读（Repeatable Read, RR）</strong></td>
+                  <td><span class="tag-yes">解决</span></td>
+                  <td><span class="tag-yes">解决</span></td>
+                  <td><span class="tag-yes">InnoDB基本解决</span></td>
+                  <td>适中（MySQL 默认）</td>
+                </tr>
+                <tr>
+                  <td><strong>串行化（Serializable）</strong></td>
+                  <td><span class="tag-yes">解决</span></td>
+                  <td><span class="tag-yes">解决</span></td>
+                  <td><span class="tag-yes">解决</span></td>
+                  <td>极低（纯串行读写加锁）</td>
+                </tr>
+              </tbody>
+            </table>
+            <p><em>注：MySQL InnoDB 在 RR 隔离级别下，快照读通过 <strong>MVCC</strong>，当前读通过 <strong>Next-Key Lock（记录锁 + 间隙锁 Gap Lock）</strong>，已经基本解决了绝大多数幻读问题。</em></p>
+
+            <h4>3. 商业数据库默认隔离级别</h4>
+            <ul>
+              <li><strong>Oracle 默认隔离级别</strong>：<strong>Read Committed（读已提交，RC）</strong>。</li>
+              <li><strong>MySQL InnoDB 默认隔离级别</strong>：<strong>Repeatable Read（可重复读，RR）</strong>。</li>
+            </ul>
+
+            <h4>4. 为什么成熟数据库选择 RC / RR 作为默认？未解决问题怎么办？</h4>
+            <div class="bonus-box">
+              <strong>🎯 深度本质剖析：</strong>
+              <ol>
+                <li><strong>性能与一致性的黄金平衡</strong>：Serializable 隔离级别通过强锁机制将事务完全串行化，在实际高并发交易系统中会导致严重的锁等待甚至系统瘫痪；而 Read Uncommitted 完全不可控。因此，工业界只能在 <strong>RC</strong> 和 <strong>RR</strong> 之间做选择。</li>
+                <li><strong>Oracle 选择 RC 的原因</strong>：Oracle 很早就基于 Undo 实现了强大的多版本并发控制（MVCC），RC 级别下只有在修改行时才加行锁，读取完全无锁，并发吞吐量极高。对于不可重复读和幻读，业务完全可以通过显式加锁（<code>FOR UPDATE</code>）或乐观锁（版本号机制）在应用层轻松防御。</li>
+                <li><strong>MySQL 选择 RR 的历史与技术原因</strong>：
+                  <ul>
+                    <li><strong>历史原因（致命的主从数据不一致）</strong>：在 MySQL 5.0 及之前，Binlog 仅支持 <code>Statement</code> 格式（按执行的 SQL 语句文本记录）。如果在 RC 级别下，事务并发交叉提交，Binlog 记录的顺序可能与在 Master 内存中执行的时序不一致，<strong>导致 Slave 重放后产生完全不同于 Master 的数据（主从严重不一致）！</strong></li>
+                    <li>为了强制保障 Statement 模式下主从复制的严格一致，MySQL 必须将默认隔离级别定为 <strong>RR</strong>，利用 <strong>Next-Key Lock 锁死数据间隙</strong>，阻断并发插入。</li>
+                    <li>虽然当今 MySQL 早已支持 <code>ROW</code> 格式的 Binlog（甚至阿里、腾讯等互联网大厂生产环境均建议改为 <code>RC + ROW</code> 格式以减少锁竞争），但出于<strong>向后兼容性</strong>考虑，MySQL 官方依然保留了 RR 作为默认值。</li>
+                  </ul>
+                </li>
+              </ol>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <!-- ==========================================
+           DAY 4: 10月4日
+      =========================================== -->
+      <section class="day-section" id="day-4">
+        <div class="day-header">
+          <div class="day-tag">📅 10月4日 面试题</div>
+          <h2 class="day-title">第四部分：JVM 内存模型与垃圾回收基础原理</h2>
+          <p class="day-desc">拆解运行时数据区结构、经典垃圾收集算法、OOM 与内存泄漏识别定位及 GC Roots 可达性分析。</p>
+        </div>
+
+        <!-- Q4.1 -->
+        <article class="qa-card" id="q4-1">
+          <div class="qa-header">
+            <span class="qa-num">Q1</span>
+            <h3 class="qa-question">介绍一下 JVM 的内存区域</h3>
+          </div>
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>JVM 内存划分为<strong>5 大运行时数据区</strong>：线程私有（程序计数器、虚拟机栈、本地方法栈）与线程共享（Java 堆、方法区/元空间）。
+          </div>
+          <div class="answer-body">
+            <h4>1. 内存区域总览结构图</h4>
+            <pre><code>┌─────────────────────────────────────────────────────────────────┐
+│                       JVM 运行时数据区                           │
+├───────────────────────────────────┬─────────────────────────────┤
+│        线程共享区 (所有线程可见)     │   线程私有区 (每个线程独立)  │
+├─────────────────┬─────────────────┼──────────────┬──────────────┤
+│    Java 堆      │  方法区/元空间   │  程序计数器  │  Java 虚拟机栈│
+│  (Java Heap)    │ (Metaspace/JDK8)│   (PC Reg)   │  (JVM Stack) │
+│ • 新生代(Eden/S)│ • 类元数据信息   │ • 字节码行号 │ • 局部变量表 │
+│ • 老年代(Old)   │ • 运行时常量池   │ • 无 OOM     │ • 操作数栈   │
+│                 │ • 本地直接内存   │              │ • 动态链接等 │
+│                 │                 │              ├──────────────┤
+│                 │                 │              │ 本地方法栈   │
+│                 │                 │              │ (Native Stk) │
+└─────────────────┴─────────────────┴──────────────┴──────────────┘</code></pre>
+
+            <h4>2. 各区域功能与异常详情</h4>
+            <ol>
+              <li>
+                <strong>程序计数器（Program Counter Register，线程私有）</strong>
+                <p>一块极小的内存，用来记录当前线程正在执行的字节码指令地址。CPU 时间片切换后用于恢复执行现场。<strong>是 JVM 规范中唯一没有规定任何 <code>OutOfMemoryError</code> 的区域</strong>。</p>
+              </li>
+              <li>
+                <strong>Java 虚拟机栈（Java Virtual Machine Stack，线程私有）</strong>
+                <p>每个 Java 方法执行时都会同步创建一个<strong>栈帧（Stack Frame）</strong>，存储：<strong>局部变量表</strong>（基本类型与对象引用）、<strong>操作数栈</strong>、<strong>动态链接</strong>、<strong>方法出口</strong>。线程请求栈深度超过允许最大值报 <code>StackOverflowError</code>（如递归未退出）；若栈支持动态扩容且申请不到内存则报 <code>OOM</code>。</p>
+              </li>
+              <li>
+                <strong>本地方法栈（Native Method Stack，线程私有）</strong>
+                <p>为 JVM 执行底层 <code>Native</code> 方法（如 C/C++ 实现的方法）服务的栈空间，原理与虚拟机栈一致。</p>
+              </li>
+              <li>
+                <strong>Java 堆（Java Heap，线程共享）</strong>
+                <p>JVM 中最大的一块内存，在虚拟机启动时创建，<strong>几乎所有的对象实例和数组都在这里分配内存</strong>。也是垃圾收集器管理的主要区域。逻辑上分为：<strong>新生代（Eden + S0 + S1，默认 8:1:1）</strong>和<strong>老年代（Old Gen）</strong>。如果堆没有可用空间且无法扩容，抛出 <code>OutOfMemoryError: Java heap space</code>。</p>
+              </li>
+              <li>
+                <strong>方法区 / 元空间（Method Area / Metaspace，线程共享）</strong>
+                <p>存储被 JVM 加载的<strong>类型信息、类元数据、常量、静态变量、JIT 编译后代码缓存</strong>等。JDK 8 之前使用堆内存内的“永久代（PermGen）”实现；<strong>JDK 8 开始移出堆，改用本地内存（Native Memory）实现的“元空间（Metaspace）”</strong>，默认不设上限，极大降低了 OOM 风险。</p>
+              </li>
+            </ol>
+          </div>
+        </article>
+
+        <!-- Q4.2 -->
+        <article class="qa-card" id="q4-2">
+          <div class="qa-header">
+            <span class="qa-num">Q2</span>
+            <h3 class="qa-question">介绍一下常见的垃圾收集算法和垃圾收集器</h3>
+          </div>
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>算法：标记-清除、标记-复制、标记-整理、分代收集。收集器从 Serial 到 Parallel，再到并发低停顿的 CMS、G1，直至超低延迟的 ZGC。
+          </div>
+          <div class="answer-body">
+            <h4>1. 四大经典垃圾收集算法</h4>
+            <ul>
+              <li><strong>标记-清除算法（Mark-Sweep）</strong>：标记存活对象，统一清理未标记对象。优点是速度快；缺点是执行效率不稳定，且会产生大量<strong>不连续的内存碎片</strong>，导致后续大对象找不到空间提前触发 GC。</li>
+              <li><strong>标记-复制算法（Mark-Copying）</strong>：将内存按容量均分两块，只用一块；GC 时将存活对象拷贝到另一块，一次性清空原内存。优点是无碎片、运行极其高效；缺点是浪费内存。现代新生代采用 <strong>Eden : S0 : S1 = 8 : 1 : 1</strong> 的改良复制算法。</li>
+              <li><strong>标记-整理算法（Mark-Compact）</strong>：标记存活对象后，让所有存活对象向内存的一端移动，然后直接清理边界以外的内存。优点是无碎片且利用率 100%；缺点是移动对象需暂停线程更新所有引用指针（STW 代价大）。常用于老年代。</li>
+              <li><strong>分代收集理论（Generational Collection）</strong>：根据对象存活周期的不同划分区域：新生代（朝生夕灭，适合标记-复制算法）；老年代（存活率极高，适合标记-清除或标记-整理算法）。</li>
+            </ul>
+
+            <h4>2. 主流垃圾收集器谱系</h4>
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>收集器</th>
+                  <th>管理分代</th>
+                  <th>底层算法</th>
+                  <th>核心特点与适用场景</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Serial / Serial Old</strong></td>
+                  <td>新生代 / 老年代</td>
+                  <td>复制 / 整理</td>
+                  <td>单线程、全过程 STW，适合单核客户端小型桌面应用。</td>
+                </tr>
+                <tr>
+                  <td><strong>Parallel Scavenge / Old</strong></td>
+                  <td>新生代 / 老年代</td>
+                  <td>复制 / 整理</td>
+                  <td>多线程并行，以<strong>最大吞吐量（Throughput）</strong>为优先目标，<strong>JDK 8 默认组合</strong>，适合后台批处理计算。</td>
+                </tr>
+                <tr>
+                  <td><strong>ParNew</strong></td>
+                  <td>新生代</td>
+                  <td>复制</td>
+                  <td>Serial 的多线程版本，核心价值在于与 CMS 配合使用。</td>
+                </tr>
+                <tr>
+                  <td><strong>CMS</strong></td>
+                  <td>老年代</td>
+                  <td>标记-清除</td>
+                  <td>以<strong>最短回收停顿时间（Low Latency）</strong>为目标，支持并发收集，适用于互联网站点 Web 服务。</td>
+                </tr>
+                <tr>
+                  <td><strong>G1 (Garbage-First)</strong></td>
+                  <td>整堆 (Region)</td>
+                  <td>标记-复制 / 整理</td>
+                  <td>面向大内存服务端，<strong>JDK 9+ 默认</strong>，具备可预测的停顿时间模型，无内存碎片。</td>
+                </tr>
+                <tr>
+                  <td><strong>ZGC</strong></td>
+                  <td>整堆 (Region)</td>
+                  <td>并发标记-复制</td>
+                  <td>基于着色指针与读屏障，STW 停顿控制在 <strong>1ms 以内</strong>，支持 TB 级堆内存。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <!-- Q4.3 -->
+        <article class="qa-card" id="q4-3">
+          <div class="qa-header">
+            <span class="qa-num">Q3</span>
+            <h3 class="qa-question">什么是内存溢出？什么是内存泄漏？</h3>
+          </div>
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>内存溢出（OOM）是“<strong>没地方放了</strong>”（申请内存超过物理/虚拟分配极限）；内存泄漏是“<strong>占着茅坑不拉屎</strong>”（无用对象由于存在无意识的引用链，GC 无法回收）。长期泄漏必致溢出。
+          </div>
+          <div class="answer-body">
+            <h4>1. 概念界定与深层联系</h4>
+            <ul>
+              <li><strong>内存溢出（Out Of Memory, OOM）</strong>：程序向系统申请内存空间时，已无可用的内存容量分配，抛出 <code>java.lang.OutOfMemoryError</code>。根本原因是瞬时创建对象过多、数据规模超出堆配置限制、或者长期的内存泄漏耗尽了可用空间。</li>
+              <li><strong>内存泄漏（Memory Leak）</strong>：对象在业务逻辑上已经不再需要被使用，但<strong>由于仍被某些生命周期更长的对象引用，导致 GC 可达性分析认为其“仍存活”而无法将其回收</strong>。内存泄漏自身不会直接崩溃，但随着无用对象积少成多，最终必然诱发 OOM。</li>
+            </ul>
+
+            <h4>2. 生产环境中常见的 5 大内存泄漏场景</h4>
+            <ol>
+              <li>
+                <strong>静态集合类强引用</strong>：静态变量（如 <code>static List&lt;Object&gt;</code>、<code>static Map</code>）的生命周期与 JVM 类加载器相同。如果不断往 static 集合追加对象而从不显式清理，对象永不释放。
+              </li>
+              <li>
+                <strong>单例模式持有外部引用</strong>：若单例对象内部持有了生命周期较短的外部对象（例如在 Android 中单例持有了 Activity 的 Context），会导致该对象在销毁后依然无法回收。
+              </li>
+              <li>
+                <strong>各类 I/O 资源与连接未关闭</strong>：如数据库连接池连接（Connection）、网络 Socket、文件输入输出流使用完毕后未在 <code>finally</code> 或 <code>try-with-resources</code> 中显式调用 <code>close()</code>。
+              </li>
+              <li>
+                <strong><code>ThreadLocal</code> 未主动调用 <code>remove()</code></strong>：线程池中的核心工作线程长期常驻复用，其内部持有的 <code>ThreadLocalMap</code> 中的 Entry 的 key 为弱引用，但 <strong>value 是强引用</strong>。若不调用 <code>remove()</code>，value 将伴随线程生命周期一直存在造成泄漏。
+              </li>
+              <li>
+                <strong>各类监听器（Listener）与回调未注销</strong>：注册了系统全局观察者或事件监听器后，组件销毁时忘记注销（Unregister）。
+              </li>
+            </ol>
+          </div>
+        </article>
+
+        <!-- Q4.4 -->
+        <article class="qa-card" id="q4-4">
+          <div class="qa-header">
+            <span class="qa-num">Q4</span>
+            <h3 class="qa-question">GC Root 根一般包含哪些？什么样的对象会成为垃圾对象？</h3>
+          </div>
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>GC Roots 是可达性分析的起点，主要包括：<strong>栈帧局部变量、静态属性、常量、Native JNI 引用、锁对象</strong>；与所有 GC Roots 均无引用链相连的对象判定为垃圾对象。
+          </div>
+          <div class="answer-body">
+            <h4>1. 什么样的对象会成为垃圾对象？（可达性分析算法）</h4>
+            <p>现代商业虚拟机均采用<strong>可达性分析算法（Reachability Analysis）</strong>（而非早期的引用计数法，彻底杜绝了循环引用问题）：</p>
+            <ul>
+              <li>以一组被称为 <strong>“GC Roots”</strong> 的根对象作为起始节点集合。</li>
+              <li>从这组节点向下根据引用关系开始遍历搜索，所走过的路径称为<strong>引用链（Reference Chain）</strong>。</li>
+              <li><strong>垃圾判定标准</strong>：如果一个对象到任何一个 GC Root 之间<strong>没有任何引用链相通</strong>（即图论中的不可达状态），则该对象判定为不再被使用，标记为垃圾。</li>
+              <li><em>死亡宣告的两阶段标记</em>：不可达对象至少要经历两次标记。如果在第一次标记后发现覆写了 <code>finalize()</code> 方法且尚未执行，会被放入 F-Queue 队列中给一次自救机会；若在 <code>finalize()</code> 执行时未与引用链重新建立连接，则二次标记后正式被 GC 回收。</li>
+            </ul>
+
+            <h4>2. GC Roots 根对象一般包含哪些？</h4>
+            <ol>
+              <li><strong>虚拟机栈（栈帧中的局部变量表）中引用的对象</strong>：当前线程正在执行的方法中的局部变量、入参参数等。</li>
+              <li><strong>方法区中类静态变量（Static）引用的对象</strong>：类的静态成员变量所指向的对象。</li>
+              <li><strong>方法区中常量（Constant）引用的对象</strong>：如运行时字符串常量池中的引用。</li>
+              <li><strong>本地方法栈中 JNI（Java Native Interface）引用的对象</strong>：在 C/C++ 本地代码中持有的 Java 对象引用。</li>
+              <li><strong>Java 虚拟机内部的引用</strong>：如基本数据类型对应的 Class 对象、常驻的系统异常类（如 <code>NullPointerException</code>、<code>OutOfMemoryError</code>）、系统类加载器等。</li>
+              <li><strong>所有被同步锁（<code>synchronized</code> 关键字）持有的对象</strong>。</li>
+              <li><strong>JVM 运行时的跨代/跨区引用</strong>：在分代收集中（如只收新生代），老年代持有新生代对象的引用会被加入 Remembered Set，作为局部 GC Roots 一并扫描。</li>
+            </ol>
+          </div>
+        </article>
+      </section>
+
+      <!-- ==========================================
+           DAY 5: 10月5日
+      =========================================== -->
+      <section class="day-section" id="day-5">
+        <div class="day-header">
+          <div class="day-tag">📅 10月5日 面试题</div>
+          <h2 class="day-title">第五部分：STW 机制、CMS/G1 收集器剖析与生产选型</h2>
+          <p class="day-desc">揭秘 JVM 停顿本质（STW）、深度拆解 CMS 与 G1 收集器的各个阶段及其在生产业务场景下的选型实战。</p>
+        </div>
+
+        <!-- Q5.1 -->
+        <article class="qa-card" id="q5-1">
+          <div class="qa-header">
+            <span class="qa-num">Q1</span>
+            <h3 class="qa-question">什么是 STW (Stop The World)？</h3>
+          </div>
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>STW 是指在垃圾回收期间，虚拟机<strong>暂停所有正在运行的 Java 应用线程</strong>，以确保在标记和移动对象时内存引用图处于一致性快照状态。GC 调优的核心就是尽最大可能降低 STW 时间。
+          </div>
+          <div class="answer-body">
+            <h4>1. STW 的本质与原因</h4>
+            <p>在进行垃圾回收时，为了保证对象引用关系的<strong>一致性视图（Consistency Snapshot）</strong>：</p>
+            <ul>
+              <li><strong>保证根节点枚举准确</strong>：如果在分析对象是否可达的过程中，用户线程还在并发运行并随意更改引用关系，那么原本存活的对象可能被误杀，原本该死去的对象也可能未被及时清理。</li>
+              <li><strong>对象移动与指针重定位</strong>：在标记-复制或标记-整理算法中，存活对象在内存中的物理地址会发生搬迁移动。如果移动对象的同时应用线程还在访问旧地址，会直接造成数据读写错乱和内存崩溃。</li>
+            </ul>
+
+            <h4>2. STW 是如何触发实现的？（安全点 SafePoint）</h4>
+            <p>JVM 并不是在代码的任意位置都能随便停下来，而是必须让工作线程运行到<strong>安全点（SafePoint）</strong>才会主动挂起。</p>
+            <ul>
+              <li><strong>安全点设置位置</strong>：循环的末尾、方法调用前、方法返回处、异常抛出点等。</li>
+              <li><strong>挂起机制（主动式中断）</strong>：GC 需要停顿线程时，设置一个内存标志位，各用户线程在运行到 SafePoint 时轮询该标志位，若发现置位则主动将自己阻塞挂起。</li>
+            </ul>
+
+            <h4>3. STW 对系统的影响与演进优化</h4>
+            <p>STW 期间所有外部 HTTP/RPC 请求处理都会被阻塞，导致接口 RT 暴增、长尾毛刺、超时熔断。因此，从 <strong>CMS（并发标记清除） -&gt; G1（可控停顿） -&gt; ZGC（全并发毫秒级停顿）</strong>，整个 JVM 垃圾回收技术演进的根本动力就是<strong>消灭或压缩 STW 耗时</strong>。</p>
+          </div>
+        </article>
+
+        <!-- Q5.2 -->
+        <article class="qa-card" id="q5-2">
+          <div class="qa-header">
+            <span class="qa-num">Q2</span>
+            <h3 class="qa-question">介绍一下 CMS 垃圾收集器的各个阶段</h3>
+          </div>
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>CMS 采用“标记-清除”算法，包含 4 大阶段：<strong>初始标记（STW 短） -&gt; 并发标记（并发 长） -&gt; 重新标记（STW 较短） -&gt; 并发清除（并发）</strong>。
+          </div>
+          <div class="answer-body">
+            <h4>1. CMS 四大工作阶段详细拆解</h4>
+            <ol>
+              <li>
+                <strong>初始标记（Initial Mark）—— <span class="tag-no">需 STW</span></strong>
+                <p><strong>动作</strong>：仅标记 GC Roots 能直接关联到的第一层对象，以及新生代引用的老年代对象。</p>
+                <p><strong>耗时</strong>：极短（仅扫描一层根对象），对应用影响很小。</p>
+              </li>
+              <li>
+                <strong>并发标记（Concurrent Mark）—— <span class="tag-yes">无 STW（并发）</span></strong>
+                <p><strong>动作</strong>：从初始标记的对象出发，遍历整个对象图递归进行可达性分析。</p>
+                <p><strong>耗时</strong>：耗时最长的一个阶段，但<strong>与用户线程并发执行</strong>，不需要暂停应用。</p>
+              </li>
+              <li>
+                <strong>重新标记（Remark）—— <span class="tag-no">需 STW</span></strong>
+                <p><strong>动作</strong>：修正在并发标记期间，由于用户程序继续运行而导致引用关系发生变动的那部分对象（采用<strong>增量更新 Incremental Update</strong> + 卡表 Card Table 记录变动）。</p>
+                <p><strong>耗时</strong>：停顿时间远小于并发标记，但通常慢于初始标记。</p>
+              </li>
+              <li>
+                <strong>并发清除（Concurrent Sweep）—— <span class="tag-yes">无 STW（并发）</span></strong>
+                <p><strong>动作</strong>：清理并回收被标记为死亡的垃圾对象。由于采用标记-清除算法，不需要移动存活对象，因此可以直接与用户线程并发运行。</p>
+              </li>
+            </ol>
+
+            <h4>2. CMS 垃圾收集器的三大核心致命缺陷</h4>
+            <div class="warning-box">
+              <strong>⚠️ CMS 生产痛点（面试高频必答）：</strong>
+              <ul>
+                <li><strong>CPU 资源敏感</strong>：并发标记和并发清除阶段占用了一部分 CPU 核心，导致应用在高峰期吞吐量下降。</li>
+                <li><strong>无法处理“浮动垃圾”（Floating Garbage）</strong>：并发清除阶段用户线程产生的垃圾无法在本次 GC 收集，必须等到下次 GC；若预留内存不足以支撑应用运行，会触发 <strong><code>Concurrent Mode Failure</code></strong>，导致临时退化为单线程 <strong>Serial Old</strong> 进行全堆 Full GC，STW 停顿可能长达数秒！</li>
+                <li><strong>产生大量的内存碎片</strong>：因为使用“标记-清除”算法不整理内存，大对象无法分配时会被迫提前触发 Full GC 进行碎片整理。</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <!-- Q5.3 -->
+        <article class="qa-card" id="q5-3">
+          <div class="qa-header">
+            <span class="qa-num">Q3</span>
+            <h3 class="qa-question">介绍一下 G1 垃圾收集器的各个阶段</h3>
+          </div>
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>G1 打破物理连续分代，划分 <strong>Region</strong> 单元；阶段包括：<strong>初始标记（STW） -&gt; 并发标记 -&gt; 最终标记（STW） -&gt; 筛选回收（STW，基于标记-复制计算收益比）</strong>。
+          </div>
+          <div class="answer-body">
+            <h4>1. G1 的核心设计创新</h4>
+            <ul>
+              <li><strong>Region 化网格布局</strong>：将整个 Java 堆划分为约 2048 个大小相等（1MB~32MB）的独立 Region。每个 Region 逻辑上动态扮演 Eden、Survivor、Old、或者 Humongous（超大对象区）。</li>
+              <li><strong>Garbage-First（垃圾优先）</strong>：G1 跟踪每个 Region 的回收收益（回收空间与耗时比），每次只挑选“垃圾最多、性价比最高”的一批 Region 放入<strong>回收集（Collection Set, CSet）</strong>进行回收。</li>
+              <li><strong>软实时可控停顿</strong>：支持通过 <code>-XX:MaxGCPauseMillis</code>（默认 200ms）设定期望最大停顿时间。</li>
+            </ul>
+
+            <h4>2. G1 并发标记与混合收集（Mixed GC）各阶段</h4>
+            <ol>
+              <li>
+                <strong>初始标记（Initial Mark）—— <span class="tag-no">需 STW</span></strong>
+                <p>标记从 GC Roots 能直接可达的对象。在工程实现上，G1 巧妙地<strong>借用一次普通 Young GC 的 STW 时间同步完成</strong>，因此没有额外增加专门的停顿开销。</p>
+              </li>
+              <li>
+                <strong>并发标记（Concurrent Mark）—— <span class="tag-yes">无 STW（并发）</span></strong>
+                <p>与应用程序并发运行，从 GC Roots 深入遍历整个堆的对象图进行可达性分析。还会统计各个 Region 的存活对象占比。</p>
+              </li>
+              <li>
+                <strong>最终标记（Final Mark）—— <span class="tag-no">需 STW</span></strong>
+                <p>暂停应用程序线程，处理在并发标记期间由写屏障记录在 <strong>SATB（Snapshot-At-The-Beginning，原始快照）</strong> 缓冲区中的引用变动，完成所有漏标对象的最终标记。</p>
+              </li>
+              <li>
+                <strong>筛选回收（Live Data Counting and Evacuation）—— <span class="tag-no">需 STW</span></strong>
+                <p>根据用户设置的 <code>-XX:MaxGCPauseMillis</code> 目标时间，评估各个 Region 的回收价值与耗时成本，构建最佳收益的 CSet（回收集）。</p>
+                <p><strong>算法与动作</strong>：采用<strong>标记-复制算法</strong>，将存活对象复制搬迁到新的空白 Region 中并进行内存整理，彻底杜绝内存碎片。由于搬迁存活对象需要修改指针，此阶段需要 STW。</p>
+              </li>
+            </ol>
+          </div>
+        </article>
+
+        <!-- Q5.4 -->
+        <article class="qa-card" id="q5-4">
+          <div class="qa-header">
+            <span class="qa-num">Q4</span>
+            <h3 class="qa-question">你们项目是用哪一个垃圾收集器？为什么用这个？</h3>
+          </div>
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>结合业务场景结构化作答：在 JDK 8 / 11 下<strong>首选 G1</strong>（堆内存 4G~16G）；因其“<strong>可控低延迟停顿 + 消除内存碎片 + 大内存高吞吐</strong>”完美解决 CMS 痛点。
+          </div>
+          <div class="answer-body">
+            <h4>1. 标准回答话术与配置</h4>
+            <p>“我们生产环境的后端核心微服务目前运行在 <strong>JDK 11（部分历史服务运行在 JDK 8）</strong> 环境下，容器实例规格通常为 4 核 8G 或 8 核 16G，堆内存设置在 <strong>4GB ~ 10GB</strong> 之间。我们统一采用 <strong>G1 垃圾收集器（Garbage-First）</strong>，通过启动参数 <code>-XX:+UseG1GC -XX:MaxGCPauseMillis=200</code> 进行标准化管控。”</p>
+
+            <h4>2. 深度选型决策依据（为什么不用 Parallel / CMS / ZGC？）</h4>
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>收集器</th>
+                  <th>为什么在我们的在线 Web 业务中不作首选？</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Parallel 收集器</strong></td>
+                  <td>JDK 8 默认收集器。注重整体吞吐量，但垃圾回收时全程长时间 STW，在 8G 以上堆内存时一次 Full GC 停顿可达数秒，极易导致线上微服务接口超时引发雪崩，不适合面向用户的低延迟在线 Web 业务。</td>
+                </tr>
+                <tr>
+                  <td><strong>CMS 收集器</strong></td>
+                  <td>虽然延迟低，但缺点过于致命：采用“标记-清除”算法长期产生大量<strong>内存碎片</strong>；无法处理浮动垃圾极易触发 <code>Concurrent Mode Failure</code> 导致退化为单线程 Serial Old，发生毁灭性的长暂停；且 JDK 9 废弃、JDK 14 彻底移除。</td>
+                </tr>
+                <tr>
+                  <td><strong>ZGC 收集器</strong></td>
+                  <td>虽然停顿在毫秒级，但在 JDK 8 / 11 仍属实验性或早期特性；且 ZGC 在高并发大对象分配场景下吞吐量有所损耗，整体团队运维监控经验更成熟于 G1，因此暂未在大规模生产铺开。</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <h4>3. 生产实践中 G1 带来的三大核心红利</h4>
+            <ol>
+              <li><strong>停顿时间可控且平稳</strong>：将 <code>-XX:MaxGCPauseMillis</code> 设为 200ms 后，G1 自动通过动态调整新生代大小和回收集数量，把 99% 的 GC 停顿稳定压制在 100ms~150ms 之间，彻底消除了接口长尾抖动。</li>
+              <li><strong>杜绝内存碎片化风险</strong>：G1 内部基于 Region 的标记-复制算法实现，局部是复制，全局是整理，不会像 CMS 那样在运行几天或数周后因碎片问题被迫突发 Full GC。</li>
+              <li><strong>调优维护成本大幅降低</strong>：G1 具备自适应内存分区调节机制，不需要像老式收集器那样繁琐调配 <code>NewRatio</code>、<code>SurvivorRatio</code> 等复杂的细碎参数，标准化运维更省心。</li>
+            </ol>
+          </div>
+        </article>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    // Theme Toggle Functionality
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', targetTheme);
+      localStorage.setItem('theme', targetTheme);
+    }
+
+    // Initialize Theme
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+
+    // ScrollSpy Highlight Functionality
+    document.addEventListener('DOMContentLoaded', () => {
+      const cards = document.querySelectorAll('.qa-card');
+      const navLinks = document.querySelectorAll('.nav-item a');
+
+      const observerOptions = {
+        root: null,
+        rootMargin: '-80px 0px -60% 0px',
+        threshold: 0
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const id = entry.target.getAttribute('id');
+            navLinks.forEach(link => {
+              if (link.getAttribute('href') === `#${id}`) {
+                link.classList.add('active');
+                // Auto scroll sidebar to make active link visible
+                link.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+              } else {
+                link.classList.remove('active');
+              }
+            });
+          }
+        });
+      }, observerOptions);
+
+      cards.forEach(card => observer.observe(card));
+    });
+
+    // Client-side Question Search/Filter
+    function filterQuestions() {
+      const query = document.getElementById('searchInput').value.toLowerCase().trim();
+      const navItems = document.querySelectorAll('.nav-item');
+      navItems.forEach(item => {
+        const text = item.textContent.toLowerCase();
+        if (text.includes(query)) {
+          item.style.display = '';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+  </script>
+</body>
+</html>
