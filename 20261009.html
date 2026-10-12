@@ -734,6 +734,30 @@
       font-weight: 600;
     }
 
+    /* 深色容器内的对比度修正：
+       全局 strong { color: var(--text-main) } 在亮色主题下是深墨色，
+       落到 .intro-banner / .script-box 这两个深底容器里就会“深字压深底”不可读。
+       下面按容器作用域覆盖，两套主题通用。 */
+    .intro-banner strong {
+      color: #e2e8f0;
+      font-weight: 700;
+    }
+
+    .script-box strong {
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    /* script-box 内的行内 code 同样会踩到深色底：
+       --code-bg 在暗黑主题下接近纯黑，与代码块底色重合导致不可见。
+       这里固定为半透明青色胶囊，明暗两套主题均清晰。 */
+    .script-box code {
+      background: rgba(56, 189, 248, 0.16);
+      color: #7dd3fc;
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      padding: 1px 6px;
+    }
+
     /* Footer */
     footer {
       margin-top: 3.5rem;
