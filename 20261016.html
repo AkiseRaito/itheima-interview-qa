@@ -1,0 +1,2116 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <title>2026年10月16日 AI应用开发工程师 面试真题深度精解</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-light: #eff6ff;
+      --primary-border: #bfdbfe;
+      --primary-hover: #1d4ed8;
+      --accent: #0284c7;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --text-sub: #94a3b8;
+      --bg-body: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-sidebar: #ffffff;
+      --border-color: #e2e8f0;
+      --border-subtle: #f1f5f9;
+      --tag-bg: #f1f5f9;
+      --code-bg: #f8fafc;
+      --code-color: #0f172a;
+      --success: #10b981;
+      --success-bg: #ecfdf5;
+      --warning: #f59e0b;
+      --warning-bg: #fffbeb;
+      --danger: #ef4444;
+      --purple: #8b5cf6;
+      --purple-bg: #f5f3ff;
+      --sidebar-width: 310px;
+      --header-height: 64px;
+    }
+
+    [data-theme="dark"] {
+      --primary: #3b82f6;
+      --primary-light: #1e293b;
+      --primary-border: #1e3a8a;
+      --primary-hover: #60a5fa;
+      --accent: #38bdf8;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-sub: #64748b;
+      --bg-body: #0b0f19;
+      --bg-card: #151d2f;
+      --bg-sidebar: #111827;
+      --border-color: #243049;
+      --border-subtle: #1e293b;
+      --tag-bg: #1e293b;
+      --code-bg: #090d16;
+      --code-color: #e2e8f0;
+      --success-bg: rgba(16, 185, 129, 0.12);
+      --warning-bg: rgba(245, 158, 11, 0.12);
+      --purple-bg: rgba(139, 92, 246, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* Top Fixed Header */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--header-height);
+      background-color: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .menu-toggle {
+      display: none;
+      background: var(--tag-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .menu-toggle:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .badge-sub {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      color: #ffffff;
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      font-weight: 600;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .header-title h1 {
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .theme-toggle {
+      background: var(--tag-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .theme-toggle:hover {
+      border-color: var(--primary);
+    }
+
+    /* Main Container */
+    .container {
+      display: flex;
+      margin-top: var(--header-height);
+      min-height: calc(100vh - var(--header-height));
+    }
+
+    /* Mobile Backdrop Overlay */
+    .sidebar-backdrop {
+      display: none;
+      position: fixed;
+      top: var(--header-height);
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(2px);
+      z-index: 49;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      touch-action: none;
+    }
+
+    .sidebar-backdrop.active {
+      display: block;
+      opacity: 1;
+    }
+
+    /* Left Sidebar Navigation */
+    aside.sidebar {
+      width: var(--sidebar-width);
+      position: fixed;
+      top: var(--header-height);
+      bottom: 0;
+      left: 0;
+      background-color: var(--bg-sidebar);
+      border-right: 1px solid var(--border-color);
+      overflow-y: auto;
+      padding: 16px 14px 40px;
+      z-index: 50;
+      scrollbar-width: thin;
+      scrollbar-color: #cbd5e1 transparent;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    aside.sidebar::-webkit-scrollbar {
+      width: 5px;
+    }
+    aside.sidebar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+
+    .search-box {
+      margin-bottom: 14px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--bg-body);
+      color: var(--text-main);
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-box input:focus {
+      border-color: var(--primary);
+    }
+
+    .nav-day-group {
+      margin-bottom: 18px;
+    }
+
+    .nav-day-title {
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      padding: 5px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-day-badge {
+      background: var(--tag-bg);
+      color: var(--text-muted);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.68rem;
+    }
+
+    .nav-list {
+      list-style: none;
+      margin-top: 3px;
+    }
+
+    .nav-item a {
+      display: block;
+      padding: 6px 10px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-radius: 6px;
+      transition: all 0.15s ease-in-out;
+      line-height: 1.45;
+      border-left: 2px solid transparent;
+      margin-bottom: 2px;
+    }
+
+    .nav-item a:hover {
+      background-color: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .nav-item a.active {
+      background-color: var(--primary-light);
+      color: var(--primary);
+      font-weight: 600;
+      border-left-color: var(--primary);
+    }
+
+    /* Main Content Area */
+    main.content {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      padding: 28px 40px 80px;
+      max-width: 1080px;
+      min-width: 0;
+      background: var(--bg-body);
+    }
+
+    /* Intro Banner */
+    .intro-banner {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      color: #ffffff;
+      padding: 2.25rem 2.5rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.12);
+      scroll-margin-top: calc(var(--header-height) + 1.25rem);
+    }
+
+    [data-theme="dark"] .intro-banner {
+      background: linear-gradient(135deg, #1e293b 0%, #111827 100%);
+      border: 1px solid var(--border-color);
+    }
+
+    .intro-banner h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+      line-height: 1.3;
+    }
+
+    .intro-banner p {
+      color: #94a3b8;
+      font-size: 0.95rem;
+      line-height: 1.65;
+      margin-bottom: 0;
+    }
+
+    .banner-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 1.25rem;
+    }
+
+    .banner-tag {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #e2e8f0;
+      font-size: 0.775rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 4px;
+    }
+
+    /* Question Cards */
+    .qa-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 28px;
+      margin-bottom: 28px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      scroll-margin-top: calc(var(--header-height) + 1.25rem);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .qa-card:hover {
+      border-color: var(--primary-border);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+    }
+
+    .qa-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .qa-num {
+      background: var(--primary);
+      color: #ffffff;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 6px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .qa-question {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.4;
+    }
+
+    /* Highlight & Notice Boxes */
+    .highlight-box {
+      background: var(--primary-light);
+      border-left: 4px solid var(--primary);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 20px;
+      font-size: 0.92rem;
+      color: var(--text-main);
+      line-height: 1.6;
+    }
+
+    .highlight-box strong {
+      color: var(--primary);
+    }
+
+    [data-theme="dark"] .highlight-box {
+      background: rgba(59, 130, 246, 0.12);
+      color: #cbd5e1;
+    }
+
+    .callout {
+      border-left: 4px solid var(--primary);
+      background: var(--primary-light);
+      padding: 1rem 1.25rem;
+      border-radius: 0 8px 8px 0;
+      margin: 1.25rem 0;
+      font-size: 0.925rem;
+      color: var(--text-main);
+    }
+
+    .callout-title {
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .callout.amber {
+      border-left-color: var(--warning);
+      background: var(--warning-bg);
+      color: var(--text-main);
+    }
+
+    .callout.green {
+      border-left-color: var(--success);
+      background: var(--success-bg);
+      color: var(--text-main);
+    }
+
+    .callout.purple {
+      border-left-color: var(--purple);
+      background: var(--purple-bg);
+      color: var(--text-main);
+    }
+
+    /* Sub-sections within Cards */
+    .sub-section {
+      margin-top: 2rem;
+      padding-top: 1.25rem;
+      border-top: 1px dashed var(--border-subtle);
+      scroll-margin-top: calc(var(--header-height) + 1.25rem);
+    }
+
+    .sub-section:first-of-type {
+      margin-top: 1rem;
+      padding-top: 0;
+      border-top: none;
+    }
+
+    .sub-section h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      line-height: 1.4;
+    }
+
+    .sub-section h3::before {
+      content: "";
+      display: inline-block;
+      width: 4px;
+      height: 1.15rem;
+      background: var(--primary);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    p {
+      margin-bottom: 0.95rem;
+      color: var(--text-main);
+      font-size: 0.94rem;
+      line-height: 1.68;
+    }
+
+    strong {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    /* Solution Grids */
+    .solution-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.15rem;
+      margin: 1.25rem 0;
+    }
+
+    .grid-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.25rem;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .grid-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .grid-card-tag {
+      font-size: 0.725rem;
+      font-weight: 700;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 0.5rem;
+    }
+
+    .tag-blue { background: #dbeafe; color: #1e40af; }
+    .tag-amber { background: #fef3c7; color: #92400e; }
+    .tag-green { background: #d1fae5; color: #065f46; }
+
+    [data-theme="dark"] .tag-blue { background: rgba(59, 130, 246, 0.25); color: #93c5fd; }
+    [data-theme="dark"] .tag-amber { background: rgba(245, 158, 11, 0.25); color: #fcd34d; }
+    [data-theme="dark"] .tag-green { background: rgba(16, 185, 129, 0.25); color: #6ee7b7; }
+
+    .grid-card h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-main);
+    }
+
+    .grid-card ul {
+      padding-left: 1.25rem;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+
+    .grid-card li {
+      margin-bottom: 0.4rem;
+    }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.88rem;
+      min-width: 600px;
+    }
+
+    thead {
+      background: var(--tag-bg);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th {
+      padding: 0.85rem 1.15rem;
+      font-weight: 600;
+      color: var(--text-main);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    td {
+      padding: 0.95rem 1.15rem;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      vertical-align: top;
+      line-height: 1.55;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background-color: var(--primary-light);
+    }
+
+    .badge-win {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #166534;
+      background: #dcfce7;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      margin-bottom: 0.25rem;
+    }
+
+    .badge-lose {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #991b1b;
+      background: #fee2e2;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      margin-bottom: 0.25rem;
+    }
+
+    [data-theme="dark"] .badge-win {
+      background: rgba(34, 197, 94, 0.2);
+      color: #86efac;
+    }
+    [data-theme="dark"] .badge-lose {
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+    }
+
+    /* Timeline / Step Sequence */
+    .timeline {
+      position: relative;
+      margin: 1.5rem 0 1.5rem 0.75rem;
+      padding-left: 1.85rem;
+      border-left: 2px solid var(--border-color);
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 1.75rem;
+    }
+
+    .timeline-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -2.35rem;
+      top: 0.2rem;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 3px solid var(--primary);
+    }
+
+    .timeline-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .timeline-badge {
+      font-size: 0.75rem;
+      padding: 0.1rem 0.5rem;
+      background: var(--tag-bg);
+      color: var(--text-muted);
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
+    .timeline-desc {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* Code & Script box */
+    code {
+      background-color: var(--code-bg);
+      color: var(--primary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.88em;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    .script-box {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 1.25rem 1.5rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      line-height: 1.65;
+      margin: 1rem 0;
+      position: relative;
+      overflow-x: auto;
+      border: 1px solid var(--border-color);
+    }
+
+    [data-theme="dark"] .script-box {
+      background: #090d16;
+      border-color: #334155;
+    }
+
+    .script-label {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.75rem;
+      font-size: 0.7rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .highlight-text {
+      color: #38bdf8;
+      font-weight: 600;
+    }
+
+    /* 深色容器内的对比度修正：
+       全局 strong { color: var(--text-main) } 在亮色主题下是深墨色，
+       落到 .intro-banner / .script-box 这两个深底容器里就会“深字压深底”不可读。
+       下面按容器作用域覆盖，两套主题通用。 */
+    .intro-banner strong {
+      color: #e2e8f0;
+      font-weight: 700;
+    }
+
+    .script-box strong {
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    /* script-box 内的行内 code 同样会踩到深色底：
+       --code-bg 在暗黑主题下接近纯黑，与代码块底色重合导致不可见。
+       这里固定为半透明青色胶囊，明暗两套主题均清晰。 */
+    .script-box code {
+      background: rgba(56, 189, 248, 0.16);
+      color: #7dd3fc;
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      padding: 1px 6px;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 3.5rem;
+      padding-top: 1.75rem;
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-sub);
+    }
+
+    /* Responsive Mobile Optimization */
+    @media (max-width: 900px) {
+      .menu-toggle {
+        display: inline-flex;
+      }
+      .header-title h1 {
+        font-size: 0.95rem;
+      }
+      .badge-sub {
+        display: none;
+      }
+      aside.sidebar {
+        transform: translateX(-100%);
+        width: 290px;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.18);
+      }
+      aside.sidebar.active {
+        transform: translateX(0);
+      }
+      main.content {
+        margin-left: 0;
+        padding: 20px 16px 60px;
+        max-width: 100%;
+        width: 100%;
+      }
+      .intro-banner {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+      .intro-banner h1 {
+        font-size: 1.4rem;
+      }
+      .qa-card {
+        padding: 18px 16px;
+        margin-bottom: 20px;
+      }
+      .qa-question {
+        font-size: 1.15rem;
+      }
+      .solution-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="header-title">
+      <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()" aria-label="打开/关闭目录">☰ 目录</button>
+      <span class="badge-sub">2026.10.16</span>
+      <h1>AI 应用开发工程师 · RAG 数据链路与 Agent 评估面试真题简答</h1>
+    </div>
+    <div class="header-actions">
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌓 切换暗黑模式</button>
+    </div>
+  </header>
+
+  <!-- Mobile Backdrop -->
+  <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar(false)"></div>
+
+  <div class="container">
+    <!-- Left Sidebar Table of Contents -->
+    <aside class="sidebar" id="sidebar">
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="🔍 快速过滤题目..." onkeyup="filterQuestions()">
+      </div>
+
+      <!-- Overview Navigation -->
+      <div class="nav-day-group">
+        <div class="nav-day-title">
+          <span>题目总览</span>
+          <span class="nav-day-badge">Overview</span>
+        </div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#overview" class="active">📋 2026.10.16 面试试题概览</a></li>
+        </ul>
+      </div>
+
+      <!-- Q1 Navigation -->
+      <div class="nav-day-group">
+        <div class="nav-day-title">
+          <span>Q1 · 切分架构选型</span>
+          <span class="nav-day-badge">4个子维度</span>
+        </div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#q1-parent-child">Q1. 父子块 vs 单级递归切分四维优劣</a></li>
+          <li class="nav-item"><a href="#q1-essence">1.1 本质差异：粒度是否解耦</a></li>
+          <li class="nav-item"><a href="#q1-dimensions">1.2 四维度逐项拆解与胜负判定</a></li>
+          <li class="nav-item"><a href="#q1-data-choice">1.3 量化数据、决策标准与折中方案</a></li>
+          <li class="nav-item"><a href="#q1-script">1.4 口述模板</a></li>
+        </ul>
+      </div>
+
+      <!-- Q2 Navigation -->
+      <div class="nav-day-group">
+        <div class="nav-day-title">
+          <span>Q2 · 数据入库四环节</span>
+          <span class="nav-day-badge">6个子维度</span>
+        </div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#q2-pipeline">Q2. 解析→优化→切分→双库入库流程</a></li>
+          <li class="nav-item"><a href="#q2-overview">2.1 四环节总览：不可逆的漏斗</a></li>
+          <li class="nav-item"><a href="#q2-parse">2.2 环节一：文档解析</a></li>
+          <li class="nav-item"><a href="#q2-markdown">2.3 环节二：Markdown 优化</a></li>
+          <li class="nav-item"><a href="#q2-split">2.4 环节三：文本切分</a></li>
+          <li class="nav-item"><a href="#q2-dualwrite">2.5 环节四：双库入库</a></li>
+          <li class="nav-item"><a href="#q2-script">2.6 口述模板</a></li>
+        </ul>
+      </div>
+
+      <!-- Q3 Navigation -->
+      <div class="nav-day-group">
+        <div class="nav-day-title">
+          <span>Q3 · Agent 项目评估</span>
+          <span class="nav-day-badge">4个子维度</span>
+        </div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#q3-agent-eval">Q3. 怎么评估一个 Agent 项目好坏？</a></li>
+          <li class="nav-item"><a href="#q3-framework">3.1 先定性：Agent 评估与问答不同</a></li>
+          <li class="nav-item"><a href="#q3-agent-metrics">3.2 分层指标体系（含 Agent 专属）</a></li>
+          <li class="nav-item"><a href="#q3-methods">3.3 评估方法与工程落地</a></li>
+          <li class="nav-item"><a href="#q3-script">3.4 口述模板与业务价值</a></li>
+        </ul>
+      </div>
+
+      <!-- Q4 Navigation -->
+      <div class="nav-day-group">
+        <div class="nav-day-title">
+          <span>Q4 · 知识库数据来源</span>
+          <span class="nav-day-badge">4个子维度</span>
+        </div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#q4-data-source">Q4. 入库的数据来源于哪里？</a></li>
+          <li class="nav-item"><a href="#q4-landscape">4.1 数据来源全景分类</a></li>
+          <li class="nav-item"><a href="#q4-access">4.2 接入方式与增量同步</a></li>
+          <li class="nav-item"><a href="#q4-governance">4.3 权限、版本与质量治理</a></li>
+          <li class="nav-item"><a href="#q4-script">4.4 口述模板</a></li>
+        </ul>
+      </div>
+
+      <!-- Q5 Navigation -->
+      <div class="nav-day-group">
+        <div class="nav-day-title">
+          <span>Q5 · 离职原因应答</span>
+          <span class="nav-day-badge">3个子维度</span>
+        </div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#q5-why-leave">Q5. 你上一份工作为什么离开？</a></li>
+          <li class="nav-item"><a href="#q5-principles">5.1 意图剖析与应答三原则</a></li>
+          <li class="nav-item"><a href="#q5-scenarios">5.2 五种场景应答模板</a></li>
+          <li class="nav-item"><a href="#q5-script-taboo">5.3 话术示范、禁忌与追问应对</a></li>
+        </ul>
+      </div>
+
+      <!-- Summary Navigation -->
+      <div class="nav-day-group">
+        <div class="nav-day-title">
+          <span>复盘总结</span>
+          <span class="nav-day-badge">Summary</span>
+        </div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#interview-summary">🎯 能力画像与复习锦囊</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="content">
+
+      <!-- Top Banner -->
+      <section id="overview" class="intro-banner section-target">
+        <h1>2026年10月16日 面试试题深度简答与答辩策略</h1>
+        <p>
+          本解析面向 <strong>AI 应用开发 / RAG 工程师</strong> 岗位面试场景。本场是典型的<strong>「数据链路深挖 + 选型论证」型面试</strong>：前两题全部落在 RAG 的数据侧——先是<strong>切分架构的四维度选型论证</strong>，再是<strong>数据入库完整流水线</strong>；第三题考察<strong>Agent 项目的评估体系</strong>；第四题追问<strong>知识库数据来源与治理</strong>；最后一题回到 HR 侧的<strong>离职原因</strong>。
+        </p>
+        <div class="banner-tags">
+          <span class="banner-tag">⚖️ 父子块 vs 单级切分</span>
+          <span class="banner-tag">🔧 入库四环节流水线</span>
+          <span class="banner-tag">📊 Agent 评估体系</span>
+          <span class="banner-tag">🗂️ 数据来源与治理</span>
+          <span class="banner-tag">🤝 离职原因应答</span>
+        </div>
+      </section>
+
+      <!-- Question 1 Card -->
+      <article id="q1-parent-child" class="qa-card section-target">
+        <div class="qa-header">
+          <span class="qa-num">Q1</span>
+          <h2 class="qa-question">父子块架构与传统单级递归切分（带重叠）方案，在检索准确率、语义完整性、存储成本、检索耗时四个维度的优劣。</h2>
+        </div>
+
+        <div class="highlight-box">
+          <strong>💡 面试官意图剖析：</strong>这是一道<strong>「选型论证题」</strong>，而且面试官把四个维度都点名了，说明他不想听「各有优劣、看场景」这种和稀泥的回答。高分结构是：<strong>① 先用一句话给出两个方案的本质差异（定性）</strong>；<strong>② 逐维度给出明确胜负 + 原因 + 量化</strong>；<strong>③ 给出「什么条件下该选谁」的判断标准</strong>；<strong>④ 主动承认父子块的代价</strong>。只夸父子块不提代价，反而会被认为没真正落地过——因为代价恰恰是它没被无脑采用的原因。
+        </div>
+
+        <div class="answer-body">
+          <!-- Sub 1.1 -->
+          <div id="q1-essence" class="sub-section section-target">
+            <h3>1.1 本质差异：差别不在「切几刀」，而在粒度是否解耦</h3>
+            <p>
+              我一般会先把这个定性抛出来，因为后面四个维度的胜负全部由它推导出来，而不是四个互相独立的经验结论。
+            </p>
+            <div class="solution-grid">
+              <div class="grid-card">
+                <span class="grid-card-tag tag-amber">传统单级递归切分（带重叠）</span>
+                <h4>一个块同时干两件事</h4>
+                <ul>
+                  <li><strong>切法：</strong>按分隔符优先级递归下切（<code>\n\n</code> → <code>\n</code> → <code>。</code> → 空格），块大小固定在 512/1024 token 左右，再叠加 overlap（如 64）保证接缝不丢语义。</li>
+                  <li><strong>结构：</strong>只有一层。每个块<strong>既是向量化检索的单元，也是喂给大模型的生成单元</strong>。</li>
+                  <li><strong>核心矛盾：</strong>为了生成要够长、够完整，为了检索要够短、够聚焦。一个块身兼两职，块长只能<strong>折中</strong>，两边都做不到最优。</li>
+                </ul>
+              </div>
+              <div class="grid-card">
+                <span class="grid-card-tag tag-green">父子块架构（Parent-Child / Small-to-Big）</span>
+                <h4>两个粒度各司其职</h4>
+                <ul>
+                  <li><strong>切法：</strong>结构感知切分后建立双层——子块 256~512 token，父块约 1500 token（通常一个父块 = 一个完整小节）。</li>
+                  <li><strong>结构：</strong>子块<strong>只负责被检索</strong>（语义聚焦、区分度高），父块<strong>只负责被生成</strong>（上下文完整）。命中子块后通过 <code>parent_id</code> 回表取父块。</li>
+                  <li><strong>核心优势：</strong>两个角色<strong>解耦</strong>，各自取最优值，不再互相妥协。</li>
+                </ul>
+              </div>
+            </div>
+            <div class="callout purple">
+              <div class="callout-title">🎯 一句话定性（建议原样说出来）：</div>
+              父子块本质上是「<strong>用额外的存储和一次回表查询，换取检索粒度与生成粒度的解耦</strong>」。它拿空间和时间换精度——理解了这个交换关系，四个维度的优劣就不用背了，是推导出来的。
+            </div>
+          </div>
+
+          <!-- Sub 1.2 -->
+          <div id="q1-dimensions" class="sub-section section-target">
+            <h3>1.2 四维度逐项拆解与胜负判定</h3>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>维度</th>
+                    <th>传统单级递归切分（带重叠）</th>
+                    <th>父子块架构</th>
+                    <th>胜负与本质原因</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>① 检索准确率</strong></td>
+                    <td>块长被生成需求绑架，普遍偏大（512~1024+）；块内混杂无关内容，<strong>相似度被稀释</strong>；overlap 区域还会与相邻块「抢分」，出现多条高度相似的重复命中</td>
+                    <td>子块可压到 256~512，<strong>块内语义单一、向量区分度高</strong>；overlap 造成的重复命中可由父块聚合去重</td>
+                    <td><span class="badge-win">父子块胜</span><br>实测 Recall@5 提升约 <strong>+7~12pt</strong>。但注意：提升来源是「能放心用小粒度检索」这个自由度，不是父子块本身有魔法</td>
+                  </tr>
+                  <tr>
+                    <td><strong>② 语义完整性</strong></td>
+                    <td>受块长限制，<strong>跨段、跨章节内容被硬切断</strong>；overlap 只能缓解接缝，且重叠部分会重复计入 token 预算</td>
+                    <td>命中子块即返回<strong>完整父块</strong>，保留整个小节/完整流程，条件与结论不会分家</td>
+                    <td><span class="badge-win">父子块胜</span><br>这是父子块<strong>最不可替代</strong>的优势。举例：售后流程「第 3 步」依赖「第 1 步的前提」，单级切分可能只召回第 3 步</td>
+                  </tr>
+                  <tr>
+                    <td><strong>③ 存储成本</strong></td>
+                    <td>一份文本 + 一份向量，无冗余映射</td>
+                    <td>需存<strong>双层文本</strong>（父块总量 ≈ 原文，子块总量 ≈ 原文 ×(1+overlap 率)），再加 <code>parent_id</code> 映射与向量条数翻倍</td>
+                    <td><span class="badge-lose">传统胜</span><br>实测我们 300 万字语料，整体索引体积约为 <strong>1.4 倍</strong>（不是 2 倍，因为父块总和 ≈ 原文长度）</td>
+                  </tr>
+                  <tr>
+                    <td><strong>④ 检索耗时</strong></td>
+                    <td>一次向量检索即可直接拿到可生成文本，无额外步骤</td>
+                    <td>额外两次开销：<strong>①</strong> 子块数量翻倍 → HNSW 候选对比次数增加；<strong>②</strong> 命中后一次 <code>parent_id</code> 回表查询</td>
+                    <td><span class="badge-lose">传统胜</span><br>实测增加约 <strong>20~60ms</strong>。但有反向因素：重排输入是更短的子块，Cross-Encoder 耗时与文本长度相关，父子块在<strong>重排环节反而可能略快</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="callout green">
+              <div class="callout-title">✅ 一句话记忆（四维度胜负一句话概括）：</div>
+              <strong>父子块赢在「准」与「全」（前两维），输在「贵」与「慢」（后两维）。</strong> 前两维是质量，后两维是成本——所以它是一个典型的<strong>用成本换质量的架构升级</strong>，值不值得完全取决于「语义完整性是不是你当前的瓶颈」。
+            </div>
+          </div>
+
+          <!-- Sub 1.3 -->
+          <div id="q1-data-choice" class="sub-section section-target">
+            <h3>1.3 量化数据、决策标准与折中方案</h3>
+            <p>
+              <strong>先说我们的对照实验（控变量，只改切分方式）：</strong>同一份 200 条评测集、同一 embedding 模型、同一混合检索配置（Dense Top-50 + BM25 Top-50 + RRF），只把切分方案换掉：
+            </p>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>评估项</th>
+                    <th>单级递归切分 512 + overlap 64</th>
+                    <th>父子块（子 256 / 父 1500）</th>
+                    <th>差异</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Recall@5</strong></td>
+                    <td>76.2%</td>
+                    <td>84.0%</td>
+                    <td><span class="badge-win">+7.8pt</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>答案正确率</strong></td>
+                    <td>70.0%</td>
+                    <td>79.0%</td>
+                    <td><span class="badge-win">+9.0pt</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>答案完整率</strong>（无遗漏条件/前提）</td>
+                    <td>74%</td>
+                    <td>89%</td>
+                    <td><span class="badge-win">+15pt（提升最大）</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>索引存储</strong></td>
+                    <td>1.0x</td>
+                    <td>约 1.4x</td>
+                    <td><span class="badge-lose">+40%</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>检索 P95 延迟</strong></td>
+                    <td>基线</td>
+                    <td>+20~60ms</td>
+                    <td><span class="badge-lose">略慢</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p>
+              注意<strong>答案完整率提升最大（+15pt）</strong>，这正好印证了前面第 ② 维的判断：父子块最核心的价值不是「召回更多」，而是「<strong>召回之后给模型的是完整的一块知识</strong>」，所以它主要治好的是「答得不全、漏条件」这类问题。
+            </p>
+
+            <p><strong>再看决策标准——什么条件下该选谁：</strong></p>
+            <div class="solution-grid">
+              <div class="grid-card">
+                <span class="grid-card-tag tag-green">该选父子块</span>
+                <h4>长文档 + 需要完整语义</h4>
+                <ul>
+                  <li>语料是<strong>制度手册、产品文档、技术规范、合同</strong>这类长文档，有清晰标题层级。</li>
+                  <li>用户高频问「<strong>完整流程是什么</strong>」「<strong>有哪些条件</strong>」——答案天然跨段落。</li>
+                  <li>线上 badcase 里「<strong>答不全 / 漏前提</strong>」占比高，而不是「找不到」占比高。</li>
+                </ul>
+              </div>
+              <div class="grid-card">
+                <span class="grid-card-tag tag-amber">该选传统单级切分</span>
+                <h4>短文本 + 成本敏感</h4>
+                <ul>
+                  <li>语料本身是<strong>短文本</strong>（FAQ、一句话工单、字段说明），单块自己就完整，父子块纯属冗余。</li>
+                  <li>存储或延迟极度敏感（海量低价值语料、边缘部署）。</li>
+                  <li>团队还没有稳定的评测集——<strong>没有度量就别上复杂架构</strong>，否则改坏了都不知道。</li>
+                </ul>
+              </div>
+              <div class="grid-card">
+                <span class="grid-card-tag tag-blue">折中方案一 · 分类型路由</span>
+                <h4>我们线上就是这么做的</h4>
+                <ul>
+                  <li><strong>只对长文档启用父子块</strong>（制度手册、技术文档走双层）。</li>
+                  <li>FAQ、短工单走单级切分，省存储也省延迟。</li>
+                  <li>收益拿到大部分，成本只涨在真正需要的部分。</li>
+                </ul>
+              </div>
+              <div class="grid-card">
+                <span class="grid-card-tag tag-blue">折中方案二 · 句子窗口 / 缓存</span>
+                <h4>用工程手段压成本</h4>
+                <ul>
+                  <li><strong>句子窗口（Sentence-Window）：</strong>命中单句后带前后 N 句，粒度比父子块更细，但向量条数会爆炸，只适合小体量高价值语料。</li>
+                  <li><strong>父块热点缓存：</strong>高频父块缓存在 Redis，把回表耗时从 DB 查询压到内存读取，能吃掉大部分那 20~60ms。</li>
+                </ul>
+              </div>
+            </div>
+            <div class="callout amber">
+              <div class="callout-title">⚠️ 主动补一句局限（很加分）：</div>
+              父子块的收益高度依赖<strong>父块边界切得对不对</strong>。如果父块本身跨了多个主题（比如把两个不相干的小节合成一个父块），那「语义完整」就变成了「噪声更多」，效果反而会掉。所以我们父块的划分严格跟着标题层级走，这也是为什么前面必须先做好 Markdown 结构还原——<strong>上游结构没做好，下游父子块就是白搭</strong>。
+            </div>
+          </div>
+
+          <!-- Sub 1.4 -->
+          <div id="q1-script" class="sub-section section-target">
+            <h3>1.4 口述模板（建议 2 分钟）</h3>
+            <div class="script-box">
+              <span class="script-label">Oral Response Script</span>
+<span class="highlight-text">「这两个方案我做过对照实验，我可以按四个维度分别说下结论，以及为什么。」</span><br><br>
+<strong>先说本质差异。</strong> 单级递归切分是<strong>一个块同时干两件事</strong>——既作为向量检索单元，又作为喂给大模型的生成单元，所以块长只能折中：为了生成要够长，为了检索要够短，两边都做不到最优。父子块则是<strong>把粒度解耦</strong>：子块 256 到 512 token 只负责被检索，父块大概 1500 token 只负责被生成，命中子块后回表取父块。所以它本质上是<strong>拿存储和一次回表换精度</strong>。<br><br>
+<strong>第一个维度，检索准确率，父子块赢。</strong> 因为它允许你把子块压得很小，块内语义单一、向量区分度就高。我们实测 Recall@5 从 76.2% 提到 84.0%，大概 8 个点。但我想强调这个提升的来源是「<strong>能放心用小粒度检索</strong>」这个自由度，不是父子块本身有什么魔法。<br><br>
+<strong>第二个维度，语义完整性，还是父子块赢，而且这是它最不可替代的地方。</strong> 单级切分受块长限制，跨段落的内容会被硬切断，overlap 只能缓解接缝。父子块命中就返回完整父块。数据上最明显：我们<strong>答案完整率</strong>提升了 15 个点，是所有指标里涨得最多的。比如售后流程问「第 3 步」，第 3 步其实依赖第 1 步的前提，单级切分很可能只召回第 3 步，模型就答偏了。<br><br>
+<strong>后两个维度父子块是输的。</strong> 存储上要存双层文本加 parent_id 映射，我们 300 万字语料实测索引体积是原来的 <strong>1.4 倍</strong>。耗时上多两次开销：子块数翻倍让 HNSW 候选对比变多，加上一次回表查询，实测增加 20 到 60 毫秒。不过这里有个反向因素——重排的输入是更短的子块，Cross-Encoder 的耗时和文本长度相关，所以重排环节父子块反而可能略快。<br><br>
+<strong>所以我的结论是：它不是一个「更好的切分算法」，而是一个「允许你用小粒度检索的架构」。</strong> 值不值得，取决于语义完整性是不是你当前的瓶颈。我们线上没有一刀切，而是<strong>分类型路由</strong>：制度手册、技术文档这类长文档走父子块，FAQ 和短工单走单级切分。另外我们还给高频父块加了 Redis 热点缓存，把回表那部分延迟吃掉了大半。<br><br>
+最后补一句：父子块的收益很依赖<strong>父块边界切得准不准</strong>。如果父块跨了好几个主题，语义完整就变成噪声更多，效果反而会掉。所以我们父块严格跟着标题层级走——这也是为什么上游的文档结构还原必须先做好。
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Question 2 Card -->
+      <article id="q2-pipeline" class="qa-card section-target">
+        <div class="qa-header">
+          <span class="qa-num">Q2</span>
+          <h2 class="qa-question">文档解析、Markdown 优化、文本切分、双库入库这四个环节的流程说一下。</h2>
+        </div>
+
+        <div class="highlight-box">
+          <strong>💡 面试官意图剖析：</strong>这题考的是<strong>「你对数据流水线有没有完整认知」</strong>。很多候选人只会讲「切分」这一环，一听就知道他只做过半条链路。正确姿势是按 <strong>ETL 思维</strong>讲：每个环节的<strong>输入、输出、核心动作、技术选型</strong>，并且强调<strong>上一环节的输出是下一环节的输入契约</strong>。面试官最想听到的一句话是「解析阶段丢的信息，后面永远补不回来」——这体现了你对数据侧话语权的理解。
+        </div>
+
+        <div class="answer-body">
+          <!-- Sub 2.1 -->
+          <div id="q2-overview" class="sub-section section-target">
+            <h3>2.1 四环节总览：一条不可逆的漏斗</h3>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>环节</th>
+                    <th>输入</th>
+                    <th>核心动作</th>
+                    <th>输出（下游契约）</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>① 文档解析</strong></td>
+                    <td>原始文件（PDF / Word / Excel / PPT / 图片 / HTML）</td>
+                    <td>格式路由 → 文本层判定 → 版面分析 / OCR → 表格识别</td>
+                    <td>带<strong>类型 + 页码 + 坐标</strong>的结构化 block 流</td>
+                  </tr>
+                  <tr>
+                    <td><strong>② Markdown 优化</strong></td>
+                    <td>block 流</td>
+                    <td>标题层级推断 → 表格转 Markdown → 段落合并 → 降噪去重</td>
+                    <td>干净 Markdown + <strong>可回溯的溯源锚点</strong></td>
+                  </tr>
+                  <tr>
+                    <td><strong>③ 文本切分</strong></td>
+                    <td>Markdown</td>
+                    <td>结构感知切分 → 内容类型路由 → 父子块双层 → 元数据注入</td>
+                    <td>带 <code>parent_id</code> 与元数据的块集合</td>
+                  </tr>
+                  <tr>
+                    <td><strong>④ 双库入库</strong></td>
+                    <td>块集合</td>
+                    <td>批量向量化 → 向量库 upsert + 全文库 bulk → 一致性校验</td>
+                    <td>向量库 + 全文索引库均<strong>可检索</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="callout purple">
+              <div class="callout-title">🎯 定调（这句话是这题的灵魂）：</div>
+              这四个环节是一条<strong>不可逆的漏斗</strong>——解析阶段丢掉的信息，后面任何环节都补不回来。所以我们团队把大约 <strong>60% 的调优精力放在 ①②</strong>，而不是花在检索算法上。因为知识没被正确解析、正确结构化，召回算法再花哨也救不回来。
+            </div>
+          </div>
+
+          <!-- Sub 2.2 -->
+          <div id="q2-parse" class="sub-section section-target">
+            <h3>2.2 环节一：文档解析（保真度决定上限）</h3>
+            <ol style="padding-left: 1.25rem; line-height: 1.8; font-size: 0.94rem;">
+              <li><strong>格式路由：</strong>按扩展名 + MIME 分发到不同解析器，这是流水线的入口分发器。</li>
+              <li><strong>PDF 文本层判定：</strong>先尝试直接提取文本，若「有效字符数 / 页数」低于阈值，判定为扫描件，转 OCR 分支（我们用的是 <code>PaddleOCR</code>）。这一步很关键——不做判定，扫描件会解析出一堆空白。</li>
+              <li><strong>版面分析：</strong>文本层用 <code>Unstructured</code> / <code>pdfplumber</code> 做版面分析，识别标题、正文、表格、图片区域，并保留每个 block 的坐标。</li>
+              <li><strong>双栏处理：</strong>按 block 的 <code>bbox</code> 坐标重新排序，而不是按提取顺序。这是 PDF 解析最经典的坑。</li>
+              <li><strong>表格识别：</strong>走表格专用提取（<code>pdfplumber</code> 的 table 能力或版面模型），保留行列结构，不然后面转 Markdown 就没依据。</li>
+            </ol>
+            <div class="callout amber">
+              <div class="callout-title">⚠️ 这个环节我们踩过的坑：</div>
+              <ul style="padding-left: 1.25rem; margin-top: 0.5rem; line-height: 1.75;">
+                <li><strong>双栏 PDF 串行：</strong>直接按行提取会把左右两栏交叉拼成一句话，语义完全错乱。必须按坐标排序。</li>
+                <li><strong>扫描件倾斜 / 方向错误：</strong>需要先做方向检测和纠偏，否则 OCR 结果全是乱码。</li>
+                <li><strong>页眉页脚混入正文：</strong>每页都出现的字符串要按「跨页重复」特征识别并剔除，否则会污染所有块。</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Sub 2.3 -->
+          <div id="q2-markdown" class="sub-section section-target">
+            <h3>2.3 环节二：Markdown 优化（结构化中间表示）</h3>
+            <p>
+              <strong>为什么统一转 Markdown：</strong>它是目前最适合喂给大模型的中间表示——<strong>标题层级天然表达结构、表格能保留表意、列表能保留顺序、token 效率又高</strong>，而且后面第三环节可以直接按 <code>#</code> 的层级做结构感知切分。可以说这一环节就是为切分和生成做准备的。
+            </p>
+            <div class="solution-grid">
+              <div class="grid-card">
+                <span class="grid-card-tag tag-blue">动作一 · 标题层级还原</span>
+                <h4>把视觉层级翻成 Markdown 层级</h4>
+                <ul>
+                  <li>依据<strong>字号、加粗、编号规则（第一章 / 1.1 / （一））</strong>推断 H1~H4。</li>
+                  <li>编号可跳级但要归一化，保证层级树是连续的。</li>
+                  <li>输出的是<strong>树</strong>，不是一个列表——因为切分阶段要用这棵树。</li>
+                </ul>
+              </div>
+              <div class="grid-card">
+                <span class="grid-card-tag tag-blue">动作二 · 表格转 Markdown</span>
+                <h4>保留表头是底线</h4>
+                <ul>
+                  <li>统一转成 Markdown 表格语法，<strong>表头必须保留</strong>。</li>
+                  <li>跨页表格要按表头特征识别并<strong>合并成一张</strong>，否则一张保修改价表会被拆成两张。</li>
+                  <li>大表后续按行分组时，每组都要重复表头。</li>
+                </ul>
+              </div>
+              <div class="grid-card">
+                <span class="grid-card-tag tag-green">动作三 · 段落合并与降噪</span>
+                <h4>去掉 PDF 的硬换行</h4>
+                <ul>
+                  <li>PDF 提取常把一句话按视觉宽度硬换行，要合并回完整段落，否则切分会在句中切断。</li>
+                  <li>剔除页眉页脚、页码、水印、目录页。</li>
+                  <li>多版本副本用 <strong>SimHash</strong> 做近重复检测，只留最新版。</li>
+                </ul>
+              </div>
+              <div class="grid-card">
+                <span class="grid-card-tag tag-green">动作四 · 保留溯源锚点</span>
+                <h4>为引用回跳留后路</h4>
+                <ul>
+                  <li>把页码、坐标等原始定位信息以元数据形式<strong>随块保留</strong>。</li>
+                  <li>这样前端才能做到「答案引用可点击、高亮回原文」。</li>
+                  <li>一旦这步丢了，后面做引用溯源就只能重新解析一遍。</li>
+                </ul>
+              </div>
+            </div>
+            <div class="callout amber">
+              <div class="callout-title">⚠️ 坑点：</div>
+              <strong>伪标题</strong>是最常见的翻车点——正文里一句加粗的话被误判成标题，结果切分时把它当成了层级边界，把完整小节切碎了。我们的做法是<strong>标题判定要满足多个条件（字号 + 位置 + 编号）</strong>，而不是只看加粗。
+            </div>
+          </div>
+
+          <!-- Sub 2.4 -->
+          <div id="q2-split" class="sub-section section-target">
+            <h3>2.4 环节三：文本切分（结构与内容双重路由）</h3>
+            <ol style="padding-left: 1.25rem; line-height: 1.8; font-size: 0.94rem;">
+              <li><strong>结构感知优先：</strong>按上一环节产出的标题树切，尽量让「一个块 = 一个完整小节」。只有当单个小节超过 512 token 时，才用递归字符分块做二次切分，保证不硬断句。</li>
+              <li><strong>内容类型路由（很容易被忽略但很关键）：</strong>不是所有文本都按同样规则切——
+                <ul style="margin-top: 0.35rem;">
+                  <li><strong>表格：</strong>整表保留成一个块，绝不从中间断开；大表按行分组但重复表头。</li>
+                  <li><strong>代码 / 配置：</strong>按函数或配置段整体保留，不按行数硬切。</li>
+                  <li><strong>流程步骤：</strong>编号步骤视为整体，缺任一步都会导致答案错误。</li>
+                </ul>
+              </li>
+              <li><strong>父子块双层：</strong>子块 256~512 token 用于检索；父块约 1500 token 用于生成；overlap 64 防接缝断裂。超短小节（&lt; 80 token）向上合并，避免产生无信息量的碎片。</li>
+              <li><strong>元数据注入：</strong>每个块带上标题面包屑（<code>售后制度 &gt; 退换货 &gt; 七天无理由</code>）、<code>doc_id</code>、<code>parent_id</code>、部门权限、生效时间、版本号、页码。</li>
+            </ol>
+            <div class="callout green">
+              <div class="callout-title">✅ 参数不是拍脑袋定的：</div>
+              我们在 <code>256 / 512 / 1024</code> 三个 chunk size 和 <code>0 / 64 / 128</code> 三档 overlap 上做了 9 组对照实验，结论是 <strong>512 + overlap 64</strong> 的 Recall@5 最优。256 时召回更精准但上下文过碎、生成质量下降；1024 时噪声明显增多、MRR 反而下滑。overlap 加到 128 收益很小，但索引体积和重复结果比例都上去了。
+            </div>
+          </div>
+
+          <!-- Sub 2.5 -->
+          <div id="q2-dualwrite" class="sub-section section-target">
+            <h3>2.5 环节四：双库入库（写入一致性是难点）</h3>
+            <p>
+              <strong>先说「双库」是哪两库、为什么得是两库：</strong>
+            </p>
+            <div class="solution-grid">
+              <div class="grid-card">
+                <span class="grid-card-tag tag-blue">库一 · 向量库</span>
+                <h4>负责语义召回</h4>
+                <ul>
+                  <li>选型：Milvus / ADB-PG，索引 HNSW（<code>M=16</code>、<code>efConstruction=200</code>）。</li>
+                  <li>只索引<strong>子块</strong>的向量，负责「问法和原文表述不同也能召回」。</li>
+                </ul>
+              </div>
+              <div class="grid-card">
+                <span class="grid-card-tag tag-green">库二 · 全文索引库</span>
+                <h4>负责字面精确匹配</h4>
+                <ul>
+                  <li>选型：Elasticsearch / OpenSearch，BM25 倒排索引。</li>
+                  <li>负责型号编码、精确数字、条款号这类<strong>向量补不了的盲区</strong>。</li>
+                  <li>顺带承载高亮与溯源原文展示。</li>
+                </ul>
+              </div>
+            </div>
+            <p>
+              <strong>入库写入流程（按顺序）：</strong>
+            </p>
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-title">
+                  <span>Step 1 · 变更判定与批量向量化</span>
+                  <span class="timeline-badge">幂等增量</span>
+                </div>
+                <div class="timeline-desc">
+                  用文档 <code>doc_hash</code> 比对判断是否变更，<strong>只重跑变更文档</strong>——全量重建一次要约 3 小时，增量降到 6 分钟。子块按批（如 64 条）调用 embedding 接口。
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-title">
+                  <span>Step 2 · 双写：先向量库，后全文库</span>
+                  <span class="timeline-badge">顺序有讲究</span>
+                </div>
+                <div class="timeline-desc">
+                  顺序刻意固定为「<strong>先写向量库、后写 ES</strong>」。因为如果反了，会短暂出现「ES 能搜到但向量库没有」的状态；而按我们的顺序，最坏情况是「向量有、ES 没有」——检索命中后仍能取到内容，只是关键词路少了一条，属于<strong>可降级</strong>的失败。任一步失败即进重试队列并告警。
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-title">
+                  <span>Step 3 · 原子切换与版本标记</span>
+                  <span class="timeline-badge">alias 切换</span>
+                </div>
+                <div class="timeline-desc">
+                  全量重建时写到新的 collection / index，完成后用 <strong>alias 原子切换</strong>，线上检索完全无感。过期文档不物理删，打 <code>is_valid=false</code> + 生效时间，检索时统一加时间过滤，保证历史问答可追溯。
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-title">
+                  <span>Step 4 · 对账校验</span>
+                  <span class="timeline-badge">定时巡检</span>
+                </div>
+                <div class="timeline-desc">
+                  定时比对两边 <code>doc_id</code> 集合差异，发现不一致就补写。双写最大的风险就是<strong>部分失败导致静默缺数据</strong>——表面上系统正常，实际某些文档永远搜不到，所以必须有对账。
+                </div>
+              </div>
+            </div>
+            <div class="callout amber">
+              <div class="callout-title">⚠️ 这个环节的坑：</div>
+              <ul style="padding-left: 1.25rem; margin-top: 0.5rem; line-height: 1.75;">
+                <li><strong>换 embedding 模型要全量重建：</strong>维度或向量空间变了，旧向量不能复用，必须整库重跑——所以要提前规划，别频繁换。</li>
+                <li><strong>两库文本不一致：</strong>一边改了另一边没跟上，会导致召回高亮错位、引用对不上原文。</li>
+                <li><strong>批量 embedding 要控并发：</strong>一次塞太多会触发服务端限流（429），要配令牌桶。</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Sub 2.6 -->
+          <div id="q2-script" class="sub-section section-target">
+            <h3>2.6 口述模板（建议 2~2.5 分钟）</h3>
+            <div class="script-box">
+              <span class="script-label">Oral Response Script</span>
+<span class="highlight-text">「这四个环节我习惯把它当成一条 ETL 流水线来讲，而且它是一条不可逆的漏斗。」</span><br><br>
+<strong>第一环，文档解析。</strong> 输入是各种原始文件，先做格式路由，然后关键一步是 <strong>PDF 文本层判定</strong>——先试着提取文本，如果每页有效字符数太低就判定为扫描件，转 OCR 分支。文本层走版面分析，保留每个 block 的坐标，<strong>按坐标重排解决双栏串行问题</strong>。输出是带类型、页码、坐标的 block 流。<br><br>
+<strong>第二环，Markdown 优化。</strong> 为什么要转 Markdown？因为它是最适合大模型的中间表示——标题层级天然表达结构，表格能保表意，而且后面能直接按标题切分。这一环做四件事：按字号和编号还原标题层级、表格转 Markdown 并合并跨页表格、合并 PDF 硬换行并剔除页眉页脚、以及<strong>保留页码坐标这类溯源锚点</strong>。<br><br>
+<strong>第三环，文本切分。</strong> 结构感知优先，尽量一个块等于一个完整小节；超长的再用递归切分兜底。然后是<strong>内容类型路由</strong>——表格整表成块、代码按函数保留、流程步骤当整体，这点很容易被忽略，但表格被切碎是事故级的错误。最后建<strong>父子块双层</strong>，子块 256 到 512 用于检索，父块 1500 用于生成，并把标题面包屑和权限、生效时间这些元数据注进去。参数是做了 9 组对照实验定的，512 加 overlap 64 最优。<br><br>
+<strong>第四环，双库入库。</strong> 双库是<strong>向量库加全文索引库</strong>——向量负责语义召回，ES 的 BM25 负责型号、数字、条款号这种精确匹配，单靠任何一边都覆盖不全。写入顺序我们刻意固定成<strong>先向量后 ES</strong>，因为这样最坏情况是「向量有、ES 没有」，检索命中后仍能取到内容，属于可降级的失败；反过来就会出现搜得到但取不到内容。重建时用 <strong>alias 原子切换</strong>，线上无感。增量靠 doc_hash 比对，全量 3 小时，增量 6 分钟。<br><br>
+<strong>最后我想强调一点：</strong> 这四个环节里前两环最容易被低估，但解析阶段丢掉的信息后面永远补不回来。所以我们把大部分调优精力放在解析和结构还原上，而不是检索算法。
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Question 3 Card -->
+      <article id="q3-agent-eval" class="qa-card section-target">
+        <div class="qa-header">
+          <span class="qa-num">Q3</span>
+          <h2 class="qa-question">你怎么评估一个 Agent 项目的好坏？</h2>
+        </div>
+
+        <div class="highlight-box">
+          <strong>💡 面试官意图剖析：</strong>这是道<strong>开放题，考的是「你有没有评估体系」</strong>，而不是单点指标。低分回答只有一个「看准确率」。高分回答会先指出<strong>Agent 和普通问答的本质区别</strong>——Agent 是「多步决策 + 工具调用」的循环，所以<strong>过程和结果必须分开评</strong>，然后给出分层指标体系、评估方法、以及最终落到业务价值上。面试官尤其想听到「为什么不能只看最终答案」这个洞察。
+        </div>
+
+        <div class="answer-body">
+          <!-- Sub 3.1 -->
+          <div id="q3-framework" class="sub-section section-target">
+            <h3>3.1 先定性：Agent 评估为什么要单独一套体系</h3>
+            <p>
+              <strong>普通问答是单轮的：</strong>输入问题 → 输出答案，评估就是比对输出对不对。
+              <strong>而 Agent 是一个 Thought → Action → Observation 的多步循环：</strong>它会思考、选工具、填参数、看结果、再决定下一步。这意味着<strong>中间每一步都可能出错</strong>，而且错误会累积。
+            </p>
+            <div class="callout purple">
+              <div class="callout-title">🎯 核心认知（这句话是本题的分水岭）：</div>
+              评估 Agent <strong>不能只看最终答案对不对</strong>，因为会漏掉两类关键情况：<strong>①「过程全错但碰巧答对」</strong>——比如绕了十个弯、调了错工具，最后蒙对了。这种不可复现，掩盖了隐患；<strong>②「过程正确但结果输在最后一跳」</strong>——比如工具调用全对、信息都拿齐了，最后格式化输出出错。这种其实方案本身可用，修一下就行。所以要把评估分成<strong>结果、过程、系统</strong>三个层次。
+            </div>
+            <div class="solution-grid">
+              <div class="grid-card">
+                <span class="grid-card-tag tag-blue">层次一 · 结果</span>
+                <h4>任务有没有达成</h4>
+                <p>端到端看目标是否完成。这是最终衡量，但<strong>不能单独使用</strong>。</p>
+              </div>
+              <div class="grid-card">
+                <span class="grid-card-tag tag-amber">层次二 · 过程</span>
+                <h4>路有没有走对（Agent 专属）</h4>
+                <p>看工具选择、参数填充、步数效率、错误恢复。这层是 Agent 区别于普通问答的地方。</p>
+              </div>
+              <div class="grid-card">
+                <span class="grid-card-tag tag-green">层次三 · 系统</span>
+                <h4>工程上可不可靠</h4>
+                <p>稳定性、延迟、成本、安全性、可观测性——决定它能不能上线，而不只是能不能跑通。</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sub 3.2 -->
+          <div id="q3-agent-metrics" class="sub-section section-target">
+            <h3>3.2 分层指标体系（含 Agent 专属指标）</h3>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>层次</th>
+                    <th>指标</th>
+                    <th>含义</th>
+                    <th>怎么测</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td rowspan="3"><strong>结果层</strong></td>
+                    <td><strong>任务成功率</strong></td>
+                    <td>端到端是否真正达成用户目标（最重要指标）</td>
+                    <td>任务评测集自动断言 + 人工复核</td>
+                  </tr>
+                  <tr>
+                    <td><strong>答案正确率</strong></td>
+                    <td>输出内容的事实与逻辑正确性</td>
+                    <td>LLM-as-a-Judge 初筛 + 抽样人工校准</td>
+                  </tr>
+                  <tr>
+                    <td><strong>幻觉率 / 可溯源率</strong></td>
+                    <td>结论是否有依据、引用能否回跳原文</td>
+                    <td>校验引用编号是否命中真实片段</td>
+                  </tr>
+                  <tr>
+                    <td rowspan="5"><strong>过程层<br>（Agent 专属）</strong></td>
+                    <td><strong>工具选择准确率</strong></td>
+                    <td>该用哪个工具，有没有选对</td>
+                    <td>拿轨迹与标注的最优工具比对</td>
+                  </tr>
+                  <tr>
+                    <td><strong>参数正确率</strong></td>
+                    <td>工具入参是否合法且语义正确（格式对但值错也算错）</td>
+                    <td>Schema 校验 + 人工抽查关键参数</td>
+                  </tr>
+                  <tr>
+                    <td><strong>轨迹效率</strong></td>
+                    <td>步数 / 工具调用次数是否接近最优路径</td>
+                    <td>与人工标注的最优路径步数比对</td>
+                  </tr>
+                  <tr>
+                    <td><strong>无效循环率</strong></td>
+                    <td>是否重复调用同一工具、陷入死循环</td>
+                    <td>步数超阈值告警 + 重复调用检测</td>
+                  </tr>
+                  <tr>
+                    <td><strong>错误恢复率</strong></td>
+                    <td>工具报错后能否自我纠正而不是直接崩</td>
+                    <td>注入故障（超时 / 异常返回）观察降级行为</td>
+                  </tr>
+                  <tr>
+                    <td rowspan="4"><strong>系统层</strong></td>
+                    <td><strong>稳定性 / 一致性</strong></td>
+                    <td>同一任务多次执行结果是否稳定</td>
+                    <td>同任务重复跑 N 次看方差</td>
+                  </tr>
+                  <tr>
+                    <td><strong>延迟</strong></td>
+                    <td>P50 / P95 端到端耗时</td>
+                    <td>线上埋点</td>
+                  </tr>
+                  <tr>
+                    <td><strong>成本</strong></td>
+                    <td>单任务 token 消耗 + 工具调用费用</td>
+                    <td>按调用链聚合统计</td>
+                  </tr>
+                  <tr>
+                    <td><strong>安全性</strong></td>
+                    <td>越权操作、提示注入、敏感动作是否二次确认</td>
+                    <td>对抗测试集</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="callout green">
+              <div class="callout-title">✅ 如果只允许我报三个指标（面试时这么收尾很有力）：</div>
+              <strong>任务成功率</strong>（能不能用）、<strong>工具选择 + 参数准确率</strong>（为什么能用）、<strong>单任务成本与 P95 延迟</strong>（用得起吗）。这三个覆盖了可用性、可靠性和经济性，也是业务方最关心的。
+            </div>
+          </div>
+
+          <!-- Sub 3.3 -->
+          <div id="q3-methods" class="sub-section section-target">
+            <h3>3.3 评估方法与工程落地</h3>
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-title">
+                  <span>方法一 · 离线任务评测集</span>
+                  <span class="timeline-badge">基础盘</span>
+                </div>
+                <div class="timeline-desc">
+                  构建任务集，必须包含<strong>多步任务和边界场景</strong>：工具失败、参数缺失、需要反问澄清、需要多工具协作。只放简单单步任务，评测出来的分数没有意义。
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-title">
+                  <span>方法二 · 双轨评估：结果 + 轨迹</span>
+                  <span class="timeline-badge">Agent 特有</span>
+                </div>
+                <div class="timeline-desc">
+                  这是我认为 Agent 评估里最关键的一条：<strong>不只看结果对不对，还要看轨迹合不合理</strong>。同一份轨迹数据，既断言最终状态，也检查「用了哪些工具、调了几次、有没有绕路」。这样才能定位到底是能力问题还是流程问题。
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-title">
+                  <span>方法三 · LLM-as-a-Judge + 人工校准</span>
+                  <span class="timeline-badge">成本与质量平衡</span>
+                </div>
+                <div class="timeline-desc">
+                  用模型做批量打分，成本低、可覆盖全量；但<strong>必须和人工金标准对齐</strong>，定期校准评分器本身，否则会出现「分数很漂亮但线上很差」。
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-title">
+                  <span>方法四 · 对抗与鲁棒性测试</span>
+                  <span class="timeline-badge">找短板</span>
+                </div>
+                <div class="timeline-desc">
+                  主动注入故障：工具超时、返回格式异常、权限不足、提示注入。重点看它<strong>失败时的行为</strong>——是优雅降级并告知用户，还是静默出错、甚至编造结果。
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-title">
+                  <span>方法五 · 线上监控与回归</span>
+                  <span class="timeline-badge">持续保障</span>
+                </div>
+                <div class="timeline-desc">
+                  线上盯 <strong>人工介入率</strong>（human-in-the-loop 接管比例，这是 Agent 最有价值的线上指标）、任务中断率、badcase 归因。任何 Prompt 或工具改动都跑一遍回归集，防回退。
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sub 3.4 -->
+          <div id="q3-script" class="sub-section section-target">
+            <h3>3.4 口述模板与业务价值</h3>
+            <div class="script-box">
+              <span class="script-label">Oral Response Script</span>
+<span class="highlight-text">「我会先把 Agent 和普通问答区分开，因为它们的评估逻辑不一样。」</span><br><br>
+普通问答是单轮的，评估就是看输出对不对。但 <strong>Agent 是 Thought-Action-Observation 的多步循环</strong>，它要选工具、填参数、看结果、再决定下一步，中间每一步都可能出错。<strong>所以只看最终答案是不够的</strong>，会漏掉两类情况：一种是过程全错但碰巧蒙对，这种不可复现、掩盖了隐患；另一种是过程全对、只输在最后一跳，这种其实方案能用。<br><br>
+所以我会分三层来评。<strong>结果层</strong>看任务成功率和正确率，这是最终衡量。<strong>过程层是 Agent 专属的</strong>，看工具选择准确率、参数正确率、轨迹效率、无效循环率、以及报错后能不能自我恢复——其中我觉得<strong>参数正确率特别重要</strong>，因为「格式合法但值填错」这种错误最隐蔽。<strong>系统层</strong>看稳定性、延迟、成本、安全性和可观测性，这层决定它能不能真上线。<br><br>
+如果只让我报三个指标，我会报<strong>任务成功率、工具选择加参数准确率、以及单任务成本和 P95 延迟</strong>。前两个说的是「能不能用、为什么能用」，第三个说的是「用得起吗」。<br><br>
+方法上，我们会建带边界场景的离线任务集，然后做<strong>双轨评估——既断言结果，也评估轨迹</strong>，用 LLM-as-a-Judge 做批量初筛再拿人工校准，另外专门做对抗测试，重点看它<strong>失败时的表现</strong>：是优雅降级并告诉用户，还是静默出错甚至编造。线上我们最看重<strong>人工介入率</strong>，它是 Agent 有没有真正取代人力的直接信号。<br><br>
+最后我会把它拉回业务：<strong>一个「好」的 Agent，是在可接受的成本和延迟内，用可解释的轨迹稳定完成任务，并且失败时能优雅降级而不是静默出错。</strong> 如果它跑得再准但每单成本高于人工，那在商业上也不能算好。
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Question 4 Card -->
+      <article id="q4-data-source" class="qa-card section-target">
+        <div class="qa-header">
+          <span class="qa-num">Q4</span>
+          <h2 class="qa-question">你们知识入库的这些数据，来源是哪里呢？</h2>
+        </div>
+
+        <div class="highlight-box">
+          <strong>💡 面试官意图剖析：</strong>这是对项目的<strong>追问细节题</strong>，考的是<strong>数据治理意识</strong>。答不好会暴露「我的知识库只是几个测试 PDF」。要按<strong>「来源分类 → 接入方式 → 治理机制」</strong>三层回答，并主动提到<strong>权限、版本时效、更新频率、质量控制、来源可溯</strong>——这五点才是企业级知识库真正难的地方。如果只答「文档上传」，面试官立刻就知道你没做过真实项目。
+        </div>
+
+        <div class="answer-body">
+          <!-- Sub 4.1 -->
+          <div id="q4-landscape" class="sub-section section-target">
+            <h3>4.1 数据来源全景分类</h3>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>类别</th>
+                    <th>典型内容</th>
+                    <th>数据特点</th>
+                    <th>更新频率</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>内部业务文档</strong></td>
+                    <td>产品手册、售后 SOP、规章制度、合同、技术文档</td>
+                    <td>非结构化为主（PDF / Word），<strong>有明确版本与生效时间</strong></td>
+                    <td>周 ~ 月</td>
+                  </tr>
+                  <tr>
+                    <td><strong>结构化业务系统</strong></td>
+                    <td>CRM、ERP、OA、工单系统、订单系统</td>
+                    <td>结构化、天然带<strong>部门与权限字段</strong>，可增量拉取</td>
+                    <td>实时 ~ T+1</td>
+                  </tr>
+                  <tr>
+                    <td><strong>历史会话与工单</strong></td>
+                    <td>客服会话记录、工单处理方案、已解决的问答案例</td>
+                    <td><strong>天然是「问题 → 已验证答案」的问答对</strong>，价值极高</td>
+                    <td>实时</td>
+                  </tr>
+                  <tr>
+                    <td><strong>内部知识门户</strong></td>
+                    <td>Confluence、内部 Wiki、知识库站点</td>
+                    <td>HTML 为主，<strong>本身已有层级结构</strong></td>
+                    <td>天</td>
+                  </tr>
+                  <tr>
+                    <td><strong>外部公开资料</strong></td>
+                    <td>行业标准、法规政策、厂商官方文档</td>
+                    <td>公开可获取，但<strong>时效敏感</strong>（法规会更新）</td>
+                    <td>月 ~ 季</td>
+                  </tr>
+                  <tr>
+                    <td><strong>运营人工录入</strong></td>
+                    <td>badcase 补录、新政策临时通知</td>
+                    <td>量小但<strong>质量最高、针对性强</strong></td>
+                    <td>按需</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="callout green">
+              <div class="callout-title">✅ 这题最值得主动说出来的一句话：</div>
+              <strong>历史工单是最被低估的数据源。</strong> 它天然就是「用户真实问法 → 人工验证过的答案」的问答对，可以直接用来<strong>构建评测集</strong>和做 few-shot 示例。我们 200 条的 Golden Dataset 有一大半就是从历史会话里抽出来再人工标注的。这么说一句，面试官立刻知道你懂数据闭环。
+            </div>
+          </div>
+
+          <!-- Sub 4.2 -->
+          <div id="q4-access" class="sub-section section-target">
+            <h3>4.2 接入方式与增量同步</h3>
+            <div class="solution-grid">
+              <div class="grid-card">
+                <span class="grid-card-tag tag-blue">方式一 · 批量文件接入</span>
+                <h4>适合文档类</h4>
+                <ul>
+                  <li>运营后台上传、目录挂载扫描、对象存储（OSS/S3）批量拉取。</li>
+                  <li>适合产品手册、制度文档这类<strong>成批更新</strong>的资料。</li>
+                </ul>
+              </div>
+              <div class="grid-card">
+                <span class="grid-card-tag tag-blue">方式二 · API 定时拉取</span>
+                <h4>适合业务系统</h4>
+                <ul>
+                  <li>定时任务调业务系统接口，按 <code>updated_at</code> 拉增量。</li>
+                  <li>CRM / 工单系统这类<strong>持续变化</strong>的数据走这条路。</li>
+                </ul>
+              </div>
+              <div class="grid-card">
+                <span class="grid-card-tag tag-green">方式三 · 数据库直连</span>
+                <h4>适合结构化数据</h4>
+                <ul>
+                  <li>只读账号直连从库，按时间戳或自增 ID 增量抽取。</li>
+                  <li>把行数据<strong>拼成自然语言段落</strong>再入库，否则检索效果很差。</li>
+                  <li>必须只读，避免影响业务库。</li>
+                </ul>
+              </div>
+              <div class="grid-card">
+                <span class="grid-card-tag tag-green">方式四 · 爬虫与人工回灌</span>
+                <h4>补齐最后两块</h4>
+                <ul>
+                  <li><strong>爬虫：</strong>抓取内部 Wiki（需鉴权），按页面结构解析。</li>
+                  <li><strong>人工回灌：</strong>线上 badcase 由运营补录标准答案后重新入库，形成闭环。</li>
+                </ul>
+              </div>
+            </div>
+            <p>
+              <strong>每条数据都必须携带的元数据（这是下游权限和时效控制的基础）：</strong>
+              <code>doc_id</code>、<code>source_url</code>（或原始路径）、<code>dept</code>（归属部门）、<code>effective_date</code> / <code>expire_date</code>、<code>version</code>、<code>doc_hash</code>。
+            </p>
+          </div>
+
+          <!-- Sub 4.3 -->
+          <div id="q4-governance" class="sub-section section-target">
+            <h3>4.3 权限、版本与质量治理（企业级真正的难点）</h3>
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-title">
+                  <span>治理一 · 权限隔离</span>
+                  <span class="timeline-badge">不是效果问题，是安全问题</span>
+                </div>
+                <div class="timeline-desc">
+                  部门可见性作为元数据写入每个块，<strong>检索时做 pre-filter 前置过滤</strong>。注意不能在检索后再筛——否则会出现「Top-5 里 4 条都是越权文档，过滤后只剩 1 条」的召回崩塌。这条既影响效果，更是合规底线。
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-title">
+                  <span>治理二 · 版本与时效</span>
+                  <span class="timeline-badge">旧版必须失效</span>
+                </div>
+                <div class="timeline-desc">
+                  过期文档不物理删除，打 <code>is_valid=false</code> 并保留生效/失效时间，检索统一加时间过滤。这样既能保证「问旧政策问到的是当时的版本」，也保留了历史问答的可追溯性。
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-title">
+                  <span>治理三 · 去重与多版本收敛</span>
+                  <span class="timeline-badge">SimHash</span>
+                </div>
+                <div class="timeline-desc">
+                  同一份制度往往存在多个副本和多个版本。用 <strong>SimHash 做近重复检测</strong>，只保留最新版，旧版归档。不做这一步，回答里会同时出现新旧两个标准，模型极容易答错。
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-title">
+                  <span>治理四 · 更新频率与增量</span>
+                  <span class="timeline-badge">T+1 + 变更触发</span>
+                </div>
+                <div class="timeline-desc">
+                  常规走每日 T+1 定时增量；对时效敏感的数据（如临时通知）支持变更触发即时入库。用 <code>doc_hash</code> 判断是否真的变了，避免无效重建。
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-title">
+                  <span>治理五 · 质量闭环与溯源</span>
+                  <span class="timeline-badge">数据飞轮</span>
+                </div>
+                <div class="timeline-desc">
+                  线上采集<strong>无召回埋点、点踩率</strong>，每周做 badcase 归因并分类：是「知识库没有 → 补数据」还是「有但没召回 → 修检索/切分」。同时每个块都能回溯到原文档和页码，支撑引用高亮与人工核对。这样数据质量才能持续提升，而不是一次性导入就烂在那里。
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sub 4.4 -->
+          <div id="q4-script" class="sub-section section-target">
+            <h3>4.4 口述模板（建议 1.5 分钟）</h3>
+            <div class="script-box">
+              <span class="script-label">Oral Response Script</span>
+<span class="highlight-text">「我们的数据来源主要有五类，我按类别说下，然后重点讲下接入和治理。」</span><br><br>
+<strong>第一类是内部业务文档</strong>，产品手册、售后 SOP、规章制度、技术文档这些，以 PDF 和 Word 为主，大概 1.2 万份。特点是<strong>有版本、有生效时间</strong>。<strong>第二类是结构化业务系统</strong>，CRM、工单、订单这些，走数据库只读直连或者 API 增量拉取，它们天然带部门权限字段。<strong>第三类是历史会话和工单</strong>——这块我觉得最被低估，因为它天然就是「用户真实问法加人工验证过的答案」的问答对，我们评测集一大半是从这里抽的。<strong>第四类是内部 Wiki</strong>，走爬虫抓。<strong>第五类是运营人工录入</strong>，主要是线上 badcase 补录，量不大但质量最高。<br><br>
+<strong>接入方式上</strong>，文档类走批量上传和对象存储扫描，业务系统走定时 API 或数据库增量，每条数据都必须带 doc_id、来源、归属部门、生效时间和版本号——这些元数据是下游权限控制和时效过滤的基础。<br><br>
+<strong>但我觉得真正难的不是接入，是治理</strong>，我讲四点。<strong>第一是权限</strong>：部门可见性要做成<strong>检索前置过滤</strong>，不能检索完再筛，否则 Top-5 里可能四条都是越权文档，过滤完之后召回就崩了，这既是效果问题也是合规底线。<strong>第二是版本时效</strong>：过期文档不删，打标记加时间过滤，保证问到旧政策时给的是当时的版本。<strong>第三是去重</strong>：同一份制度经常有好几个副本和版本，我们用 SimHash 做近重复检测，只留最新版，不然回答里会同时冒出新旧两个标准。<strong>第四是质量闭环</strong>：线上采集无召回埋点和点踩，每周做 badcase 归因，区分是「知识库没有」还是「有但没召回」——前者补数据，后者修检索，这样数据质量才会持续变好，而不是导进去就烂在那里。
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Question 5 Card -->
+      <article id="q5-why-leave" class="qa-card section-target">
+        <div class="qa-header">
+          <span class="qa-num">Q5</span>
+          <h2 class="qa-question">你上一份工作为什么离开？</h2>
+        </div>
+
+        <div class="highlight-box">
+          <strong>💡 面试官意图剖析：</strong>这是一道<strong>「情商 + 稳定性」双重考察题</strong>。面试官想听三件事：<strong>① 你为什么走（原因是否合理、客观）</strong>；<strong>② 你怎么讲（有没有抱怨前雇主，暴露情绪管理问题）</strong>；<strong>③ 你会不会也这样离开我们（稳定性预判）</strong>。核心原则只有一条：<strong>可以讲事实，不要带情绪；聚焦「我要去哪里」，而不是「我受够了什么」</strong>。抱怨前公司是这道题最大的减分项，没有之一。
+        </div>
+
+        <div class="answer-body">
+          <!-- Sub 5.1 -->
+          <div id="q5-principles" class="sub-section section-target">
+            <h3>5.1 应答三原则与回答结构</h3>
+            <div class="solution-grid">
+              <div class="grid-card">
+                <span class="grid-card-tag tag-blue">原则一 · 客观归因，不指责</span>
+                <h4>讲外部化、可验证的原因</h4>
+                <p>优先讲<strong>业务调整、项目方向变化、个人发展瓶颈</strong>这类客观原因。避免「领导不行」「同事甩锅」「公司管理混乱」——这些话会让面试官想：你到我们这儿会不会也这么说。</p>
+              </div>
+              <div class="grid-card">
+                <span class="grid-card-tag tag-green">原则二 · 聚焦成长，指向新机会</span>
+                <h4>结尾必须落回这里</h4>
+                <p>讲完原因后一定要接一句「所以我来到贵司，因为这里能做 XX」。把「离开的原因」自然转化为「选择你们的理由」。</p>
+              </div>
+              <div class="grid-card">
+                <span class="grid-card-tag tag-amber">原则三 · 真诚且有边界</span>
+                <h4>不编造、不过度自曝</h4>
+                <p>不要编离谱理由（大厂规模一查便知）。也不要过度展开前公司的内部矛盾——<strong>讲得越细，越像在抱怨</strong>。一句客观陈述 + 一句成长诉求，足够。</p>
+              </div>
+              <div class="grid-card">
+                <span class="grid-card-tag tag-blue">回答结构（四步）</span>
+                <h4>事实 → 原因 → 反思 → 指向</h4>
+                <p>① 客观陈述发生了什么；② 说明这与我的职业规划哪里不匹配；③ 这段经历让我更清楚自己要什么；④ 所以我现在特别看重贵司的 XX。</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sub 5.2 -->
+          <div id="q5-scenarios" class="sub-section section-target">
+            <h3>5.2 五种场景应答模板（挑最贴近你真实情况的）</h3>
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-title">
+                  <span>场景 A：项目 / 业务方向调整</span>
+                  <span class="timeline-badge">⭐ 最稳妥</span>
+                </div>
+                <div class="timeline-desc">
+                  <strong>适用：</strong>项目收缩、业务线合并、方向被砍，你被迫换方向。<br>
+                  <strong>话术：</strong>「我上一份工作主要在做 XX 方向，后来公司做了战略调整，这个项目被收缩、团队并入了其他组，日常重心转到了 XX。我更希望继续在 AI 应用这个方向深入做下去，所以选择看外部机会。这段经历也让我更确定，我想找一个能长期投入的技术方向。」
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-title">
+                  <span>场景 B：成长遇到瓶颈</span>
+                  <span class="timeline-badge">主动进取型</span>
+                </div>
+                <div class="timeline-desc">
+                  <strong>适用：</strong>技术栈停滞、长期做维护和重复需求。<br>
+                  <strong>话术：</strong>「在上一家我已经把负责的模块做到相对稳定，进入日常维护阶段，更多是需求交付，很难再接触到更复杂的系统设计。我希望能在一个业务复杂度更高、能持续提升自己的平台。所以我在看机会的时候，特别关注岗位的技术深度和业务场景。」
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-title">
+                  <span>场景 C：公司经营问题 / 裁员</span>
+                  <span class="timeline-badge">客观诚实型</span>
+                </div>
+                <div class="timeline-desc">
+                  <strong>适用：</strong>融资受挫、业务收缩、团队整体优化。<br>
+                  <strong>话术：</strong>「公司去年因为业务收缩做了一轮人员调整，我们团队整体被优化。我不太想把这件事说得多么委屈，客观就是公司战略变了。这段经历让我在选择时更看重两点：一是业务本身的健康度，二是岗位的长期匹配度，而不只是短期薪资。」
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-title">
+                  <span>场景 D：客观原因（通勤 / 家庭 / 异地）</span>
+                  <span class="timeline-badge">点到为止</span>
+                </div>
+                <div class="timeline-desc">
+                  <strong>适用：</strong>真实原因是距离或家庭安排。<br>
+                  <strong>话术：</strong>「主要是客观的通勤原因，上一家公司单程要将近两小时，长期下来对状态和交付都有影响。这个问题我已经想好了解决方案——如果有合适的平台，我会搬到公司附近。所以这不会成为我这次选择的障碍。」<br>
+                  <strong>注意：</strong>点到为止，不要展开家庭细节。可以参考本页 Q5 通勤题的完整话术。
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-title">
+                  <span>场景 E：试用期未过 / 短期离职</span>
+                  <span class="timeline-badge">最难，需谨慎</span>
+                </div>
+                <div class="timeline-desc">
+                  <strong>适用：</strong>入职时间很短就离开，简历上看得出来，无法回避。<br>
+                  <strong>话术：</strong>「我坦诚说，那段时间我发现实际工作内容和面试沟通的差异比较大，我主要负责的是 XX，跟我的方向不太匹配。我不想长期待在一个自己贡献有限的位置上，所以比较早做了调整。这件事也让我学会在入职前把职责边界和团队方向问得更清楚——所以今天我也想问一下，这个岗位前三个月最核心的目标是什么。」<br>
+                  <strong>关键：</strong>把「及时止损」讲成<strong>成熟的判断</strong>，并顺势转到反向提问，掌握主动权。切勿说「大家都在混」「学不到东西」。
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sub 5.3 -->
+          <div id="q5-script-taboo" class="sub-section section-target">
+            <h3>5.3 完整话术示范、禁忌清单与追问应对</h3>
+            <div class="script-box">
+              <span class="script-label">Oral Response Script（推荐版本）</span>
+<span class="highlight-text">「主要原因是项目方向调整，我想继续在 AI 应用这个方向深耕。」</span><br><br>
+我上一份工作主要负责 XX 方向的开发，其中一部分就是 AI 应用相关的落地。后来公司做了战略调整，这条业务线被收缩，团队并入了其他组，日常重心转到了比较传统的 XX 业务上。<br><br>
+<strong>这不是谁的问题，是公司整体方向变了。</strong> 我理解公司的选择，但对我来说，我希望能在 AI 应用这个方向上持续积累，而不是频繁切换赛道。所以经过考虑，我决定出来看看更匹配的机会。<br><br>
+<strong>这段经历也让我更清楚自己要什么。</strong> 我现在选机会最看重两点：一是业务本身在做的事情有没有长期价值，二是这个岗位能不能让我在这个方向上做深。这也是我今天来这里面试的原因——贵司这边做的 XX 和我的经验很匹配，是我真正想投入的方向。<br><br>
+<strong>所以我的离开是一个基于职业规划的正常选择，</strong> 不存在和团队或者公司的不愉快。我也希望下一份工作能做长做深。
+            </div>
+            <div class="callout amber">
+              <div class="callout-title">⚠️ 禁忌清单（这几句千万别说）：</div>
+              <ul style="padding-left: 1.25rem; margin-top: 0.5rem; line-height: 1.85;">
+                <li><strong>❌ 骂前领导 / 前同事</strong> —— 最致命的减分项，直接暴露情绪管理和团队协作风险。</li>
+                <li><strong>❌「加班太多受不了」</strong> —— 会被直接解读为抗压能力不足，哪怕事实如此。</li>
+                <li><strong>❌「公司太乱、没有流程」</strong> —— 显得你只会挑刺，不能适应真实环境。</li>
+                <li><strong>❌「就是想休息一段时间」</strong> —— 暗示你随时可能再休息，稳定性直接归零。</li>
+                <li><strong>❌ 详细吐槽技术栈落后 / 项目没技术含量</strong> —— 显得不专业，也贬低了团队。</li>
+                <li><strong>❌ 编造可被验证为假的原因</strong> —— 背景调查或简单追问就会穿帮，信任彻底崩塌。</li>
+                <li><strong>❌「钱太少」作为唯一理由</strong> —— 可以说，但要包装成「岗位价值与回报不匹配」，且最好不是唯一原因。</li>
+              </ul>
+            </div>
+            <div class="solution-grid">
+              <div class="grid-card">
+                <span class="grid-card-tag tag-blue">追问一</span>
+                <h4>「那你以后会不会也这样离开我们？」</h4>
+                <p>「正因为上次的原因，我这次选得特别慎重。我在了解岗位时会特别确认业务方向、团队规划和我能负责的范围，这些确认清楚了，我是希望长期做下去的。这也是我为什么对这个岗位问得比较细的原因。」</p>
+              </div>
+              <div class="grid-card">
+                <span class="grid-card-tag tag-blue">追问二</span>
+                <h4>「上一家薪资多少？为什么涨得不多？」</h4>
+                <p>「上一家的薪资在我这个层级属于正常水平。不过我这次更看重的是平台和方向，薪资希望基于岗位职责和市场水平来谈，我也相信贵司会有合理的方案。」——<strong>不要因为着急就自降身价。</strong></p>
+              </div>
+              <div class="grid-card">
+                <span class="grid-card-tag tag-green">追问三（最好的情况）</span>
+                <h4>「那你希望我们这边是什么样的？」</h4>
+                <p>这是送分题，说明对方在认真评估匹配度。答「我最希望的是能在一个方向持续做深，有明确的业务目标，团队里有人能互相 review」——把诉求说得专业且可满足。</p>
+              </div>
+              <div class="grid-card">
+                <span class="grid-card-tag tag-green">加分动作</span>
+                <h4>主动把话题收回到业务</h4>
+                <p>回答完立刻反问一个业务或技术问题，比如「咱们这个方向目前最大的技术挑战是什么」，把节奏从「审问」拉回「交流」。参考本页 Q5 通勤题的同类技巧。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Summary / Wrap-up Card -->
+      <article id="interview-summary" class="qa-card section-target">
+        <div class="qa-header">
+          <span class="qa-num">🎯</span>
+          <h2 class="qa-question">本场面试的能力画像与复习锦囊</h2>
+        </div>
+
+        <div class="answer-body">
+          <div class="solution-grid">
+            <div class="grid-card">
+              <h4>1. 架构选型的论证能力（Trade-off）</h4>
+              <p>面对父子块 vs 单级切分这种二选一，能用一句话定性本质差异（粒度是否解耦），再逐维度推导出胜负，并主动承认代价与适用边界——而不是背四条结论。</p>
+            </div>
+            <div class="grid-card">
+              <h4>2. 数据链路的完整视野（Data Pipeline）</h4>
+              <p>能把解析 → 优化 → 切分 → 双库入库讲成一条有输入输出契约的 ETL 流水线，知道「解析阶段丢的信息后面补不回来」，并且说得出每环节的具体坑。</p>
+            </div>
+            <div class="grid-card">
+              <h4>3. 评估体系而非单点指标（Evaluation System）</h4>
+              <p>Agent 评估能分结果层、过程层、系统层，知道参数正确率和人工介入率这类「隐蔽但关键」的指标，并把评估最终落到业务 ROI 上。</p>
+            </div>
+            <div class="grid-card">
+              <h4>4. 数据治理意识（Governance）</h4>
+              <p>知识库来源不止是「上传文档」，还包含业务系统、历史工单、Wiki 和人工回灌；并且能说出权限前置过滤、版本时效、去重、质量闭环这四个真正的难点。</p>
+            </div>
+          </div>
+          <div class="callout green">
+            <div class="callout-title">📌 上场前的三句自检：</div>
+            <ul style="padding-left: 1.25rem; margin-top: 0.5rem; line-height: 1.85;">
+              <li><strong>每个技术结论，我能不能说出一个具体的数字？</strong>（子块 256~512 / 父块 1500 / overlap 64 / 索引 1.4 倍 / 延迟 +20~60ms / Recall@5 76.2%→84.0% / 完整率 +15pt）</li>
+              <li><strong>每个方案，我能不能说出它的代价和适用边界？</strong>（父子块 +40% 存储、回表延迟、父块边界依赖上游结构；双库双写一致性风险）</li>
+              <li><strong>每个结论，我能不能说清它是怎么测出来的？</strong>（200 条评测集、9 组参数对照、控变量、LLM-as-Judge + 人工校准）</li>
+            </ul>
+          </div>
+          <div class="callout purple">
+            <div class="callout-title">⏱️ 建议答题节奏（总时长约 25~30 分钟）：</div>
+            Q1 切分选型 2 分钟，先定性再逐维度，务必说出「父子块是用存储换解耦」这句总结；Q2 四环节 2~2.5 分钟，按 ETL 顺序讲，重点铺「不可逆漏斗」和「先向量后 ES」两个记忆点；Q3 Agent 评估 2 分钟，先讲为什么不能只看结果，再给三层指标，收尾报三个核心指标；Q4 数据来源 1.5 分钟，五类来源快速过，把时间留给治理四点；Q5 离职原因 1 分钟以内，客观陈述后立刻把话题转到岗位匹配度上。
+          </div>
+          <div class="callout amber">
+            <div class="callout-title">🔗 与 10.13 那场的衔接提示：</div>
+            本场 Q1、Q2、Q4 全部是 10.13 那场「RAG 三阶段」「分块策略」「上下文超限」的<strong>下钻追问</strong>，所以两场的数字必须对得上：父块 1500 / 子块 512 / overlap 64 / RRF k=60 / Recall@5 91.5%（叠加重排后）。如果被问「你们分块参数怎么定的」，直接接「我们做了 9 组对照，512+64 最优」——两场共用同一套数据，故事才立得住。
+          </div>
+        </div>
+      </article>
+
+      <!-- Footer -->
+      <footer>
+        <p>2026年10月16日 AI应用开发工程师 面试真题深度简答指南 · Generated for 刘浩 (Ricardo L)</p>
+      </footer>
+    </main>
+  </div>
+
+  <!-- JavaScript: Theme Toggle, Mobile Sidebar Drawer & Safe Scrollspy -->
+  <script>
+    // 1. Theme Toggle Functionality
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', targetTheme);
+      localStorage.setItem('theme', targetTheme);
+    }
+
+    // Initialize Theme from localStorage or media query
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+
+    // 2. Mobile Drawer Toggle
+    function toggleSidebar(forceState) {
+      const sidebar = document.getElementById('sidebar');
+      const backdrop = document.getElementById('sidebarBackdrop');
+      const isOpen = sidebar.classList.contains('active');
+      const nextState = forceState !== undefined ? forceState : !isOpen;
+
+      if (nextState) {
+        sidebar.classList.add('active');
+        backdrop.classList.add('active');
+      } else {
+        sidebar.classList.remove('active');
+        backdrop.classList.remove('active');
+      }
+    }
+
+    // 3. Smooth Scrolling & Auto Drawer Close
+    document.addEventListener("DOMContentLoaded", () => {
+      const navLinks = document.querySelectorAll('.nav-item a');
+      const headerHeight = 64;
+
+      navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          const href = link.getAttribute('href');
+          if (href && href.startsWith('#')) {
+            e.preventDefault();
+            const targetId = href.substring(1);
+            const targetElement = document.getElementById(targetId);
+
+            if (targetElement) {
+              const elementPosition = targetElement.getBoundingClientRect().top;
+              const offsetPosition = elementPosition + window.pageYOffset - (headerHeight + 16);
+
+              window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+              });
+
+              history.pushState(null, null, `#${targetId}`);
+
+              navLinks.forEach(item => item.classList.remove('active'));
+              link.classList.add('active');
+            }
+
+            // Close mobile sidebar if open
+            if (window.innerWidth <= 900) {
+              toggleSidebar(false);
+            }
+          }
+        });
+      });
+
+      // 4. Safe ScrollSpy with IntersectionObserver
+      const targetSections = document.querySelectorAll('.section-target');
+      const observerOptions = {
+        root: null,
+        rootMargin: '-80px 0px -60% 0px',
+        threshold: 0
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const id = entry.target.getAttribute('id');
+            navLinks.forEach(link => {
+              if (link.getAttribute('href') === `#${id}`) {
+                link.classList.add('active');
+                // CRITICAL FIX: Only scroll sidebar container on desktop screen (> 900px)
+                // NEVER call scrollIntoView on mobile so window scroll is NEVER hijacked!
+                if (window.innerWidth > 900) {
+                  link.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                }
+              } else {
+                link.classList.remove('active');
+              }
+            });
+          }
+        });
+      }, observerOptions);
+
+      targetSections.forEach(section => observer.observe(section));
+    });
+
+    // 5. Client-side Question Search/Filter
+    function filterQuestions() {
+      const query = document.getElementById('searchInput').value.toLowerCase().trim();
+      const navItems = document.querySelectorAll('.nav-item');
+      navItems.forEach(item => {
+        const text = item.textContent.toLowerCase();
+        if (!query || text.includes(query)) {
+          item.style.display = '';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+  </script>
+</body>
+</html>
