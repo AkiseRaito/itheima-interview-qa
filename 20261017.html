@@ -1,0 +1,2331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>2026年10月17日面试题精讲 — LangGraph 架构实战与求职策略</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --primary-border: #bfdbfe;
+      --accent: #0284c7;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --bg-body: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-sidebar: #ffffff;
+      --bg-header: rgba(255, 255, 255, 0.92);
+      --border-color: #e2e8f0;
+      --tag-bg: #f1f5f9;
+      --code-bg: #f1f5f9;
+      --code-color: #0f172a;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --purple: #7c3aed;
+      --sidebar-width: 330px;
+      --header-height: 64px;
+      --mobile-bar-height: 44px;
+    }
+
+    [data-theme="dark"] {
+      --primary: #3b82f6;
+      --primary-hover: #60a5fa;
+      --primary-light: #1e293b;
+      --primary-border: #1e3a8a;
+      --accent: #38bdf8;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --bg-body: #0f172a;
+      --bg-card: #1e293b;
+      --bg-sidebar: #111827;
+      --bg-header: rgba(17, 24, 39, 0.92);
+      --border-color: #334155;
+      --tag-bg: #334155;
+      --code-bg: #090d16;
+      --code-color: #e2e8f0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+      max-width: 100vw;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      line-height: 1.68;
+      overflow-x: hidden;
+      max-width: 100vw;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top Reading Progress Bar */
+    .reading-progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #2563eb, #06b6d4, #10b981);
+      width: 0%;
+      z-index: 200;
+      transition: width 0.1s ease-out;
+    }
+
+    /* Header */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--header-height);
+      background-color: var(--bg-header);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 120;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: var(--primary-light);
+      border: 1px solid var(--primary-border);
+      color: var(--primary);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .mobile-menu-btn:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .badge-sub {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      color: white;
+      font-size: 0.75rem;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      font-weight: 600;
+      flex-shrink: 0;
+      letter-spacing: 0.02em;
+    }
+
+    .header-title-text {
+      font-size: 1.12rem;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .action-btn {
+      background: var(--tag-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.84rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .action-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .action-btn.active-mode {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* Mobile Sticky Status Bar (only shown on <=900px) */
+    .mobile-status-bar {
+      display: none;
+      position: fixed;
+      top: var(--header-height);
+      left: 0;
+      right: 0;
+      height: var(--mobile-bar-height);
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0 16px;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 110;
+      font-size: 0.82rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    }
+
+    .mobile-current-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .mobile-current-pill {
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.72rem;
+      padding: 2px 7px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .mobile-current-title {
+      color: var(--text-main);
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mobile-open-toc {
+      color: var(--primary);
+      font-weight: 600;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 6px;
+      flex-shrink: 0;
+      font-size: 0.8rem;
+    }
+
+    /* Backdrop for Mobile Drawer */
+    .sidebar-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      z-index: 130;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      backdrop-filter: blur(2px);
+    }
+
+    .sidebar-backdrop.show {
+      display: block;
+      opacity: 1;
+    }
+
+    /* Main Container */
+    .container {
+      display: flex;
+      margin-top: var(--header-height);
+      min-height: calc(100vh - var(--header-height));
+      width: 100%;
+    }
+
+    /* Sidebar */
+    aside.sidebar {
+      width: var(--sidebar-width);
+      position: fixed;
+      top: var(--header-height);
+      bottom: 0;
+      left: 0;
+      background-color: var(--bg-sidebar);
+      border-right: 1px solid var(--border-color);
+      overflow-y: auto;
+      padding: 18px 16px 40px;
+      z-index: 140;
+      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      overscroll-behavior: contain;
+    }
+
+    .sidebar-mobile-header {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 14px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .sidebar-mobile-header span {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text-main);
+    }
+
+    .sidebar-close-btn {
+      background: var(--tag-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .search-box {
+      margin-bottom: 14px;
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 9px 32px 9px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--bg-body);
+      color: var(--text-main);
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-box input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .search-clear-btn {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: none;
+      padding: 2px 4px;
+    }
+
+    .sidebar-status-card {
+      background: var(--primary-light);
+      border: 1px solid var(--primary-border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 16px;
+      font-size: 0.78rem;
+    }
+
+    .sidebar-status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+      color: var(--text-muted);
+    }
+
+    .sidebar-status-row strong {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .sidebar-active-indicator {
+      color: var(--text-main);
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .nav-day-group {
+      margin-bottom: 20px;
+    }
+
+    .nav-day-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      padding: 6px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-day-badge {
+      background: var(--tag-bg);
+      color: var(--text-muted);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .nav-list {
+      list-style: none;
+      margin-top: 6px;
+    }
+
+    .nav-item {
+      margin-bottom: 4px;
+    }
+
+    .nav-item > a {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 9px 10px;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-radius: 8px;
+      transition: all 0.18s ease-in-out;
+      line-height: 1.42;
+      border-left: 3px solid transparent;
+      position: relative;
+    }
+
+    .nav-item > a .nav-q-badge {
+      background: var(--tag-bg);
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-top: 1px;
+      transition: all 0.18s;
+    }
+
+    .nav-item > a:hover {
+      background-color: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .nav-item > a.active {
+      background-color: var(--primary-light);
+      color: var(--primary);
+      font-weight: 600;
+      border-left-color: var(--primary);
+      box-shadow: inset 0 0 0 1px var(--primary-border);
+    }
+
+    .nav-item > a.active .nav-q-badge {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    /* Sub-navigation under each Question */
+    .sub-nav-list {
+      list-style: none;
+      margin: 2px 0 6px 22px;
+      padding-left: 10px;
+      border-left: 1px dashed var(--border-color);
+      display: none;
+    }
+
+    .nav-item.expanded .sub-nav-list {
+      display: block;
+    }
+
+    .sub-nav-item a {
+      display: block;
+      padding: 4px 8px;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-radius: 5px;
+      line-height: 1.35;
+      transition: all 0.15s;
+      margin-bottom: 2px;
+    }
+
+    .sub-nav-item a:hover {
+      color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .sub-nav-item a.sub-active {
+      color: var(--primary);
+      font-weight: 600;
+      background: var(--primary-light);
+    }
+
+    /* Content Area */
+    main.content {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      min-width: 0;
+      width: 100%;
+      padding: 32px 48px 96px;
+      max-width: 1080px;
+    }
+
+    .day-section {
+      margin-bottom: 48px;
+      scroll-margin-top: 84px;
+    }
+
+    .day-header {
+      padding-bottom: 18px;
+      border-bottom: 2px solid var(--border-color);
+      margin-bottom: 28px;
+    }
+
+    .day-tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .day-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      background: var(--primary-light);
+      border: 1px solid var(--primary-border);
+      padding: 4px 12px;
+      border-radius: 9999px;
+    }
+
+    .day-meta-pill {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      background: var(--tag-bg);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-weight: 500;
+    }
+
+    .day-title {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.3;
+    }
+
+    .day-desc {
+      color: var(--text-muted);
+      font-size: 0.94rem;
+      margin-top: 6px;
+    }
+
+    /* Question Card */
+    .qa-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 28px;
+      margin-bottom: 32px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      scroll-margin-top: 84px;
+      transition: border-color 0.25s, box-shadow 0.25s;
+      min-width: 0;
+      width: 100%;
+      overflow-wrap: break-word;
+    }
+
+    .qa-card.active-card {
+      border-color: var(--primary);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.08);
+    }
+
+    .qa-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .qa-num {
+      background: var(--primary);
+      color: white;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 6px;
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+
+    .qa-question-wrap {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .qa-question {
+      font-size: 1.24rem;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.42;
+    }
+
+    .qa-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .qa-tag {
+      font-size: 0.73rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: var(--tag-bg);
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Highlight Banner (核心速记) */
+    .highlight-box {
+      background: var(--primary-light);
+      border-left: 4px solid var(--primary);
+      padding: 14px 16px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 16px;
+      font-size: 0.93rem;
+      color: var(--text-main);
+    }
+
+    .highlight-box strong {
+      color: var(--primary);
+    }
+
+    /* Oral Verbatim Pitch Box (面试30秒开口背诵话术) */
+    .pitch-box {
+      background: linear-gradient(to right, rgba(124, 58, 237, 0.06), rgba(37, 99, 235, 0.04));
+      border: 1px solid rgba(124, 58, 237, 0.25);
+      border-left: 4px solid var(--purple);
+      padding: 14px 16px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 20px;
+      font-size: 0.92rem;
+      color: var(--text-main);
+      position: relative;
+    }
+
+    .pitch-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      gap: 8px;
+    }
+
+    .pitch-title {
+      font-weight: 700;
+      color: var(--purple);
+      font-size: 0.86rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    [data-theme="dark"] .pitch-title {
+      color: #a78bfa;
+    }
+
+    .copy-pitch-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.74rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .copy-pitch-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* Bonus Banner */
+    .bonus-box {
+      background: rgba(16, 185, 129, 0.08);
+      border-left: 4px solid var(--success);
+      padding: 13px 16px;
+      border-radius: 0 8px 8px 0;
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: var(--text-main);
+    }
+
+    .bonus-box strong {
+      color: var(--success);
+    }
+
+    /* Warning Banner */
+    .warning-box {
+      background: rgba(245, 158, 11, 0.08);
+      border-left: 4px solid var(--warning);
+      padding: 13px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+      font-size: 0.9rem;
+      color: var(--text-main);
+    }
+
+    .warning-box strong {
+      color: var(--warning);
+    }
+
+    .answer-body {
+      font-size: 0.95rem;
+      color: var(--text-main);
+      min-width: 0;
+    }
+
+    /* Quick Recite Mode hides deep answer-body details and shows only core summary + oral pitch */
+    body.recite-mode .answer-body {
+      display: none;
+    }
+
+    .answer-body h4 {
+      font-size: 1.04rem;
+      font-weight: 700;
+      margin: 22px 0 10px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      scroll-margin-top: 96px;
+    }
+
+    .answer-body p {
+      margin-bottom: 12px;
+    }
+
+    .answer-body ul, .answer-body ol {
+      margin-left: 20px;
+      margin-bottom: 16px;
+    }
+
+    .answer-body li {
+      margin-bottom: 8px;
+    }
+
+    .answer-body a {
+      color: var(--primary);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      font-weight: 500;
+    }
+
+    .answer-body a:hover {
+      color: var(--primary-hover);
+    }
+
+    /* Responsive Table Wrapper */
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 14px 0 20px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .custom-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.87rem;
+      min-width: 540px;
+    }
+
+    .custom-table th, .custom-table td {
+      border-bottom: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      padding: 10px 14px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .custom-table th:last-child, .custom-table td:last-child {
+      border-right: none;
+    }
+
+    .custom-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .custom-table th {
+      background-color: var(--tag-bg);
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .custom-table tr:nth-child(even) td {
+      background-color: rgba(0, 0, 0, 0.015);
+    }
+
+    [data-theme="dark"] .custom-table tr:nth-child(even) td {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Code & Pre */
+    code {
+      background-color: var(--code-bg);
+      color: var(--primary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.86em;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      word-break: break-word;
+    }
+
+    .code-block-wrap {
+      position: relative;
+      margin: 14px 0 18px;
+    }
+
+    pre {
+      background-color: var(--code-bg);
+      color: var(--code-color);
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      font-size: 0.84rem;
+      border: 1px solid var(--border-color);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      line-height: 1.55;
+      max-width: 100%;
+    }
+
+    pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+      word-break: normal;
+    }
+
+    /* Status Tags */
+    .tag-yes {
+      background: #dcfce7;
+      color: #15803d;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    .tag-no {
+      background: #fee2e2;
+      color: #b91c1c;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    .tag-partial {
+      background: #fef3c7;
+      color: #b45309;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    /* Author Badge & Page Footer */
+    .author-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--primary);
+      background: var(--primary-light);
+      border: 1px solid var(--primary-border);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      white-space: nowrap;
+    }
+
+    .page-footer {
+      margin-top: 48px;
+      padding: 24px 28px;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+
+    .page-footer-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .page-footer-author {
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .page-footer-right {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Reference Footer inside Card */
+    .ref-links {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border-color);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    /* Floating Back to Top & Mobile Quick Index Button */
+    .floating-tools {
+      position: fixed;
+      right: 20px;
+      bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 105;
+    }
+
+    .float-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    .float-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .float-btn.mobile-only-fab {
+      display: none;
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    /* Toast message */
+    .toast-msg {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #0f172a;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s ease;
+      z-index: 300;
+    }
+
+    .toast-msg.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ==========================================
+       RESPONSIVE DESIGN (Mobile & Tablet Zero-Bug)
+       ========================================== */
+    @media (max-width: 900px) {
+      header {
+        padding: 0 14px;
+      }
+
+      .mobile-menu-btn {
+        display: inline-flex;
+      }
+
+      .badge-sub, .header-author-pill {
+        display: none;
+      }
+      .page-footer {
+        padding: 16px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+
+      .header-title-text {
+        font-size: 0.96rem;
+      }
+
+      .action-btn span.btn-label {
+        display: none;
+      }
+
+      .action-btn {
+        padding: 6px 10px;
+      }
+
+      .mobile-status-bar {
+        display: flex;
+      }
+
+      .container {
+        margin-top: calc(var(--header-height) + var(--mobile-bar-height));
+      }
+
+      aside.sidebar {
+        top: 0;
+        width: min(84vw, 320px);
+        transform: translateX(-105%);
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.18);
+        padding-top: 16px;
+      }
+
+      aside.sidebar.open {
+        transform: translateX(0);
+      }
+
+      .sidebar-mobile-header {
+        display: flex;
+      }
+
+      main.content {
+        margin-left: 0;
+        padding: 20px 14px 80px;
+        max-width: 100%;
+      }
+
+      .day-section {
+        scroll-margin-top: 118px;
+      }
+
+      .qa-card {
+        padding: 18px 15px;
+        margin-bottom: 22px;
+        scroll-margin-top: 118px;
+      }
+
+      .answer-body h4 {
+        scroll-margin-top: 122px;
+        font-size: 0.98rem;
+      }
+
+      .day-title {
+        font-size: 1.32rem;
+      }
+
+      .qa-question {
+        font-size: 1.08rem;
+      }
+
+      .highlight-box, .pitch-box, .bonus-box, .warning-box {
+        padding: 11px 12px;
+        font-size: 0.88rem;
+      }
+
+      pre {
+        padding: 12px;
+        font-size: 0.78rem;
+      }
+
+      .float-btn.mobile-only-fab {
+        display: flex;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .header-title-text {
+        font-size: 0.88rem;
+      }
+      .qa-header {
+        gap: 8px;
+      }
+      .qa-num {
+        font-size: 0.78rem;
+        padding: 2px 7px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Reading Progress -->
+  <div class="reading-progress-bar" id="readingProgress"></div>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="header-left">
+      <button class="mobile-menu-btn" id="mobileMenuBtn" type="button" aria-label="打开题目目录">
+        <span>📑</span>
+        <span>索引</span>
+      </button>
+      <span class="badge-sub">10月17日专场</span>
+      <h1 class="header-title-text">AI Agent 与 LangGraph 架构面试题精讲</h1>
+    </div>
+    <div class="header-actions">
+      <button class="action-btn" id="reciteToggle" type="button" title="切换仅看速记与口述背诵版">
+        <span>⚡</span>
+        <span class="btn-label">速背模式</span>
+      </button>
+      <button class="action-btn" id="themeToggle" type="button" title="切换深色/浅色主题">
+        <span id="themeIcon">🌓</span>
+        <span class="btn-label">暗黑模式</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Sticky Current-Viewing Bar -->
+  <div class="mobile-status-bar" id="mobileStatusBar">
+    <div class="mobile-current-label" id="mobileStatusTrigger">
+      <span class="mobile-current-pill" id="mobileCurrentNum">Q1</span>
+      <span class="mobile-current-title" id="mobileCurrentTitle">LangChain 原生 Agent 与 LangGraph 核心差异</span>
+    </div>
+    <button class="mobile-open-toc" id="mobileOpenTocBtn" type="button">目录 ▾</button>
+  </div>
+
+  <!-- Mobile Backdrop -->
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <div class="container">
+    <!-- Left Sidebar Table of Contents -->
+    <aside class="sidebar" id="sidebar" aria-label="面试题导航索引">
+      <div class="sidebar-mobile-header">
+        <span>📑 10月17日面试题索引</span>
+        <button class="sidebar-close-btn" id="sidebarCloseBtn" type="button" aria-label="关闭目录">✕</button>
+      </div>
+
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="🔍 搜索题目或关键词 (如 State / 死循环)..." aria-label="搜索面试题">
+        <button class="search-clear-btn" id="searchClearBtn" type="button" title="清空搜索">✕</button>
+      </div>
+
+      <div class="sidebar-status-card">
+        <div class="sidebar-status-row">
+          <span>当前查看题目</span>
+          <strong id="sidebarProgressText">1 / 5</strong>
+        </div>
+        <div class="sidebar-active-indicator" id="sidebarActiveName">Q1 · LangChain vs LangGraph 差异</div>
+      </div>
+
+      <!-- 10月17日 Navigation -->
+      <div class="nav-day-group">
+        <div class="nav-day-title">
+          <span>10月17日 · LangGraph 核心架构</span>
+          <span class="nav-day-badge">Q1 - Q4</span>
+        </div>
+        <ul class="nav-list">
+          <li class="nav-item expanded" data-target="q1">
+            <a href="#q1" id="nav-q1" class="active">
+              <span class="nav-q-badge">Q1</span>
+              <span>LangChain 原生 Agent 与 LangGraph 核心差异</span>
+            </a>
+            <ul class="sub-nav-list">
+              <li class="sub-nav-item"><a href="#q1-s1" data-parent="q1">1. 核心架构本质对比表</a></li>
+              <li class="sub-nav-item"><a href="#q1-s2" data-parent="q1">2. 执行拓扑与底层机制剖析</a></li>
+              <li class="sub-nav-item"><a href="#q1-s3" data-parent="q1">3. 生产技术选型决策准则</a></li>
+            </ul>
+          </li>
+
+          <li class="nav-item" data-target="q2">
+            <a href="#q2" id="nav-q2">
+              <span class="nav-q-badge">Q2</span>
+              <span>LangGraph 图式架构如何平衡“自主”与“可控”</span>
+            </a>
+            <ul class="sub-nav-list">
+              <li class="sub-nav-item"><a href="#q2-s1" data-parent="q2">1. 为什么传统 Agent 难以兼顾？</a></li>
+              <li class="sub-nav-item"><a href="#q2-s2" data-parent="q2">2. 五大核心机制实现平衡</a></li>
+              <li class="sub-nav-item"><a href="#q2-s3" data-parent="q2">3. 代码级控制流实战范式</a></li>
+            </ul>
+          </li>
+
+          <li class="nav-item" data-target="q3">
+            <a href="#q3" id="nav-q3">
+              <span class="nav-q-badge">Q3</span>
+              <span>LangGraph State 机制与传统 Chain 上下文传递本质区别</span>
+            </a>
+            <ul class="sub-nav-list">
+              <li class="sub-nav-item"><a href="#q3-s1" data-parent="q3">1. 管道传参 vs 共享状态机对比</a></li>
+              <li class="sub-nav-item"><a href="#q3-s2" data-parent="q3">2. Schema + Reducer 规约核心</a></li>
+              <li class="sub-nav-item"><a href="#q3-s3" data-parent="q3">3. Checkpointer 快照与时间旅行</a></li>
+            </ul>
+          </li>
+
+          <li class="nav-item" data-target="q4">
+            <a href="#q4" id="nav-q4">
+              <span class="nav-q-badge">Q4</span>
+              <span>线上 Agent 反复调用同一 RAG 工具死循环排查与定位</span>
+            </a>
+            <ul class="sub-nav-list">
+              <li class="sub-nav-item"><a href="#q4-s1" data-parent="q4">1. 止血与复现：4步定位路径</a></li>
+              <li class="sub-nav-item"><a href="#q4-s2" data-parent="q4">2. 死循环四大高频根因拆解</a></li>
+              <li class="sub-nav-item"><a href="#q4-s3" data-parent="q4">3. LangGraph 根治死循环代码方案</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <div class="nav-day-group">
+        <div class="nav-day-title">
+          <span>10月17日 · 综合素质与职业规划</span>
+          <span class="nav-day-badge">Q5</span>
+        </div>
+        <ul class="nav-list">
+          <li class="nav-item" data-target="q5">
+            <a href="#q5" id="nav-q5">
+              <span class="nav-q-badge">Q5</span>
+              <span>你找工作优先考虑什么？（高分结构化话术）</span>
+            </a>
+            <ul class="sub-nav-list">
+              <li class="sub-nav-item"><a href="#q5-s1" data-parent="q5">1. 三维优先级黄金回答框架</a></li>
+              <li class="sub-nav-item"><a href="#q5-s2" data-parent="q5">2. 结合个人复合背景定制版话术</a></li>
+              <li class="sub-nav-item"><a href="#q5-s3" data-parent="q5">3. 面试官心理洞察与避坑红线</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Main Content Panel -->
+    <main class="content">
+
+      <!-- ==========================================
+           DAY SECTION: 2026年10月17日面试题
+           =========================================== -->
+      <section class="day-section" id="day-1017">
+        <div class="day-header">
+          <div class="day-tag-row">
+            <div class="day-tag">📅 2026年10月17日 面试题</div>
+            <span class="day-meta-pill">🧠 AI Agent 架构演进 · 状态机编排 · 生产排障 · 求职价值观</span>
+          </div>
+          <h2 class="day-title">LangGraph 图式智能体架构与生产实战精讲</h2>
+          <p class="day-desc">深度拆解 LangChain 原生 Agent 到 LangGraph 状态机图的演进本质、确定性与自主性平衡、State Reducer 机制、线上 RAG 死循环全链路排查及高分求职动机表达。</p>
+        </div>
+
+        <!-- ==========================================
+             Q1: LangChain 原生 Agent 与 LangGraph 实现的 Agent 的核心差异
+             =========================================== -->
+        <article class="qa-card active-card" id="q1" data-qnum="Q1" data-qtitle="LangChain 原生 Agent 与 LangGraph 核心差异">
+          <div class="qa-header">
+            <span class="qa-num">Q1</span>
+            <div class="qa-question-wrap">
+              <h3 class="qa-question">LangChain 原生 Agent 与 LangGraph 实现的 Agent 的核心差异</h3>
+              <div class="qa-tags">
+                <span class="qa-tag">架构演进</span>
+                <span class="qa-tag">AgentExecutor vs StateGraph</span>
+                <span class="qa-tag">Pregel 消息传递</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>传统 LangChain 原生 Agent（基于 <code>AgentExecutor</code>）本质是<strong>封装死的“黑盒单向 while 循环”</strong>，主攻固定套路的单智能体 ReAct 调用；而 LangGraph 本质是<strong>受 Google Pregel 启发的“白盒有向循环图（Cyclic Graph）状态机运行时”</strong>，将节点（Nodes）、边（Edges）和共享状态（State）彻底解耦，原生支持细粒度循环控制、持久化断点恢复（Checkpointer）、人机协同（Human-in-the-loop）与多智能体协同。
+          </div>
+
+          <div class="pitch-box">
+            <div class="pitch-header">
+              <span class="pitch-title">🎙️ 面试 30 秒开口即答（逐字稿背诵版）</span>
+              <button class="copy-pitch-btn" type="button" data-copy-target="pitch-q1">复制话术</button>
+            </div>
+            <p id="pitch-q1">“面试官您好，这两者最本质的差异在于<strong>控制流抽象层级与状态管理方式</strong>。早期 LangChain 原生 Agent（如 <code>AgentExecutor</code>）是一个高阶黑盒封装，底层是硬编码的 <code>while</code> 循环：每一步完全依赖大模型判断是否调用工具，开发者很难在循环中途插入确定性的业务校验、强制路由或人工审批。而 LangGraph 是底层的<strong>有向循环图编排框架（StateGraph）</strong>：第一，在<strong>控制流</strong>上，它把推理、工具执行、业务校验拆成独立 Node，用确定性边（Normal Edge）和条件边（Conditional Edge / Command）显式控制流向，天然支持循环重试与分支回退；第二，在<strong>状态管理</strong>上，它维护强 Schema 约束的全局 State 和 Reducer 规约，而非简单的字符串或列表拼接；第三，在<strong>生产级工程能力</strong>上，LangGraph 原生在每个超步（Super-step）边界提供 Checkpointer 状态快照持久化，开箱支持断点续跑、人工介入（Interrupt）和时间旅行调试，因此现在 LangChain 官方也将新版的 <code>create_agent</code> 直接构建在 LangGraph 运行时之上。”</p>
+          </div>
+
+          <div class="answer-body">
+            <h4 id="q1-s1">1. 全维度核心差异对比表</h4>
+            <div class="table-wrapper">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>对比维度</th>
+                    <th>LangChain 原生传统 Agent (<code>AgentExecutor</code>)</th>
+                    <th>LangGraph 实现的 Agent (<code>StateGraph</code>)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>底层拓扑模型</strong></td>
+                    <td><strong>黑盒伪循环（硬编码 <code>while</code> 循环）</strong>：固定执行 <code>LLM Thought -&gt; Action -&gt; Observation</code> 直到输出 Final Answer。</td>
+                    <td><strong>白盒有向有环图（Cyclic State Graph）</strong>：基于 <a href="https://docs.langchain.com/oss/python/langgraph/graph-api" target="_blank" rel="noopener">Google Pregel 超步（Super-step）模型</a>，支持任意分支、环路与并行节点。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>控制流主导权</strong></td>
+                    <td><span class="tag-no">大模型全权主导</span> 路由完全交由 LLM 决定，容易在复杂多步任务中迷失或偏离业务SOP。</td>
+                    <td><span class="tag-yes">混合编排可控</span> 自由混合“确定性代码步骤”与“LLM 自主决策步骤”，关键节点可由代码强制路由。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>上下文与状态管理</strong></td>
+                    <td>仅靠 <code>intermediate_steps</code> 列表追加与 <code>Memory</code> 包装器，难以精细控制多变量状态演进。</td>
+                    <td>基于强类型 <code>State</code>（<code>TypedDict</code> / <code>Pydantic</code>）与独立通道 <code>Reducer</code>（如 <code>add_messages</code>、<code>Overwrite</code>）。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>持久化与容错恢复</strong></td>
+                    <td><span class="tag-no">无原生断点能力</span> 单次请求内存态运行，中途报错或超时需从头重跑，无法跨进程暂停。</td>
+                    <td><span class="tag-yes">原生 Checkpointer</span> 每个超步结束自动保存状态快照，支持故障原地恢复与跨天长周期运行。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>人机协同 (HITL)</strong></td>
+                    <td>极难实现，无法在工具执行前挂起线程等待前端用户审批后再继续。</td>
+                    <td>原生支持 <code>interrupt()</code> 挂起与 <code>Command(resume=...)</code> 恢复，可在任意节点前审批或修改状态。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>多智能体协同</strong></td>
+                    <td>只能将一个 Agent 包装成另一个 Agent 的 Tool，上下文隔离与交接（Handoff）笨重。</td>
+                    <td>原生支持<strong>子图嵌套（Subgraphs）</strong>、多 Schema 私有通道与 <code>Command(goto=..., graph=Command.PARENT)</code> 跨图路由。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4 id="q1-s2">2. 执行拓扑与底层机制剖析</h4>
+            <p>在传统 LangChain <code>AgentExecutor</code> 中，开发者只能传入 <code>llm</code>、<code>tools</code> 和 <code>prompt</code>，内部循环逻辑对业务代码封闭；而在 <a href="https://docs.langchain.com/oss/python/langgraph/overview" target="_blank" rel="noopener">LangGraph 架构</a>中，Agent 循环被显式拆解为可观测、可拦截的图结构：</p>
+            <div class="code-block-wrap">
+              <pre><code>【LangChain 传统 AgentExecutor（黑盒循环）】
+User Input ──► [ AgentExecutor 内部黑盒: Prompt -> LLM -> Tool -> Observation ] ──► Final Output
+               (痛点：中间步骤无法精确拦截、无中间快照、无法挂起等待人工确认)
+
+【LangGraph StateGraph（白盒状态机图）】
+START ──► [Node: Agent 推理] ──(Conditional Edge / Command 路由)──► END
+               ▲                              │
+               │ (State 更新经 Reducer 合并)     ▼
+         [Node: 结果质量评估/重写] ◄── [Node: Tool 执行 / 人工 Interrupt]
+         (每个 Super-step 边界均由 Checkpointer 自动持久化快照至 Redis/Postgres)</code></pre>
+            </div>
+
+            <h4 id="q1-s3">3. 生产环境选型准则（面试收尾升华）</h4>
+            <ul>
+              <li><strong>何时用高层封装（<code>create_agent</code>）</strong>：如果业务只是快速验证 PoC、或者属于单智能体标准的“查工具-回答”简单问答链路，直接使用高层预置封装即可快速上线。</li>
+              <li><strong>何时必须上 LangGraph（<code>StateGraph</code>）</strong>：只要业务涉及<strong>多步自我修正（如 Self-RAG / Corrective RAG）</strong>、<strong>敏感操作需人工确认（如退款/发邮件审批）</strong>、<strong>固定业务 SOP 与大模型推理混合编排</strong>，或者<strong>多 Agent 分工协作（Supervisor / Swarm 架构）</strong>，必须直接使用 LangGraph 构建定制状态图。</li>
+            </ul>
+
+            <div class="bonus-box">
+              <strong>🎯 面试加分项（展现对最新版本的认知）：</strong>在 <a href="https://www.langchain.com/blog/langchain-langgraph-1dot0" target="_blank" rel="noopener">LangChain 1.0 与 LangGraph 1.0</a> 正式版架构中，传统的 <code>AgentExecutor</code> 已被全面标记为 Legacy（历史遗留组件）。如今哪怕调用 LangChain 高层的 <a href="https://docs.langchain.com/oss/python/langchain/agents" target="_blank" rel="noopener"><code>create_agent</code></a>，其底层运行时也已经是直接编译为 LangGraph 的 <code>CompiledStateGraph</code>——也就是说，“LangChain 负责模型与工具组件抽象，LangGraph 负责底层有状态编排运行时”。
+            </div>
+
+            <div class="ref-links">
+              <span>📚 权威参考源：</span>
+              <a href="https://docs.langchain.com/oss/python/langgraph/overview" target="_blank" rel="noopener">LangGraph Overview 官方文档</a>
+              <a href="https://docs.langchain.com/oss/python/langchain/agents" target="_blank" rel="noopener">LangChain Agents 架构指南</a>
+              <a href="https://www.langchain.com/blog/langchain-langgraph-1dot0" target="_blank" rel="noopener">LangChain &amp; LangGraph 1.0 发布说明</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             Q2: LangGraph的图式架构，怎么实现“自主能力”与“稳定可控”的平衡的
+             =========================================== -->
+        <article class="qa-card" id="q2" data-qnum="Q2" data-qtitle="LangGraph 如何平衡“自主能力”与“稳定可控”">
+          <div class="qa-header">
+            <span class="qa-num">Q2</span>
+            <div class="qa-question-wrap">
+              <h3 class="qa-question">LangGraph的图式架构，怎么实现“自主能力”与“稳定可控”的平衡的</h3>
+              <div class="qa-tags">
+                <span class="qa-tag">架构设计哲学</span>
+                <span class="qa-tag">确定性护栏</span>
+                <span class="qa-tag">Human-in-the-Loop</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>LangGraph 实现平衡的核心哲学是<strong>“局部节点交给大模型自主推理，全局拓扑与状态边界交给代码确定性护栏”</strong>。具体通过五大抓手落地：<strong>① 混合节点编排（确定性代码 Node + LLM 推理 Node）</strong>、<strong>② 受限条件边与枚举路由（Conditional Edge / Command Literal）</strong>、<strong>③ 强 Schema 状态与幂等恢复（State + Checkpointer）</strong>、<strong>④ 人机中断（Interrupt）</strong>、<strong>⑤ 步数预算管控（RemainingSteps / recursion_limit）</strong>。
+          </div>
+
+          <div class="pitch-box">
+            <div class="pitch-header">
+              <span class="pitch-title">🎙️ 面试 30 秒开口即答（逐字稿背诵版）</span>
+              <button class="copy-pitch-btn" type="button" data-copy-target="pitch-q2">复制话术</button>
+            </div>
+            <p id="pitch-q2">“在企业级落地中，纯 Workflow 太死板，而纯 ReAct Agent 又容易脱轨。LangGraph 的图式架构通过<strong>‘把大模型的自主性关进确定性状态机的笼子里’</strong>来实现两者的平衡：首先，在<strong>节点层</strong>，它支持把处理复杂语义理解、工具选择的任务交给 LLM 节点发挥<strong>自主能力</strong>，同时把权限校验、参数清洗、兜底降级写成纯代码确定性节点；其次，在<strong>路由层</strong>，即便由 LLM 决定下一步方向，也必须通过 <code>add_conditional_edges</code> 或带有 <code>Command[Literal[...]]</code> 枚举约束的路由函数，确保只能跳转到白名单节点，绝不允许跳出预设图拓扑；最后，在<strong>运行保障层</strong>，配合 <code>RemainingSteps</code> 递归步数防御、Checkpointer 状态回滚以及高危动作前的 <code>interrupt()</code> 人工拦截，真正做到了‘推理有弹性、路径有边界、兜底有保障’。”</p>
+          </div>
+
+          <div class="answer-body">
+            <h4 id="q2-s1">1. 为什么传统架构难以兼顾“自主”与“可控”？</h4>
+            <ul>
+              <li><strong>传统硬编码工作流（DAG / Pipeline）</strong>：100% 稳定可控，但面对用户模糊意图、多跳推理或工具报错自愈时毫无<strong>自主能力</strong>，分支稍微复杂就会沦为难以维护的 <code>if-else</code> 泥潭。</li>
+              <li><strong>纯自由 Agent（开放式 ReAct Loop）</strong>：虽然具备极强的<strong>自主规划能力</strong>，但把“流程控制权”完全让渡给概率性的 LLM，存在幻觉捏造参数、越权调接口、无限死循环等致命风险，无法满足生产级 SLA。</li>
+            </ul>
+
+            <h4 id="q2-s2">2. LangGraph 平衡“自主能力”与“稳定可控”的五大核心机制</h4>
+            <div class="table-wrapper">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>机制维度</th>
+                    <th>赋予的“自主能力” (Autonomy)</th>
+                    <th>施加的“稳定可控”护栏 (Controllability)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>1. 节点职责解耦<br>(Mix Nodes)</strong></td>
+                    <td>在推理节点（Reasoning Node）内，LLM 可根据上下文自主决定调用哪个工具、生成何种查询词或自我反思（Self-Reflection）。</td>
+                    <td>前置/后置节点直接使用确定性 Python/TS 代码实现（如规则校验、SQL 语法树检查、敏感词过滤），不依赖 LLM 概率输出。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>2. 显式边与受限路由<br>(Edges &amp; Command)</strong></td>
+                    <td>通过 <a href="https://docs.langchain.com/oss/python/langgraph/graph-api" target="_blank" rel="noopener"><code>Conditional Edges</code></a> 或 <code>Command(goto=...)</code>，允许根据 LLM 输出或工具结果动态分支、循环重试或并行扇出（<code>Send</code>）。</td>
+                    <td>路由目标受编译期图拓扑与 <code>Literal["node_a", "node_b"]</code> 类型严格约束，只能走预设合法边，杜绝“野指针式”乱跳。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>3. 状态契约与隔离<br>(State Schema)</strong></td>
+                    <td>Agent 在多轮循环中可自主读写工作记忆（<code>MessagesState</code>、检索文档池、子任务计划）。</td>
+                    <td>通过 <code>InputState</code> / <code>OutputState</code> / <code>PrivateState</code> 严格隔离读写边界，配合 Pydantic/TypedDict 与 Reducer 防止状态污染。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>4. 人机回路中断<br>(Human-in-the-loop)</strong></td>
+                    <td>常规只读查询与低风险动作由 Agent 全自动闭环执行，保障高效率。</td>
+                    <td>涉及写库、资金、外部发送等高危动作时，触发 <code>interrupt()</code> 冻结当前状态快照，必须经人工审批或修正参数后才允许 <code>resume</code>。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>5. 步数预算与降级<br>(RemainingSteps)</strong></td>
+                    <td>允许 Agent 在遇到检索信息不足时主动发起多轮改写查询（Query Rewrite）与循环探索。</td>
+                    <td>通过内置托管变量 <code>RemainingSteps</code> 及 <code>recursion_limit</code> 实时监控剩余步数，逼近阈值时由代码强行路由至优雅降级节点。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4 id="q2-s3">3. 代码级控制流实战范式（自主推理 + 确定性护栏）</h4>
+            <div class="code-block-wrap">
+              <pre><code>from typing import Annotated, Literal, TypedDict
+from langgraph.graph import StateGraph, START, END
+from langgraph.managed import RemainingSteps
+from langgraph.types import Command, interrupt
+
+class AgentState(TypedDict):
+    messages: Annotated[list, lambda x, y: x + y]
+    retry_count: int
+    is_high_risk: bool
+    remaining_steps: RemainingSteps  # 托管步数计数器，保障稳定兜底
+
+def agent_reasoning_node(state: AgentState):
+    """【自主能力】由 LLM 自主分析意图并决定调用工具或生成回答"""
+    # 若步数预算即将耗尽，主动收敛，防止失控
+    if state["remaining_steps"] &lt;= 2:
+        return {"messages": ["已达最大探索步数上限，基于已有信息汇总回答..."]}
+    # 正常调用 LLM 推理...
+    return {"messages": ["LLM 自主推理结果"]}
+
+def guardrail_router(state: AgentState) -&gt; Literal["human_approval", "execute_tool", "fallback", END]:
+    """【稳定可控】用纯确定性代码控制路由边界，不把流程控制完全交给 LLM"""
+    if state["retry_count"] &gt;= 3 or state["remaining_steps"] &lt;= 2:
+        return "fallback"            # 超过重试阈值，强制走确定性降级
+    if state.get("is_high_risk"):
+        return "human_approval"      # 高危操作强制进入人工审批节点
+    return "execute_tool"
+
+def human_approval_node(state: AgentState) -&gt; Command[Literal["execute_tool", "fallback"]]:
+    """【人机协同可控】挂起图执行，等待人工确认后再恢复"""
+    decision = interrupt("检测到高危写操作，是否批准执行？(yes/no)")
+    if decision == "yes":
+        return Command(goto="execute_tool")
+    return Command(update={"messages": ["人工拒绝执行该操作"]}, goto="fallback")</code></pre>
+            </div>
+
+            <div class="bonus-box">
+              <strong>🎯 面试总结金句：</strong>“LangGraph 不是让大模型去写流程图，而是<strong>架构师先用图（Graph）画好跑道和护栏，再让大模型在跑道内自动驾驶</strong>——Node 内体现智能自主，Edge 上体现工程可控。”
+            </div>
+
+            <div class="ref-links">
+              <span>📚 权威参考源：</span>
+              <a href="https://docs.langchain.com/oss/python/langgraph/workflows-agents" target="_blank" rel="noopener">LangGraph Workflows &amp; Agents 设计模式</a>
+              <a href="https://docs.langchain.com/oss/python/langgraph/thinking-in-langgraph" target="_blank" rel="noopener">Thinking in LangGraph 官方架构指南</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             Q3: LangGraph 的状态（State）机制，和传统 LangChain Chain 中沿链路传递上下文的方式，有什么本质区别
+             =========================================== -->
+        <article class="qa-card" id="q3" data-qnum="Q3" data-qtitle="LangGraph State 机制与传统 Chain 上下文传递本质区别">
+          <div class="qa-header">
+            <span class="qa-num">Q3</span>
+            <div class="qa-question-wrap">
+              <h3 class="qa-question">LangGraph 的状态（State）机制，和传统 LangChain Chain 中沿链路传递上下文的方式，有什么本质区别</h3>
+              <div class="qa-tags">
+                <span class="qa-tag">State &amp; Reducer</span>
+                <span class="qa-tag">LCEL 管道 vs 状态黑板</span>
+                <span class="qa-tag">Checkpointer 快照</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>传统 LangChain Chain（包括 LCEL <code>a | b | c</code>）是<strong>“函数式管道接力传参（局部变量流）”</strong>，上游输出即下游输入，无全局状态契约、无法天然支撑多轮循环覆写与断点恢复；而 LangGraph 的 <code>State</code> 是<strong>“带通道规约器（Reducer）与版本快照的全局共享状态机（Blackboard 模式）”</strong>，节点只返回局部增量更新（Partial Update），由底层引擎按各字段的 <code>Reducer</code> 原子合并，并在每个超步持久化快照。
+          </div>
+
+          <div class="pitch-box">
+            <div class="pitch-header">
+              <span class="pitch-title">🎙️ 面试 30 秒开口即答（逐字稿背诵版）</span>
+              <button class="copy-pitch-btn" type="button" data-copy-target="pitch-q3">复制话术</button>
+            </div>
+            <p id="pitch-q3">“这两者的本质区别可以概括为<strong>‘单向管道接力传参’与‘集中式状态机 + Reducer 增量归约’的区别</strong>。第一，在传统 Chain（如 LCEL 管道）中，上下文是点对点传递的临时字典，如果第 1 步生成的字段第 5 步要用，中间第 2、3、4 步必须用 <code>RunnablePassthrough.assign</code> 一路透传，一旦链路长或者有分支循环就会非常臃肿；而 LangGraph 采用<strong>集中式共享状态（Shared State Schema）</strong>，所有节点读写同一个中心状态池，节点只需读取自己关心的字段并返回增量字典（Partial Update），无需手工透传无关字段。第二，LangGraph 引入了<strong>字段级 Reducer 合并机制</strong>：传统 Chain 赋同名 key 会直接暴力覆盖，而 LangGraph 每个状态通道可绑定独立 Reducer（例如用 <code>add_messages</code> 按消息 ID 智能追加或原地修订，用 <code>operator.add</code> 聚合并行分支结果，用 <code>Overwrite</code> 强制重置）。第三，LangGraph 的 State 与 <strong>Checkpointer</strong> 深度绑定，每一次状态演进都会生成可序列化、可回溯的版本快照，支持跨线程恢复与时间旅行，而传统 Chain 的上下文随着函数调用栈结束就销毁了。”</p>
+          </div>
+
+          <div class="answer-body">
+            <h4 id="q3-s1">1. 本质差异全景对比：传统 Chain 上下文传递 vs LangGraph State 机制</h4>
+            <div class="table-wrapper">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>核心维度</th>
+                    <th>传统 LangChain Chain (LCEL / <code>SequentialChain</code>)</th>
+                    <th>LangGraph <code>State</code> 状态机制</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>设计模式范式</strong></td>
+                    <td><strong>管道过滤器模式（Pipe &amp; Filter）</strong>：数据像水流一样从 <code>Step A -&gt; Step B -&gt; Step C</code> 线性传递。</td>
+                    <td><strong>共享黑板 + 有限状态机模式（Blackboard / FSM）</strong>：中心化状态快照，各节点围绕同一 State 读写演进。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>跨节点上下文传递</strong></td>
+                    <td><strong>显式接力透传</strong>：中间节点即便不用某字段，也必须通过 <code>RunnablePassthrough</code> 携带，否则下游丢失。</td>
+                    <td><strong>按需读取 + 局部增量返回（Partial Update）</strong>：节点只返回修改了的 <code>{"key": new_val}</code>，未返回字段自动保留。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>更新与并发冲突处理</strong></td>
+                    <td>简单字典覆盖（Dict Overwrite），并行分支同时修改同一列表极易互相覆盖丢失数据。</td>
+                    <td><strong>通道级 <code>Reducer</code> 二元归约函数</strong>：<code>reducer(current_state, node_update)</code>，安全合并并行超步写入。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>多 Schema 视图权限</strong></td>
+                    <td>全局单一字典透传，内部临时变量容易泄漏到最终输出。</td>
+                    <td>支持声明 <code>InputState</code>、<code>OutputState</code> 与内部私有 <code>PrivateState</code>，还要支持不落盘的 <code>UntrackedValue</code>。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>生命周期与可回溯性</strong></td>
+                    <td><strong>瞬态内存变量（Ephemeral）</strong>：仅存活于单次调用栈内存，进程崩溃或中途中断即彻底丢失。</td>
+                    <td><strong>持久化版本链（Checkpointed Snapshots）</strong>：每个 Super-step 生成独立 Checkpoint ID，支持断点续跑与状态回放。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4 id="q3-s2">2. LangGraph State 的核心灵魂：Schema + Reducer 归约器</h4>
+            <p>根据 <a href="https://docs.langchain.com/oss/python/langgraph/graph-api" target="_blank" rel="noopener">LangGraph Graph API 官方规范</a>，State 绝不仅仅是一个 Python <code>dict</code>，它由<strong>结构契约（Schema）</strong>与<strong>通道更新法则（Reducers）</strong>共同组成：</p>
+            <ul>
+              <li><strong>默认 Reducer（覆盖模式）</strong>：未声明 <code>Annotated</code> 时，新值直接替换旧值（适合保存最新路由标记、当前重写后的 Query）。</li>
+              <li><strong>累积型 Reducer（如 <code>operator.add</code>）</strong>：将左参数（当前累积状态）与右参数（节点增量返回）相加合并，天然适配 Map-Reduce 并行节点结果汇总。</li>
+              <li><strong>智能消息 Reducer（<code>add_messages</code>）</strong>：专为大模型对话历史设计。不仅支持追加新消息，还能<strong>追踪 Message ID</strong>——如果传入相同 ID 的消息（如人工修改某条历史消息或裁剪 Token），它会原地覆写该消息而非重复追加！</li>
+              <li><strong>强制重置原语（<code>Overwrite</code>）与非持久化通道（<code>UntrackedValue</code>）</strong>：当使用合并型 Reducer 需要清空错误缓冲区（如重试成功后清空 <code>errors</code> 列表）时，返回空列表 <code>[]</code> 会被合并而无法清空，LangGraph 专门提供 <code>Overwrite([])</code> 绕过 Reducer 强制重置；而对数据库连接池、临时大缓存则提供 <code>UntrackedValue</code>，仅在运行时内存可见，不写入 Checkpoint。</li>
+            </ul>
+
+            <div class="code-block-wrap">
+              <pre><code>from operator import add
+from typing import Annotated, TypedDict
+from langchain.messages import AnyMessage
+from langgraph.graph.message import add_messages
+from langgraph.types import Overwrite
+
+class GraphState(TypedDict):
+    # 1. 默认 Reducer：每次返回新字符串直接覆盖旧值
+    rewritten_query: str
+    # 2. 消息专用 Reducer：按消息 ID 智能追加或原地更新历史消息
+    messages: Annotated[list[AnyMessage], add_messages]
+    # 3. 列表累加 Reducer：多个检索节点并行执行时，自动将各自返回的文档列表合并
+    retrieved_docs: Annotated[list[str], add]
+    # 4. 错误日志累加通道：重试成功后可用 Overwrite([]) 强制清空
+    errors: Annotated[list[str], add]
+
+def clear_error_node(state: GraphState):
+    # 仅返回需要修改的增量字段，未提及的 messages / retrieved_docs 毫发无损
+    return {"errors": Overwrite([])}</code></pre>
+            </div>
+
+            <h4 id="q3-s3">3. Checkpointer 状态机快照与“时间旅行（Time Travel）”</h4>
+            <p>传统 Chain 的上下文是一次性的“流水”，流过去就没了；而 LangGraph 的 <code>State</code> 在每个超步（Super-step）边界都会通过 Checkpointer（如 <code>PostgresSaver</code> / <code>RedisSaver</code>）按 <code>thread_id</code> 持久化。这带来了传统 Chain 根本无法实现的三大工程能力：</p>
+            <ol>
+              <li><strong>跨轮次长短期记忆统一</strong>：同一个 <code>thread_id</code> 下次请求时自动加载最新 State 快照，无需在外部手动拼接历史。</li>
+              <li><strong>生产事故现场 100% 复现</strong>：线上某次回答出错，直接通过 <code>graph.get_state_history(config)</code> 拉取每一步的完整 State 演进轨迹。</li>
+              <li><strong>状态分叉与时间旅行（Fork &amp; Time Travel）</strong>：可以回到第 $N$ 步的历史 Checkpoint，用 <code>graph.update_state()</code> 修改当时的某个字段后重新向后执行，极大降低了复杂 Agent 的调试成本。</li>
+            </ol>
+
+            <div class="ref-links">
+              <span>📚 权威参考源：</span>
+              <a href="https://docs.langchain.com/oss/python/langgraph/graph-api" target="_blank" rel="noopener">LangGraph State &amp; Reducers 官方文档</a>
+              <a href="https://reference.langchain.com/python/langgraph/graph/state/StateGraph" target="_blank" rel="noopener">StateGraph Python API Reference</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             Q4: 如果线上出现 Agent 反复调用同一个 RAG 工具、始终无法生成最终回答的死循环问题，基于 LangGraph 的能力，描述你的排查路径与定位方法
+             =========================================== -->
+        <article class="qa-card" id="q4" data-qnum="Q4" data-qtitle="线上 Agent 反复调用同一 RAG 工具死循环排查与定位">
+          <div class="qa-header">
+            <span class="qa-num">Q4</span>
+            <div class="qa-question-wrap">
+              <h3 class="qa-question">如果线上出现 Agent 反复调用同一个 RAG 工具、始终无法生成最终回答的死循环问题，基于 LangGraph 的能力，描述你的排查路径与定位方法</h3>
+              <div class="qa-tags">
+                <span class="qa-tag">生产排障实战</span>
+                <span class="qa-tag">GRAPH_RECURSION_LIMIT</span>
+                <span class="qa-tag">Corrective RAG 死循环治理</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>遵循<strong>“先止血观测 -&gt; 再快照回放定位根因 -&gt; 最后图架构级根治”</strong>三步法：
+            ① <strong>观测与还原</strong>：捕获 <code>GraphRecursionError</code>，通过 <code>thread_id</code> 调取 <strong>LangSmith Trace</strong> 与 <strong>Checkpointer <code>get_state_history</code></strong> 检查每步的 <code>langgraph_step</code>、<code>langgraph_triggers</code> 及 <code>ToolMessage</code>；
+            ② <strong>定位四大高频根因</strong>：检索召回为空/低分导致评估节点无限打回重写、状态 Reducer 漏配导致 <code>ToolMessage</code> 未正确写回 <code>messages</code>、LLM 用完全相同的入参重复调工具、条件边路由缺少最大重试退出分支；
+            ③ <strong>架构根治</strong>：引入工具调用指纹去重、检索重写计数器 <code>retry_count</code>、内置 <code>RemainingSteps</code> 主动优雅降级与 <code>recursion_limit</code> 硬兜底。
+          </div>
+
+          <div class="pitch-box">
+            <div class="pitch-header">
+              <span class="pitch-title">🎙️ 面试 45 秒开口即答（逐字稿背诵版）</span>
+              <button class="copy-pitch-btn" type="button" data-copy-target="pitch-q4">复制话术</button>
+            </div>
+            <p id="pitch-q4">“遇到线上 Agent 反复调用同一 RAG 工具死循环并触发 <code>GraphRecursionError</code>，我会分<strong>排查定位</strong>和<strong>架构根治</strong>两步走。在<strong>排查定位</strong>上：第一，利用故障请求的 <code>thread_id</code>，通过 LangGraph 的 <code>graph.get_state_history(config)</code> 配合 LangSmith 追踪链路，调出每一个 Super-step 的状态快照（检查 <code>config['metadata']['langgraph_step']</code> 和 <code>langgraph_node</code>）；第二，重点比对相邻两步的 State 差异，通常死循环逃不出 4 类根因——<strong>① 状态回写丢失</strong>（如工具返回的 <code>ToolMessage</code> 因自定义状态字段或 Reducer 配置不当没进入 LLM 上下文，导致 LLM 以为还没查过）；<strong>② 参数原地踏步</strong>（RAG 检索为空或相关度低，LLM 每次生成一模一样的 Query 反复查）；<strong>③ 评估阈值死锁</strong>（在 Self-RAG 中，<code>grade_documents</code> 节点判定相关性永远不达标，条件边无限打回 <code>rewrite_query</code> 节点，但没有设置最大重写次数）；<strong>④ 拓扑边混用</strong>（同一个节点同时绑了静态边 <code>add_edge</code> 和动态 <code>Command</code>，导致重复触发）。定位后，我会通过<strong>图级别检索计数器 + 工具入参 Hash 去重拦截 + <code>RemainingSteps</code> 主动降级节点</strong>彻底根治。”</p>
+          </div>
+
+          <div class="answer-body">
+            <h4 id="q4-s1">1. 线上排查路径与精准定位四步法（基于 LangGraph 原生能力）</h4>
+            <div class="code-block-wrap">
+              <pre><code>【线上 RAG Agent 死循环四步排查链路】
+Step 1: 告警捕获 ──► 捕获 GraphRecursionError 或高延迟告警，提取请求 thread_id 与 run_id
+                        │
+Step 2: 状态时光机回放 ──► 调用 graph.get_state_history({"configurable": {"thread_id": tid}})
+                        │  逐帧检查每个 Checkpoint 的 next (待执行节点)、values (State快照) 与 metadata
+                        ▼
+Step 3: 对比相邻 Super-step 的 3 个核心指标：
+        ├─ ① 看 Tool Call 入参：每次 tool_calls[0]["args"]["query"] 是否完全相同？（同参死循环）
+        ├─ ② 看 ToolMessage 回写：state["messages"] 中是否包含上一步的 ToolMessage？（状态丢失导致失忆）
+        └─ ③ 看 Conditional Edge 判定：是 LLM 主动再调 Tool，还是相关性评估节点强行路由回检索节点？
+                        │
+Step 4: 时间旅行本地复现 ──► 取死循环发生前一步的 checkpoint_id，在测试环境 fork 状态单步调试修复</code></pre>
+            </div>
+
+            <h4 id="q4-s2">2. 死循环四大高频根因与定位特征矩阵</h4>
+            <div class="table-wrapper">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>根因分类</th>
+                    <th>Checkpointer 状态快照中的典型特征</th>
+                    <th>底层原因剖析</th>
+                    <th>针对性修复方案</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>根因 A：同参重复调用<br>(Identical Tool Call)</strong></td>
+                    <td>连续多个 Step 中，<code>AIMessage.tool_calls</code> 的 <code>name</code> 和 <code>args</code>（查询词）100% 相同，<code>ToolMessage</code> 返回为空或无关文档。</td>
+                    <td>知识库本来就没有该冷门问题的数据，但 System Prompt 强令“必须基于知识库回答”，LLM 不死心，拿原词反复查。</td>
+                    <td>在 Tool 节点或前置拦截器中计算 <code>hash(tool_name + args)</code>，若已在 <code>visited_queries</code> 集合中，直接返回明确提示：“该查询词已执行过且无更多结果，请换词或直接告知用户暂无资料”。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>根因 B：评估-重写死锁<br>(Grader-Rewriter Loop)</strong></td>
+                    <td>节点轨迹呈 <code>retrieve -&gt; grade_docs -&gt; rewrite_query -&gt; retrieve</code> 周期性交替，Query 虽有微调但始终过不了 <code>grade_docs</code>。</td>
+                    <td>Corrective RAG / Self-RAG 架构中，条件边只写了 <code>if relevant: generate else: rewrite</code>，<strong>漏写了最大重试退出条件</strong>。</td>
+                    <td>在 State 中显式维护 <code>search_count: int</code>，每次检索 <code>+1</code>；在条件边中判断 <code>if state["search_count"] &gt;= 3: return "fallback_generate"</code>。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>根因 C：状态回写失忆<br>(State / Reducer Bug)</strong></td>
+                    <td><code>ToolNode</code> 执行成功了，但下一轮进入 <code>AgentNode</code> 时，Prompt 里没有上一步的检索结果或 <code>ToolMessage</code>。</td>
+                    <td>自定义 State 未正确使用 <code>add_messages</code> Reducer（或覆盖了列表），或者 Prompt 模板漏渲染了 <code>ToolMessage</code> / <code>documents</code> 通道。</td>
+                    <td>修正 State Schema 为 <code>Annotated[list[AnyMessage], add_messages]</code>，并用 <code>get_state_history</code> 验证消息列表递增。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>根因 D：动静态边冲突<br>(Edge Mixing Bug)</strong></td>
+                    <td>单次超步中 <code>langgraph_triggers</code> 显示同一个检索节点被意外并发激活多次。</td>
+                    <td>根据 <a href="https://docs.langchain.com/oss/python/langgraph/graph-api" target="_blank" rel="noopener">LangGraph 官方规范</a>，同一节点混用了静态 <code>add_edge</code> 和动态 <code>Command(goto=...)</code>，导致两条路径同时执行。</td>
+                    <td>清理冗余静态边，同一节点的出边严格统一使用 <code>add_conditional_edges</code> 或 <code>Command</code>。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4 id="q4-s3">3. 基于 LangGraph 原生能力的三层防死循环根治代码</h4>
+            <p>在生产环境中，不能只靠外部捕获 <a href="https://docs.langchain.com/oss/python/langgraph/errors/GRAPH_RECURSION_LIMIT" target="_blank" rel="noopener"><code>GraphRecursionError</code></a>（Reactive 被动报错会直接中断用户体验），而应该结合<strong>查询去重 + 显式重试上限 + <code>RemainingSteps</code> 主动降级（Proactive 优雅收敛）</strong>：</p>
+            <div class="code-block-wrap">
+              <pre><code>from operator import add
+from typing import Annotated, Literal, TypedDict
+from langchain.messages import AnyMessage, SystemMessage, ToolMessage
+from langgraph.graph import StateGraph, START, END
+from langgraph.graph.message import add_messages
+from langgraph.managed import RemainingSteps
+
+class RAGAgentState(TypedDict):
+    messages: Annotated[list[AnyMessage], add_messages]
+    rag_attempts: int                                # 第1层防护：显式记录 RAG 检索次数
+    executed_queries: Annotated[list[str], add]      # 第2层防护：记录已检索过的 Query 指纹
+    remaining_steps: RemainingSteps                  # 第3层防护：LangGraph 内置剩余步数托管变量
+
+def rag_tool_node(state: RAGAgentState):
+    last_ai_msg = state["messages"][-1]
+    tool_call = last_ai_msg.tool_calls[0]
+    query = tool_call["args"].get("query", "").strip()
+
+    # 【防线 1：拦截同参重复调用】
+    if query in state.get("executed_queries", []):
+        warn_msg = f"【系统拦截】查询词 '{query}' 已检索过且无新增信息，请勿重复调用相同参数，请直接基于现有信息回答或告知用户未找到。"
+        return {
+            "messages": [ToolMessage(content=warn_msg, tool_call_id=tool_call["id"])],
+            "rag_attempts": state.get("rag_attempts", 0) + 1
+        }
+
+    # 正常执行向量检索...
+    docs = vector_store.similarity_search(query, k=3)
+    content = "\n".join([d.page_content for d in docs]) if docs else "知识库未命中相关文档。"
+    return {
+        "messages": [ToolMessage(content=content, tool_call_id=tool_call["id"])],
+        "executed_queries": [query],
+        "rag_attempts": state.get("rag_attempts", 0) + 1
+    }
+
+def route_after_agent(state: RAGAgentState) -&gt; Literal["rag_tool", "graceful_fallback", END]:
+    last_msg = state["messages"][-1]
+    if not getattr(last_msg, "tool_calls", None):
+        return END
+    # 【防线 2 &amp; 3：超过 3 次检索 或 图剩余步数 &lt;= 2 时，强制切断工具循环，走优雅降级汇总】
+    if state.get("rag_attempts", 0) &gt;= 3 or state["remaining_steps"] &lt;= 2:
+        return "graceful_fallback"
+    return "rag_tool"
+
+def graceful_fallback_node(state: RAGAgentState):
+    """优雅降级节点：剥离工具绑定（不传 tools），强制 LLM 基于已有上下文给出最终答复"""
+    prompt = state["messages"] + [
+        SystemMessage(content="检索次数已达上限。请停止调用工具，立即基于已获取的上下文给出最合理的最终回答，缺失部分请坦诚说明。")
+    ]
+    final_response = llm_without_tools.invoke(prompt)
+    return {"messages": [final_response]}</code></pre>
+            </div>
+
+            <div class="warning-box">
+              <strong>⚠️ 面试关键细节提醒：</strong>在调用 <code>graph.invoke(inputs, config={"recursion_limit": 15})</code> 时，一定要向面试官指出：<code>recursion_limit</code> 是 <code>config</code> 字典的<strong>顶层独立 Key</strong>，绝不能塞进 <code>config["configurable"]</code> 里面（这是线上很多开发者设置了 <code>recursion_limit</code> 却不生效的常见踩坑点）。
+            </div>
+
+            <div class="ref-links">
+              <span>📚 权威参考源：</span>
+              <a href="https://docs.langchain.com/oss/python/langgraph/errors/GRAPH_RECURSION_LIMIT" target="_blank" rel="noopener">GRAPH_RECURSION_LIMIT 官方排障手册</a>
+              <a href="https://docs.langchain.com/oss/python/langgraph/graph-api" target="_blank" rel="noopener">Proactive Recursion Handling (RemainingSteps)</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             Q5: 你找工作优先考虑什么？
+             =========================================== -->
+        <article class="qa-card" id="q5" data-qnum="Q5" data-qtitle="你找工作优先考虑什么？（高分结构化话术）">
+          <div class="qa-header">
+            <span class="qa-num">Q5</span>
+            <div class="qa-question-wrap">
+              <h3 class="qa-question">你找工作优先考虑什么？</h3>
+              <div class="qa-tags">
+                <span class="qa-tag">HR &amp; 主管必考题</span>
+                <span class="qa-tag">求职动机与稳定性</span>
+                <span class="qa-tag">AI全栈工程价值对齐</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>这道题面试官真正考察的是<strong>“你的核心诉求是否与我们岗位能给你的东西匹配（稳定性 + 自驱力 + 性价比）”</strong>。高分回答采用<strong>“三层递进法”</strong>：<strong>第一看业务场景与 AI 技术落地深度（能否解决真实痛点）</strong> ➔ <strong>第二看技术栈契合度与工程文化（能否快速产出并拔高架构能力）</strong> ➔ <strong>第三看团队协作氛围与长期价值回报（双向奔赴长期稳定发展）</strong>。
+          </div>
+
+          <div class="pitch-box">
+            <div class="pitch-header">
+              <span class="pitch-title">🎙️ 面试 45 秒开口即答（结合全栈 &amp; AI 工程背景定制逐字稿）</span>
+              <button class="copy-pitch-btn" type="button" data-copy-target="pitch-q5">复制话术</button>
+            </div>
+            <p id="pitch-q5">“面试官您好，结合我过去几年从精密制造工程到后端微服务、再到 AI 应用全栈开发的经历，我现在看机会非常务实，主要按三个优先级来考虑：<strong>第一优先级是‘业务场景的真实度与 AI 落地的闭环价值’</strong>。我非常看重团队是不是在真实的业务场景里用大模型和 Agent 解决具体痛点（比如降本增效、复杂工作流自动化或核心交易赋能），而不是只做表面的 Demo，因为只有贴近真实业务深水区，技术才能产生复利；<strong>第二优先级是‘技术栈契合度与工程化标准’</strong>。我过往在分布式后端（Spring Boot / Cloud）以及大模型工程化（LangGraph / RAG / 多模态 Agent）上有比较扎实的积累，同时也非常注重系统的稳定性、可观测性和交付质量，我希望加入一个既有过硬工程底座、又能让我上去就快速扛起核心模块产出的团队；<strong>第三优先级是‘团队氛围与健康的价值正反馈’</strong>。我喜欢目标清晰、沟通直接、遇到线上问题大家一起看日志拆架构的工程师文化，当然在薪资回报上希望匹配我的技术产出。前期了解下来，咱们团队在这三点上跟我的预期非常契合，这也是我今天非常期待加入咱们团队的原因。”</p>
+          </div>
+
+          <div class="answer-body">
+            <h4 id="q5-s1">1. 三维优先级黄金拆解框架（为什么这样答最拿分？）</h4>
+            <div class="table-wrapper">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>优先级排序</th>
+                    <th>核心表达维度</th>
+                    <th>打动面试官（技术主管 / HR）的底层逻辑</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>第一顺位（权重 50%）<br>业务场景与技术落地纵深</strong></td>
+                    <td>看重公司业务是否有真实垂直场景支撑 AI / 全栈技术落地，追求“技术服务于业务结果”。</td>
+                    <td>证明你<strong>具备强烈的业务导向（Business-Driven）</strong>，不是自嗨型程序员，进来后能帮主管背业务 KPI。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>第二顺位（权重 30%）<br>能力复用与工程成长空间</strong></td>
+                    <td>看重过往全栈开发、高并发后端与 Agent 编排经验能否在岗位上发挥即战力，并在高标准工程体系中继续进阶。</td>
+                    <td>证明你<strong>上手极快、培养成本低（即插即用）</strong>，同时有技术追求，不会进来混日子。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>第三顺位（权重 20%）<br>务实协作文化与合理回报</strong></td>
+                    <td>偏好扁平高效、结果导向的团队氛围，期望获得与个人贡献相匹配的薪酬与长期发展空间。</td>
+                    <td>展现<strong>情绪成熟、好合作、不画大饼也不唯钱是图</strong>的职业素养，消除 HR 对短期跳槽的顾虑。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4 id="q5-s2">2. 针对不同类型面试官/公司的灵活微调策略</h4>
+            <ul>
+              <li><strong>面对技术主管 / 架构师（二面）</strong>：把重心放在<strong>“工程化深水区挑战”</strong>上——强调自己不仅能写 Agent 原型，更关注如何把 LangGraph 状态机、RAG 召回率调优、高并发限流幂等真正跑稳在线上生产环境。</li>
+              <li><strong>面对业务负责人 / 部门总监（三面）</strong>：把重心放在<strong>“全栈闭环交付能力与产品思维”</strong>上——结合早年在立讯精密做产品设计工程沉淀的严谨交付意识，叠加如今的前后端 + AI 全栈能力，强调自己能快速把一个业务想法从 0 到 1 做成稳定可用的线上产品。</li>
+              <li><strong>面对 HR（终面谈薪前）</strong>：坦诚表达<strong>“长期稳定发展的意愿”</strong>——表明自己现阶段追求在一个赛道稳扎稳打深耕 3~5 年，看重平台稳定性和清晰的绩效激励机制。</li>
+            </ul>
+
+            <h4 id="q5-s3">3. 回答此题的“三大避坑红线”</h4>
+            <div class="warning-box">
+              <strong>⚠️ 绝对不要踩的 3 个低分雷区：</strong>
+              <ol style="margin-top: 6px; margin-bottom: 0;">
+                <li><strong>忌把“钱多、事少、离家近 / 不加班 / 方便养老”放第一句</strong>：哪怕心里看重工作生活平衡，在面试场上也要转化为“看重高效的工程研发流程与合理的投入产出比”。</li>
+                <li><strong>忌只谈“我想来学习大模型技术”</strong>：企业招社招工程师是来<strong>解决问题创造价值</strong>的，不是办培训班。一定要说“我已具备成熟的 AI 全栈与 Agent 落地经验，希望能在这个更大的业务场景中<strong>快速转化产出，并在实战中持续精进</strong>”。</li>
+                <li><strong>忌贬低前东家</strong>：谈及看重什么时，正向表述对未来的期待，不要顺带抱怨上一家公司管理混乱或业务没前景。</li>
+              </ol>
+            </div>
+          </div>
+        </article>
+
+      </section>
+
+      <!-- Page Provenance & Author Footer -->
+      <footer class="page-footer">
+        <div class="page-footer-left">
+          <span>📌 <strong>出处与整理：</strong><span class="page-footer-author">刘浩 (Ricardo L)</span></span>
+          <span>·</span>
+          <span>AI 应用开发全栈工程师 · 面试题深度精讲系列</span>
+        </div>
+        <div class="page-footer-right">
+          <span>© 2026 刘浩 (Ricardo L) · All Rights Reserved</span>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Floating Action Buttons -->
+  <div class="floating-tools">
+    <button class="float-btn mobile-only-fab" id="fabTocBtn" type="button" title="打开题目目录" aria-label="打开题目目录">📑</button>
+    <button class="float-btn" id="backToTopBtn" type="button" title="回到顶部" aria-label="回到顶部">↑</button>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-msg" id="toastMsg">已复制到剪贴板</div>
+
+  <script>
+    (function () {
+      // ==========================================
+      // 1. Safe Storage Helpers
+      // ==========================================
+      function safeGetStorage(key) {
+        try {
+          return localStorage.getItem(key);
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function safeSetStorage(key, val) {
+        try {
+          localStorage.setItem(key, val);
+        } catch (e) {
+          // ignore in restricted sandbox
+        }
+      }
+
+      // ==========================================
+      // 2. Theme Toggle (Light / Dark)
+      // ==========================================
+      const themeToggleBtn = document.getElementById('themeToggle');
+      const themeIcon = document.getElementById('themeIcon');
+
+      function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        if (themeIcon) {
+          themeIcon.textContent = theme === 'dark' ? '☀️' : '🌓';
+        }
+      }
+
+      const savedTheme = safeGetStorage('theme_1017');
+      if (savedTheme) {
+        applyTheme(savedTheme);
+      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        applyTheme('dark');
+      }
+
+      if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', function () {
+          const current = document.documentElement.getAttribute('data-theme');
+          const next = current === 'dark' ? 'light' : 'dark';
+          applyTheme(next);
+          safeSetStorage('theme_1017', next);
+        });
+      }
+
+      // ==========================================
+      // 3. Recite Mode Toggle (速背模式)
+      // ==========================================
+      const reciteToggleBtn = document.getElementById('reciteToggle');
+      let isReciteMode = false;
+
+      if (reciteToggleBtn) {
+        reciteToggleBtn.addEventListener('click', function () {
+          isReciteMode = !isReciteMode;
+          document.body.classList.toggle('recite-mode', isReciteMode);
+          reciteToggleBtn.classList.toggle('active-mode', isReciteMode);
+          showToast(isReciteMode ? '⚡ 已开启速背模式（仅显示核心速记与口述逐字稿）' : '📖 已恢复完整精讲模式');
+          setTimeout(updateScrollSpy, 60);
+        });
+      }
+
+      // ==========================================
+      // 4. Mobile Drawer Control (Zero-Bug Mobile UX)
+      // ==========================================
+      const sidebar = document.getElementById('sidebar');
+      const backdrop = document.getElementById('sidebarBackdrop');
+      const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+      const mobileOpenTocBtn = document.getElementById('mobileOpenTocBtn');
+      const mobileStatusTrigger = document.getElementById('mobileStatusTrigger');
+      const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+      const fabTocBtn = document.getElementById('fabTocBtn');
+
+      function openMobileDrawer() {
+        if (!sidebar || !backdrop) return;
+        sidebar.classList.add('open');
+        backdrop.classList.add('show');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeMobileDrawer() {
+        if (!sidebar || !backdrop) return;
+        sidebar.classList.remove('open');
+        backdrop.classList.remove('show');
+        document.body.style.overflow = '';
+      }
+
+      [mobileMenuBtn, mobileOpenTocBtn, mobileStatusTrigger, fabTocBtn].forEach(function (btn) {
+        if (btn) {
+          btn.addEventListener('click', function () {
+            if (sidebar && sidebar.classList.contains('open')) {
+              closeMobileDrawer();
+            } else {
+              openMobileDrawer();
+            }
+          });
+        }
+      });
+
+      if (sidebarCloseBtn) {
+        sidebarCloseBtn.addEventListener('click', closeMobileDrawer);
+      }
+
+      if (backdrop) {
+        backdrop.addEventListener('click', closeMobileDrawer);
+      }
+
+      window.addEventListener('resize', function () {
+        if (window.innerWidth > 900 && sidebar && sidebar.classList.contains('open')) {
+          closeMobileDrawer();
+        }
+        updateScrollSpy();
+      });
+
+      // ==========================================
+      // 5. High-Precision ScrollSpy & Navigation Sync
+      // ==========================================
+      const qaCards = Array.from(document.querySelectorAll('.qa-card'));
+      const navItems = Array.from(document.querySelectorAll('.nav-item'));
+      const mainNavLinks = Array.from(document.querySelectorAll('.nav-item > a'));
+      const subNavLinks = Array.from(document.querySelectorAll('.sub-nav-item a'));
+      const subHeadings = Array.from(document.querySelectorAll('.answer-body h4[id]'));
+
+      const sidebarProgressText = document.getElementById('sidebarProgressText');
+      const sidebarActiveName = document.getElementById('sidebarActiveName');
+      const mobileCurrentNum = document.getElementById('mobileCurrentNum');
+      const mobileCurrentTitle = document.getElementById('mobileCurrentTitle');
+      const readingProgress = document.getElementById('readingProgress');
+
+      let isClickScrolling = false;
+      let clickScrollTimer = null;
+
+      function setActiveQuestion(activeId, activeSubId) {
+        let activeIndex = 0;
+        let activeCardEl = null;
+
+        qaCards.forEach(function (card, idx) {
+          const isMatch = card.id === activeId;
+          card.classList.toggle('active-card', isMatch);
+          if (isMatch) {
+            activeIndex = idx;
+            activeCardEl = card;
+          }
+        });
+
+        navItems.forEach(function (item) {
+          const targetId = item.getAttribute('data-target');
+          const link = item.querySelector(':scope > a');
+          const isMatch = targetId === activeId;
+          item.classList.toggle('expanded', isMatch);
+          if (link) {
+            link.classList.toggle('active', isMatch);
+            if (isMatch && sidebar) {
+              // Keep active item visible inside sidebar without jarring page scroll
+              const linkRect = link.getBoundingClientRect();
+              const sidebarRect = sidebar.getBoundingClientRect();
+              if (linkRect.top < sidebarRect.top + 60 || linkRect.bottom > sidebarRect.bottom - 60) {
+                sidebar.scrollTo({
+                  top: link.offsetTop - sidebar.clientHeight / 3,
+                  behavior: 'smooth'
+                });
+              }
+            }
+          }
+        });
+
+        subNavLinks.forEach(function (subLink) {
+          const href = subLink.getAttribute('href');
+          subLink.classList.toggle('sub-active', activeSubId && href === '#' + activeSubId);
+        });
+
+        if (activeCardEl) {
+          const qNum = activeCardEl.getAttribute('data-qnum') || ('Q' + (activeIndex + 1));
+          const qTitle = activeCardEl.getAttribute('data-qtitle') || '';
+          const visibleCount = qaCards.filter(function (c) { return c.style.display !== 'none'; }).length || qaCards.length;
+
+          if (sidebarProgressText) {
+            sidebarProgressText.textContent = (activeIndex + 1) + ' / ' + visibleCount;
+          }
+          if (sidebarActiveName) {
+            sidebarActiveName.textContent = qNum + ' · ' + qTitle;
+          }
+          if (mobileCurrentNum) {
+            mobileCurrentNum.textContent = qNum;
+          }
+          if (mobileCurrentTitle) {
+            mobileCurrentTitle.textContent = qTitle;
+          }
+        }
+      }
+
+      function updateScrollSpy() {
+        // Update top reading progress bar
+        const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+        const docHeight = Math.max(
+          document.body.scrollHeight,
+          document.documentElement.scrollHeight
+        ) - window.innerHeight;
+
+        if (readingProgress) {
+          const pct = docHeight > 0 ? Math.min(100, Math.max(0, (scrollTop / docHeight) * 100)) : 100;
+          readingProgress.style.width = pct.toFixed(1) + '%';
+        }
+
+        if (isClickScrolling) return;
+
+        const visibleCards = qaCards.filter(function (card) {
+          return card.style.display !== 'none';
+        });
+        if (visibleCards.length === 0) return;
+
+        const isMobile = window.innerWidth <= 900;
+        const triggerOffset = isMobile ? 140 : 120;
+
+        // Check if scrolled to bottom of page -> highlight last visible card
+        const atBottom = (window.innerHeight + scrollTop) >= (document.documentElement.scrollHeight - 36);
+        let currentCard = visibleCards[0];
+
+        if (atBottom) {
+          currentCard = visibleCards[visibleCards.length - 1];
+        } else {
+          for (let i = 0; i < visibleCards.length; i++) {
+            const rect = visibleCards[i].getBoundingClientRect();
+            if (rect.top <= triggerOffset) {
+              currentCard = visibleCards[i];
+            } else {
+              break;
+            }
+          }
+        }
+
+        // Determine active sub-section inside currentCard
+        let currentSubId = null;
+        if (!isReciteMode && currentCard) {
+          const cardSubs = subHeadings.filter(function (h) {
+            return currentCard.contains(h);
+          });
+          if (cardSubs.length > 0) {
+            currentSubId = cardSubs[0].id;
+            for (let j = 0; j < cardSubs.length; j++) {
+              const sRect = cardSubs[j].getBoundingClientRect();
+              if (sRect.top <= triggerOffset + 40) {
+                currentSubId = cardSubs[j].id;
+              } else {
+                break;
+              }
+            }
+          }
+        }
+
+        setActiveQuestion(currentCard.id, currentSubId);
+      }
+
+      // Throttled scroll listener
+      let ticking = false;
+      window.addEventListener('scroll', function () {
+        if (!ticking) {
+          window.requestAnimationFrame(function () {
+            updateScrollSpy();
+            ticking = false;
+          });
+          ticking = true;
+        }
+      }, { passive: true });
+
+      // Smooth Anchor Click Handling (Main + Sub links) with scroll-idle detection
+      let targetScrollPos = null;
+
+      function releaseClickScrollLock() {
+        isClickScrolling = false;
+        targetScrollPos = null;
+        if (clickScrollTimer) {
+          clearTimeout(clickScrollTimer);
+          clickScrollTimer = null;
+        }
+        updateScrollSpy();
+      }
+
+      window.addEventListener('scroll', function () {
+        if (!isClickScrolling) return;
+        const currentY = window.scrollY || document.documentElement.scrollTop || 0;
+        if (targetScrollPos !== null && Math.abs(currentY - targetScrollPos) <= 6) {
+          if (clickScrollTimer) clearTimeout(clickScrollTimer);
+          clickScrollTimer = setTimeout(releaseClickScrollLock, 80);
+          return;
+        }
+        // Reset idle timer while smooth scroll is still in flight
+        if (clickScrollTimer) clearTimeout(clickScrollTimer);
+        clickScrollTimer = setTimeout(releaseClickScrollLock, 180);
+      }, { passive: true });
+
+      function handleNavClick(e, targetId, parentQId) {
+        e.preventDefault();
+        const targetEl = document.getElementById(targetId);
+        if (!targetEl) return;
+
+        if (window.innerWidth <= 900) {
+          closeMobileDrawer();
+        }
+
+        isClickScrolling = true;
+        if (clickScrollTimer) clearTimeout(clickScrollTimer);
+
+        const qId = parentQId || targetId;
+        const subId = parentQId ? targetId : null;
+        setActiveQuestion(qId, subId);
+
+        const isMobile = window.innerWidth <= 900;
+        const headerOffset = isMobile ? 114 : 80;
+        const rect = targetEl.getBoundingClientRect();
+        const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+        targetScrollPos = Math.min(maxScroll, Math.max(0, rect.top + window.scrollY - headerOffset));
+
+        window.scrollTo({
+          top: targetScrollPos,
+          behavior: 'smooth'
+        });
+
+        clickScrollTimer = setTimeout(releaseClickScrollLock, 250);
+      }
+
+      mainNavLinks.forEach(function (link) {
+        link.addEventListener('click', function (e) {
+          const href = link.getAttribute('href') || '';
+          if (href.startsWith('#')) {
+            handleNavClick(e, href.slice(1), null);
+          }
+        });
+      });
+
+      subNavLinks.forEach(function (subLink) {
+        subLink.addEventListener('click', function (e) {
+          const href = subLink.getAttribute('href') || '';
+          const parentId = subLink.getAttribute('data-parent');
+          if (href.startsWith('#')) {
+            handleNavClick(e, href.slice(1), parentId);
+          }
+        });
+      });
+
+      // ==========================================
+      // 6. Search / Filter Questions
+      // ==========================================
+      const searchInput = document.getElementById('searchInput');
+      const searchClearBtn = document.getElementById('searchClearBtn');
+
+      function filterQuestions() {
+        if (!searchInput) return;
+        const query = searchInput.value.toLowerCase().trim();
+        if (searchClearBtn) {
+          searchClearBtn.style.display = query ? 'block' : 'none';
+        }
+
+        qaCards.forEach(function (card) {
+          const text = card.textContent.toLowerCase();
+          const match = !query || text.includes(query);
+          card.style.display = match ? '' : 'none';
+
+          const navItem = document.querySelector('.nav-item[data-target="' + card.id + '"]');
+          if (navItem) {
+            navItem.style.display = match ? '' : 'none';
+          }
+        });
+
+        updateScrollSpy();
+      }
+
+      if (searchInput) {
+        searchInput.addEventListener('input', filterQuestions);
+      }
+
+      if (searchClearBtn) {
+        searchClearBtn.addEventListener('click', function () {
+          searchInput.value = '';
+          filterQuestions();
+          searchInput.focus();
+        });
+      }
+
+      // ==========================================
+      // 7. Copy Oral Pitch & Back to Top
+      // ==========================================
+      const toastMsg = document.getElementById('toastMsg');
+      let toastTimer = null;
+
+      function showToast(text) {
+        if (!toastMsg) return;
+        toastMsg.textContent = text;
+        toastMsg.classList.add('show');
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () {
+          toastMsg.classList.remove('show');
+        }, 2200);
+      }
+
+      function copyTextToClipboard(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(function () {
+            showToast('✅ 背诵话术已复制到剪贴板');
+          }).catch(function () {
+            fallbackCopy(text);
+          });
+        } else {
+          fallbackCopy(text);
+        }
+      }
+
+      function fallbackCopy(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          showToast('✅ 背诵话术已复制到剪贴板');
+        } catch (e) {
+          showToast('复制失败，请手动选中复制');
+        }
+        document.body.removeChild(ta);
+      }
+
+      document.querySelectorAll('.copy-pitch-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const targetId = btn.getAttribute('data-copy-target');
+          const targetEl = document.getElementById(targetId);
+          if (targetEl) {
+            copyTextToClipboard(targetEl.textContent.trim());
+          }
+        });
+      });
+
+      const backToTopBtn = document.getElementById('backToTopBtn');
+      if (backToTopBtn) {
+        backToTopBtn.addEventListener('click', function () {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      }
+
+      // Initial ScrollSpy trigger
+      updateScrollSpy();
+    })();
+  </script>
+</body>
+</html>
