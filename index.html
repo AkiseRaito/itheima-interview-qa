@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta name="description" content="AI 应用开发工程师 / 后端架构 面试真题逐日精解，按日期倒序归档。">
+  <title>面试真题精解 · 总目录</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --primary-border: #bfdbfe;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --text-sub: #94a3b8;
+      --bg-body: #f8fafc;
+      --bg-card: #ffffff;
+      --border-color: #e2e8f0;
+      --tag-bg: #f1f5f9;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 28px -16px rgba(15, 23, 42, 0.18);
+      --shadow-hover: 0 2px 4px rgba(15, 23, 42, 0.05), 0 18px 40px -18px rgba(37, 99, 235, 0.28);
+      --header-height: 64px;
+    }
+
+    [data-theme="dark"] {
+      --primary: #3b82f6;
+      --primary-hover: #60a5fa;
+      --primary-light: #1e293b;
+      --primary-border: #1e3a8a;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-sub: #64748b;
+      --bg-body: #0b0f19;
+      --bg-card: #151d2f;
+      --border-color: #243049;
+      --tag-bg: #1e293b;
+      --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.35), 0 10px 28px -16px rgba(0, 0, 0, 0.6);
+      --shadow-hover: 0 2px 4px rgba(0, 0, 0, 0.4), 0 18px 40px -18px rgba(59, 130, 246, 0.45);
+    }
+
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--header-height);
+      background-color: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 20px;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .header-title { display: flex; align-items: center; gap: 10px; min-width: 0; }
+
+    .badge-sub {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      color: #ffffff;
+      font-size: 0.75rem;
+      padding: 3px 9px;
+      border-radius: 9999px;
+      font-weight: 600;
+      white-space: nowrap;
+      flex-shrink: 0;
+      letter-spacing: 0.02em;
+    }
+
+    .header-title h1 {
+      font-size: 1.08rem;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .theme-toggle {
+      background: var(--tag-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 7px 13px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 600;
+      font-family: inherit;
+      white-space: nowrap;
+      transition: border-color 0.2s, color 0.2s, transform 0.2s;
+    }
+    .theme-toggle:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: calc(var(--header-height) + 36px) 20px 56px;
+    }
+
+    .hero { margin-bottom: 30px; }
+
+    .hero h2 {
+      font-size: 1.72rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      margin-bottom: 10px;
+    }
+
+    .hero p { color: var(--text-muted); font-size: 0.96rem; max-width: 62ch; }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .chip {
+      background: var(--tag-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 4px 11px;
+      border-radius: 9999px;
+    }
+    .chip.accent { background: var(--primary-light); border-color: var(--primary-border); color: var(--primary); }
+
+    .filter-row { margin-bottom: 20px; }
+
+    .filter-row input {
+      width: 100%;
+      max-width: 380px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.9rem;
+      padding: 11px 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .filter-row input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+    .filter-row input::placeholder { color: var(--text-sub); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 20px;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: var(--shadow-card);
+      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+      overflow: hidden;
+    }
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 3px;
+      background: var(--primary);
+      opacity: 0;
+      transition: opacity 0.22s ease;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: var(--primary-border);
+      box-shadow: var(--shadow-hover);
+    }
+    .card:hover::before { opacity: 1; }
+
+    .card-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+    .card-date {
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--primary);
+      background: var(--primary-light);
+      border: 1px solid var(--primary-border);
+      border-radius: 6px;
+      padding: 2px 8px;
+    }
+
+    .pill-new {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #ffffff;
+      background: var(--success);
+      border-radius: 9999px;
+      padding: 2px 8px;
+    }
+
+    .pill-type {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--tag-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 9999px;
+      padding: 2px 8px;
+    }
+
+    .card h3 {
+      font-size: 1.02rem;
+      font-weight: 700;
+      line-height: 1.45;
+      letter-spacing: -0.005em;
+    }
+
+    .card p {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      flex: 1;
+    }
+
+    .card-go {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-top: 2px;
+    }
+    .card-go span { transition: transform 0.22s ease; }
+    .card:hover .card-go span { transform: translateX(4px); }
+
+    .empty {
+      display: none;
+      padding: 40px 0;
+      text-align: center;
+      color: var(--text-sub);
+      font-size: 0.9rem;
+    }
+
+    footer {
+      margin-top: 54px;
+      padding-top: 22px;
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+      color: var(--text-sub);
+      font-size: 0.82rem;
+    }
+    footer p + p { margin-top: 6px; }
+
+    @media (max-width: 640px) {
+      .container { padding-left: 16px; padding-right: 16px; }
+      .hero h2 { font-size: 1.42rem; }
+      .grid { grid-template-columns: 1fr; }
+      .header-title h1 { font-size: 0.98rem; }
+      .theme-toggle { padding: 7px 10px; font-size: 0.76rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-title">
+      <span class="badge-sub">INDEX</span>
+      <h1>面试真题精解 · 总目录</h1>
+    </div>
+    <div class="header-actions">
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌓 切换暗黑模式</button>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <div class="hero">
+      <h2>AI 应用开发工程师 · 面试真题逐日精解</h2>
+      <p>按日期倒序归档，点击任意卡片进入当日的完整题解。每期包含题目拆解、标准答法、追问预判与踩坑提醒。</p>
+      <div class="hero-meta">
+        <span class="chip accent">共 6 期</span>
+        <span class="chip">最新 · 2026.10.17</span>
+        <span class="chip">LangGraph / RAG / Agent</span>
+      </div>
+    </div>
+
+    <div class="filter-row">
+      <input type="text" id="filterInput" placeholder="🔍 按日期或关键词过滤…" oninput="filterCards()" autocomplete="off">
+    </div>
+
+    <div class="grid" id="cardGrid">
+
+      <a class="card" href="20261017.html" data-key="20261017 10月17日 langgraph 架构 智能体 agent 求职策略 精讲">
+        <div class="card-top">
+          <span class="card-date">2026.10.17</span>
+          <span class="pill-new">最新</span>
+        </div>
+        <h3>AI Agent 与 LangGraph 架构面试题精讲</h3>
+        <p>LangGraph 图式智能体架构、状态机编排与生产实战，附带求职策略梳理。</p>
+        <div class="card-go">进入题解 <span>→</span></div>
+      </a>
+
+      <a class="card" href="20261016.html" data-key="20261016 10月16日 rag 数据链路 agent 评估 面试真题简答">
+        <div class="card-top">
+          <span class="card-date">2026.10.16</span>
+          <span class="pill-type">RAG / Agent</span>
+        </div>
+        <h3>AI 应用开发工程师 · RAG 数据链路与 Agent 评估</h3>
+        <p>RAG 数据链路的完整问答，以及 Agent 效果评估口径的面试真题简答。</p>
+        <div class="card-go">进入题解 <span>→</span></div>
+      </a>
+
+      <a class="card" href="20261013.html" data-key="20261013 10月13日 rag 深挖 稳定性 分块 上下文 面试真题简答">
+        <div class="card-top">
+          <span class="card-date">2026.10.13</span>
+          <span class="pill-type">RAG 深挖</span>
+        </div>
+        <h3>AI 应用开发工程师 · RAG 深挖与稳定性</h3>
+        <p>RAG 三阶段、分块策略、上下文超限与稳定性追问的逐层下钻答法。</p>
+        <div class="card-go">进入题解 <span>→</span></div>
+      </a>
+
+      <a class="card" href="20261009.html" data-key="20261009 10月09日 核心 面试真题 精解">
+        <div class="card-top">
+          <span class="card-date">2026.10.09</span>
+          <span class="pill-type">核心考点</span>
+        </div>
+        <h3>AI 应用开发工程师 · 核心面试真题精解</h3>
+        <p>核心考点精讲与简答模板，用于快速过一遍高频题目。</p>
+        <div class="card-go">进入题解 <span>→</span></div>
+      </a>
+
+      <a class="card" href="20261006.html" data-key="20261006 10月06日 面试题 深化解析">
+        <div class="card-top">
+          <span class="card-date">2026.10.06</span>
+          <span class="pill-type">深化解析</span>
+        </div>
+        <h3>2026-10-06 面试题 · 深化解析</h3>
+        <p>当日面试题的深化解析版本，侧重原理层面的追问与展开。</p>
+        <div class="card-go">进入题解 <span>→</span></div>
+      </a>
+
+      <a class="card" href="nd5days.html" data-key="nd5days 五日集训 后端 架构 核心面试题 精讲手册 10.01 10.05">
+        <div class="card-top">
+          <span class="card-date">五日集训</span>
+          <span class="pill-type">后端 / 架构</span>
+        </div>
+        <h3>后端架构核心面试题精讲手册</h3>
+        <p>10.01 – 10.05 五日集训整理：后端高频核心面试题系统精讲。</p>
+        <div class="card-go">进入题解 <span>→</span></div>
+      </a>
+
+    </div>
+
+    <div class="empty" id="emptyTip">没有匹配的期数，换个关键词试试。</div>
+
+    <footer>
+      <p>面试真题精解 · 逐日归档 &nbsp;·&nbsp; by 浩</p>
+      <p>内容为个人学习整理，仅作复习参考。</p>
+    </footer>
+
+  </main>
+
+  <script>
+    function toggleTheme() {
+      var current = document.documentElement.getAttribute('data-theme');
+      var target = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', target);
+      try { localStorage.setItem('theme', target); } catch (e) {}
+    }
+
+    (function () {
+      var saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}
+      if (saved) {
+        document.documentElement.setAttribute('data-theme', saved);
+      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+
+    function filterCards() {
+      var q = (document.getElementById('filterInput').value || '').trim().toLowerCase();
+      var cards = document.querySelectorAll('#cardGrid .card');
+      var shown = 0;
+      for (var i = 0; i < cards.length; i++) {
+        var hay = (cards[i].getAttribute('data-key') || '') + ' ' + cards[i].textContent.toLowerCase();
+        var hit = !q || hay.toLowerCase().indexOf(q) !== -1;
+        cards[i].style.display = hit ? '' : 'none';
+        if (hit) shown++;
+      }
+      document.getElementById('emptyTip').style.display = shown ? 'none' : 'block';
+    }
+  </script>
+
+</body>
+</html>
