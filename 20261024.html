@@ -1,0 +1,2305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>2026年10月24日面试题精讲 — RAG 全链路架构、上下文工程与多智能体系统设计</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --primary-border: #bfdbfe;
+      --accent: #0284c7;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --bg-body: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-sidebar: #ffffff;
+      --bg-header: rgba(255, 255, 255, 0.92);
+      --border-color: #e2e8f0;
+      --tag-bg: #f1f5f9;
+      --code-bg: #f1f5f9;
+      --code-color: #0f172a;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --purple: #7c3aed;
+      --sidebar-width: 330px;
+      --header-height: 64px;
+      --mobile-bar-height: 44px;
+    }
+
+    [data-theme="dark"] {
+      --primary: #3b82f6;
+      --primary-hover: #60a5fa;
+      --primary-light: #1e293b;
+      --primary-border: #1e3a8a;
+      --accent: #38bdf8;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --bg-body: #0f172a;
+      --bg-card: #1e293b;
+      --bg-sidebar: #111827;
+      --bg-header: rgba(17, 24, 39, 0.92);
+      --border-color: #334155;
+      --tag-bg: #334155;
+      --code-bg: #090d16;
+      --code-color: #e2e8f0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+      max-width: 100vw;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      line-height: 1.68;
+      overflow-x: hidden;
+      max-width: 100vw;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top Reading Progress Bar */
+    .reading-progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #2563eb, #06b6d4, #10b981);
+      width: 0%;
+      z-index: 200;
+      transition: width 0.1s ease-out;
+    }
+
+    /* Header */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--header-height);
+      background-color: var(--bg-header);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 120;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: var(--primary-light);
+      border: 1px solid var(--primary-border);
+      color: var(--primary);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .mobile-menu-btn:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .badge-sub {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      color: white;
+      font-size: 0.75rem;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      font-weight: 600;
+      flex-shrink: 0;
+      letter-spacing: 0.02em;
+    }
+
+    .header-title-text {
+      font-size: 1.12rem;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .action-btn {
+      background: var(--tag-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.84rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .action-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .action-btn.active-mode {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* Mobile Sticky Status Bar (only shown on <=900px) */
+    .mobile-status-bar {
+      display: none;
+      position: fixed;
+      top: var(--header-height);
+      left: 0;
+      right: 0;
+      height: var(--mobile-bar-height);
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0 16px;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 110;
+      font-size: 0.82rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    }
+
+    .mobile-current-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .mobile-current-pill {
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.72rem;
+      padding: 2px 7px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .mobile-current-title {
+      color: var(--text-main);
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mobile-open-toc {
+      color: var(--primary);
+      font-weight: 600;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 6px;
+      flex-shrink: 0;
+      font-size: 0.8rem;
+    }
+
+    /* Backdrop for Mobile Drawer */
+    .sidebar-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      z-index: 130;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      backdrop-filter: blur(2px);
+    }
+
+    .sidebar-backdrop.show {
+      display: block;
+      opacity: 1;
+    }
+
+    /* Main Container */
+    .container {
+      display: flex;
+      margin-top: var(--header-height);
+      min-height: calc(100vh - var(--header-height));
+      width: 100%;
+    }
+
+    /* Sidebar */
+    aside.sidebar {
+      width: var(--sidebar-width);
+      position: fixed;
+      top: var(--header-height);
+      bottom: 0;
+      left: 0;
+      background-color: var(--bg-sidebar);
+      border-right: 1px solid var(--border-color);
+      overflow-y: auto;
+      padding: 18px 16px 40px;
+      z-index: 140;
+      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      overscroll-behavior: contain;
+    }
+
+    .sidebar-mobile-header {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 14px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .sidebar-mobile-header span {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text-main);
+    }
+
+    .sidebar-close-btn {
+      background: var(--tag-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .search-box {
+      margin-bottom: 14px;
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 9px 32px 9px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--bg-body);
+      color: var(--text-main);
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-box input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .search-clear-btn {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: none;
+      padding: 2px 4px;
+    }
+
+    .sidebar-status-card {
+      background: var(--primary-light);
+      border: 1px solid var(--primary-border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 16px;
+      font-size: 0.78rem;
+    }
+
+    .sidebar-status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+      color: var(--text-muted);
+    }
+
+    .sidebar-status-row strong {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .sidebar-active-indicator {
+      color: var(--text-main);
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .nav-day-group {
+      margin-bottom: 20px;
+    }
+
+    .nav-day-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      padding: 6px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-day-badge {
+      background: var(--tag-bg);
+      color: var(--text-muted);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .nav-list {
+      list-style: none;
+      margin-top: 6px;
+    }
+
+    .nav-item {
+      margin-bottom: 4px;
+    }
+
+    .nav-item > a {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 9px 10px;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-radius: 8px;
+      transition: all 0.18s ease-in-out;
+      line-height: 1.42;
+      border-left: 3px solid transparent;
+      position: relative;
+    }
+
+    .nav-item > a .nav-q-badge {
+      background: var(--tag-bg);
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-top: 1px;
+      transition: all 0.18s;
+    }
+
+    .nav-item > a:hover {
+      background-color: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .nav-item > a.active {
+      background-color: var(--primary-light);
+      color: var(--primary);
+      font-weight: 600;
+      border-left-color: var(--primary);
+      box-shadow: inset 0 0 0 1px var(--primary-border);
+    }
+
+    .nav-item > a.active .nav-q-badge {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    /* Sub-navigation under each Question */
+    .sub-nav-list {
+      list-style: none;
+      margin: 2px 0 6px 22px;
+      padding-left: 10px;
+      border-left: 1px dashed var(--border-color);
+      display: none;
+    }
+
+    .nav-item.expanded .sub-nav-list {
+      display: block;
+    }
+
+    .sub-nav-item a {
+      display: block;
+      padding: 4px 8px;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-radius: 5px;
+      line-height: 1.35;
+      transition: all 0.15s;
+      margin-bottom: 2px;
+    }
+
+    .sub-nav-item a:hover {
+      color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .sub-nav-item a.sub-active {
+      color: var(--primary);
+      font-weight: 600;
+      background: var(--primary-light);
+    }
+
+    /* Content Area */
+    main.content {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      min-width: 0;
+      width: 100%;
+      padding: 32px 48px 96px;
+      max-width: 1080px;
+    }
+
+    .day-section {
+      margin-bottom: 48px;
+      scroll-margin-top: 84px;
+    }
+
+    .day-header {
+      padding-bottom: 18px;
+      border-bottom: 2px solid var(--border-color);
+      margin-bottom: 28px;
+    }
+
+    .day-tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .day-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      background: var(--primary-light);
+      border: 1px solid var(--primary-border);
+      padding: 4px 12px;
+      border-radius: 9999px;
+    }
+
+    .day-meta-pill {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      background: var(--tag-bg);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-weight: 500;
+    }
+
+    .day-title {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.3;
+    }
+
+    .day-desc {
+      color: var(--text-muted);
+      font-size: 0.94rem;
+      margin-top: 6px;
+    }
+
+    /* Question Card */
+    .qa-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 28px;
+      margin-bottom: 32px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      scroll-margin-top: 84px;
+      transition: border-color 0.25s, box-shadow 0.25s;
+      min-width: 0;
+      width: 100%;
+      overflow-wrap: break-word;
+    }
+
+    .qa-card.active-card {
+      border-color: var(--primary);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.08);
+    }
+
+    .qa-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .qa-num {
+      background: var(--primary);
+      color: white;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 6px;
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+
+    .qa-question-wrap {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .qa-question {
+      font-size: 1.24rem;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.42;
+    }
+
+    .qa-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .qa-tag {
+      font-size: 0.73rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: var(--tag-bg);
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Highlight Banner (核心速记) */
+    .highlight-box {
+      background: var(--primary-light);
+      border-left: 4px solid var(--primary);
+      padding: 14px 16px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 16px;
+      font-size: 0.93rem;
+      color: var(--text-main);
+    }
+
+    .highlight-box strong {
+      color: var(--primary);
+    }
+
+    /* Oral Verbatim Pitch Box (面试30秒开口背诵话术) */
+    .pitch-box {
+      background: linear-gradient(to right, rgba(124, 58, 237, 0.06), rgba(37, 99, 235, 0.04));
+      border: 1px solid rgba(124, 58, 237, 0.25);
+      border-left: 4px solid var(--purple);
+      padding: 14px 16px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 20px;
+      font-size: 0.92rem;
+      color: var(--text-main);
+      position: relative;
+    }
+
+    .pitch-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      gap: 8px;
+    }
+
+    .pitch-title {
+      font-weight: 700;
+      color: var(--purple);
+      font-size: 0.86rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    [data-theme="dark"] .pitch-title {
+      color: #a78bfa;
+    }
+
+    .copy-pitch-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.74rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .copy-pitch-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* Bonus Banner */
+    .bonus-box {
+      background: rgba(16, 185, 129, 0.08);
+      border-left: 4px solid var(--success);
+      padding: 13px 16px;
+      border-radius: 0 8px 8px 0;
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: var(--text-main);
+    }
+
+    .bonus-box strong {
+      color: var(--success);
+    }
+
+    /* Warning Banner */
+    .warning-box {
+      background: rgba(245, 158, 11, 0.08);
+      border-left: 4px solid var(--warning);
+      padding: 13px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+      font-size: 0.9rem;
+      color: var(--text-main);
+    }
+
+    .warning-box strong {
+      color: var(--warning);
+    }
+
+    .answer-body {
+      font-size: 0.95rem;
+      color: var(--text-main);
+      min-width: 0;
+    }
+
+    /* Quick Recite Mode hides deep answer-body details and shows only core summary + oral pitch */
+    body.recite-mode .answer-body {
+      display: none;
+    }
+
+    .answer-body h4 {
+      font-size: 1.04rem;
+      font-weight: 700;
+      margin: 22px 0 10px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      scroll-margin-top: 96px;
+    }
+
+    .answer-body p {
+      margin-bottom: 12px;
+    }
+
+    .answer-body ul, .answer-body ol {
+      margin-left: 20px;
+      margin-bottom: 16px;
+    }
+
+    .answer-body li {
+      margin-bottom: 8px;
+    }
+
+    .answer-body a {
+      color: var(--primary);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      font-weight: 500;
+    }
+
+    .answer-body a:hover {
+      color: var(--primary-hover);
+    }
+
+    /* Responsive Table Wrapper */
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 14px 0 20px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .custom-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.87rem;
+      min-width: 540px;
+    }
+
+    .custom-table th, .custom-table td {
+      border-bottom: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      padding: 10px 14px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .custom-table th:last-child, .custom-table td:last-child {
+      border-right: none;
+    }
+
+    .custom-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .custom-table th {
+      background-color: var(--tag-bg);
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .custom-table tr:nth-child(even) td {
+      background-color: rgba(0, 0, 0, 0.015);
+    }
+
+    [data-theme="dark"] .custom-table tr:nth-child(even) td {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Code & Pre */
+    code {
+      background-color: var(--code-bg);
+      color: var(--primary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.86em;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      word-break: break-word;
+    }
+
+    .code-block-wrap {
+      position: relative;
+      margin: 14px 0 18px;
+    }
+
+    pre {
+      background-color: var(--code-bg);
+      color: var(--code-color);
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      font-size: 0.84rem;
+      border: 1px solid var(--border-color);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      line-height: 1.55;
+      max-width: 100%;
+    }
+
+    pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+      word-break: normal;
+    }
+
+    /* Status Tags */
+    .tag-yes {
+      background: #dcfce7;
+      color: #15803d;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    .tag-no {
+      background: #fee2e2;
+      color: #b91c1c;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    .tag-partial {
+      background: #fef3c7;
+      color: #b45309;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    /* Reference Footer inside Card */
+    .ref-links {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border-color);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    /* Floating Back to Top & Mobile Quick Index Button */
+    .floating-tools {
+      position: fixed;
+      right: 20px;
+      bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 105;
+    }
+
+    .float-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    .float-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .float-btn.mobile-only-fab {
+      display: none;
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    /* Toast message */
+    .toast-msg {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #0f172a;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s ease;
+      z-index: 300;
+    }
+
+    .toast-msg.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ==========================================
+       RESPONSIVE DESIGN (Mobile & Tablet Zero-Bug)
+       ========================================== */
+    @media (max-width: 900px) {
+      header {
+        padding: 0 14px;
+      }
+
+      .mobile-menu-btn {
+        display: inline-flex;
+      }
+
+      .badge-sub {
+        display: none;
+      }
+
+      .header-title-text {
+        font-size: 0.96rem;
+      }
+
+      .action-btn span.btn-label {
+        display: none;
+      }
+
+      .action-btn {
+        padding: 6px 10px;
+      }
+
+      .mobile-status-bar {
+        display: flex;
+      }
+
+      .container {
+        margin-top: calc(var(--header-height) + var(--mobile-bar-height));
+      }
+
+      aside.sidebar {
+        top: 0;
+        width: min(84vw, 320px);
+        transform: translateX(-105%);
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.18);
+        padding-top: 16px;
+      }
+
+      aside.sidebar.open {
+        transform: translateX(0);
+      }
+
+      .sidebar-mobile-header {
+        display: flex;
+      }
+
+      main.content {
+        margin-left: 0;
+        padding: 20px 14px 80px;
+        max-width: 100%;
+      }
+
+      .day-section {
+        scroll-margin-top: 118px;
+      }
+
+      .qa-card {
+        padding: 18px 15px;
+        margin-bottom: 22px;
+        scroll-margin-top: 118px;
+      }
+
+      .answer-body h4 {
+        scroll-margin-top: 122px;
+        font-size: 0.98rem;
+      }
+
+      .day-title {
+        font-size: 1.32rem;
+      }
+
+      .qa-question {
+        font-size: 1.08rem;
+      }
+
+      .highlight-box, .pitch-box, .bonus-box, .warning-box {
+        padding: 11px 12px;
+        font-size: 0.88rem;
+      }
+
+      pre {
+        padding: 12px;
+        font-size: 0.78rem;
+      }
+
+      .float-btn.mobile-only-fab {
+        display: flex;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .header-title-text {
+        font-size: 0.88rem;
+      }
+      .qa-header {
+        gap: 8px;
+      }
+      .qa-num {
+        font-size: 0.78rem;
+        padding: 2px 7px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Reading Progress -->
+  <div class="reading-progress-bar" id="readingProgress"></div>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="header-left">
+      <button class="mobile-menu-btn" id="mobileMenuBtn" type="button" aria-label="打开题目目录">
+        <span>📑</span>
+        <span>索引</span>
+      </button>
+      <span class="badge-sub">10月24日专场</span>
+      <h1 class="header-title-text">RAG 全链路架构与多智能体系统面试题精讲</h1>
+    </div>
+    <div class="header-actions">
+      <button class="action-btn" id="reciteToggle" type="button" title="切换仅看速记与口述背诵版">
+        <span>⚡</span>
+        <span class="btn-label">速背模式</span>
+      </button>
+      <button class="action-btn" id="themeToggle" type="button" title="切换深色/浅色主题">
+        <span id="themeIcon">🌓</span>
+        <span class="btn-label">暗黑模式</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Sticky Current-Viewing Bar -->
+  <div class="mobile-status-bar" id="mobileStatusBar">
+    <div class="mobile-current-label" id="mobileStatusTrigger">
+      <span class="mobile-current-pill" id="mobileCurrentNum">Q1</span>
+      <span class="mobile-current-title" id="mobileCurrentTitle">结合业务说RAG流程（离线构建、在线召回、生成）</span>
+    </div>
+    <button class="mobile-open-toc" id="mobileOpenTocBtn" type="button">目录 ▾</button>
+  </div>
+
+  <!-- Mobile Backdrop -->
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <div class="container">
+    <!-- Left Sidebar Table of Contents -->
+    <aside class="sidebar" id="sidebar" aria-label="面试题导航索引">
+      <div class="sidebar-mobile-header">
+        <span>📑 10月24日面试题索引</span>
+        <button class="sidebar-close-btn" id="sidebarCloseBtn" type="button" aria-label="关闭目录">✕</button>
+      </div>
+
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="🔍 搜索题目或关键词 (如 RRF / 切片 / 会诊)..." aria-label="搜索面试题">
+        <button class="search-clear-btn" id="searchClearBtn" type="button" title="清空搜索">✕</button>
+      </div>
+
+      <div class="sidebar-status-card">
+        <div class="sidebar-status-row">
+          <span>当前查看题目</span>
+          <strong id="sidebarProgressText">1 / 5</strong>
+        </div>
+        <div class="sidebar-active-indicator" id="sidebarActiveName">Q1 · 结合业务说RAG三阶段流程</div>
+      </div>
+
+      <!-- 10月24日 Group 1: RAG 核心链路与上下文工程 -->
+      <div class="nav-day-group">
+        <div class="nav-day-title">
+          <span>10月24日 · RAG 链路与上下文工程</span>
+          <span class="nav-day-badge">Q1 - Q3</span>
+        </div>
+        <ul class="nav-list">
+          <li class="nav-item expanded" data-target="q1">
+            <a href="#q1" id="nav-q1" class="active">
+              <span class="nav-q-badge">Q1</span>
+              <span>结合业务说RAG流程，从离线知识库构建、在线检索召回、大模型生成三个阶段</span>
+            </a>
+            <ul class="sub-nav-list">
+              <li class="sub-nav-item"><a href="#q1-s1" data-parent="q1">1. 三阶段全链路架构全景表</a></li>
+              <li class="sub-nav-item"><a href="#q1-s2" data-parent="q1">2. 业务数据流向与核心伪代码</a></li>
+              <li class="sub-nav-item"><a href="#q1-s3" data-parent="q1">3. 生产级效果调优指标闭环</a></li>
+            </ul>
+          </li>
+
+          <li class="nav-item" data-target="q2">
+            <a href="#q2" id="nav-q2">
+              <span class="nav-q-badge">Q2</span>
+              <span>怎么解决上下文超过大模型限制的问题？</span>
+            </a>
+            <ul class="sub-nav-list">
+              <li class="sub-nav-item"><a href="#q2-s1" data-parent="q2">1. 三大场景分级治理全景矩阵</a></li>
+              <li class="sub-nav-item"><a href="#q2-s2" data-parent="q2">2. Lost in the Middle 与重排优化</a></li>
+              <li class="sub-nav-item"><a href="#q2-s3" data-parent="q2">3. LangGraph 状态裁剪与摘要代码</a></li>
+            </ul>
+          </li>
+
+          <li class="nav-item" data-target="q3">
+            <a href="#q3" id="nav-q3">
+              <span class="nav-q-badge">Q3</span>
+              <span>什么是 RAG？它解决什么问题</span>
+            </a>
+            <ul class="sub-nav-list">
+              <li class="sub-nav-item"><a href="#q3-s1" data-parent="q3">1. 核心定义与解决的四大痛点</a></li>
+              <li class="sub-nav-item"><a href="#q3-s2" data-parent="q3">2. RAG vs 微调 (SFT) vs 长窗口对比</a></li>
+              <li class="sub-nav-item"><a href="#q3-s3" data-parent="q3">3. Naive / Advanced / Agentic 演进</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <!-- 10月24日 Group 2: 多智能体协作与文档切片调优 -->
+      <div class="nav-day-group">
+        <div class="nav-day-title">
+          <span>10月24日 · 多智能体与文档切片实战</span>
+          <span class="nav-day-badge">Q4 - Q5</span>
+        </div>
+        <ul class="nav-list">
+          <li class="nav-item" data-target="q4">
+            <a href="#q4" id="nav-q4">
+              <span class="nav-q-badge">Q4</span>
+              <span>设计多智能体协作系统（医疗会诊 / 客服 Agent）</span>
+            </a>
+            <ul class="sub-nav-list">
+              <li class="sub-nav-item"><a href="#q4-s1" data-parent="q4">1. 医疗会诊与智能客服双架构设计</a></li>
+              <li class="sub-nav-item"><a href="#q4-s2" data-parent="q4">2. 状态隔离、交接与防死循环机制</a></li>
+              <li class="sub-nav-item"><a href="#q4-s3" data-parent="q4">3. LangGraph 多智能体编排代码</a></li>
+            </ul>
+          </li>
+
+          <li class="nav-item" data-target="q5">
+            <a href="#q5" id="nav-q5">
+              <span class="nav-q-badge">Q5</span>
+              <span>文档切片怎么切？切片大小怎么定？</span>
+            </a>
+            <ul class="sub-nav-list">
+              <li class="sub-nav-item"><a href="#q5-s1" data-parent="q5">1. 六大主流文档切片策略选型对比</a></li>
+              <li class="sub-nav-item"><a href="#q5-s2" data-parent="q5">2. Chunk Size 与 Overlap 定量法则</a></li>
+              <li class="sub-nav-item"><a href="#q5-s3" data-parent="q5">3. 父子索引与上下文增强切片代码</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Main Content Panel -->
+    <main class="content">
+
+      <!-- ==========================================
+           DAY SECTION: 2026年10月24日面试题
+           =========================================== -->
+      <section class="day-section" id="day-1024">
+        <div class="day-header">
+          <div class="day-tag-row">
+            <div class="day-tag">📅 2026年10月24日 面试题</div>
+            <span class="day-meta-pill">🧠 RAG 三阶段全链路 · 上下文溢出治理 · 多智能体协同 · 切片调优实战</span>
+          </div>
+          <h2 class="day-title">企业级 RAG 工程落地与多智能体架构设计精讲</h2>
+          <p class="day-desc">紧密结合真实业务场景（智能导购/客服与多学科医疗会诊），系统拆解 RAG 离线构建-在线召回-生成三阶段全链路、超长上下文裁剪压缩、RAG vs 微调选型边界、LangGraph 多 Agent 协同及精细化文档切片方法论。</p>
+        </div>
+
+        <!-- ==========================================
+             Q1: 结合业务说RAG流程，从离线知识库构建、在线检索召回、大模型生成三个阶段
+             =========================================== -->
+        <article class="qa-card active-card" id="q1" data-qnum="Q1" data-qtitle="结合业务说RAG流程（离线构建、在线召回、生成）">
+          <div class="qa-header">
+            <span class="qa-num">Q1</span>
+            <div class="qa-question-wrap">
+              <h3 class="qa-question">结合业务说RAG流程，从离线知识库构建、在线检索召回、大模型生成三个阶段</h3>
+              <div class="qa-tags">
+                <span class="qa-tag">RAG 全链路架构</span>
+                <span class="qa-tag">Milvus 混合检索 + RRF</span>
+                <span class="qa-tag">Cross-Encoder 重排</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>结合企业级智能导购/客服业务（如《优车智选》259项质检标准与车型通病问答），生产级 RAG 分为三大闭环阶段：
+            ① <strong>离线知识库构建（ETL 解析清洗 ➔ 语义/父子切片 + 元数据注入 ➔ 双路向量化落库 Milvus/ES）</strong>；
+            ② <strong>在线检索召回（Query 意图路由与改写 ➔ 元数据过滤 + 稠密向量与 BM25 稀疏混合检索 ➔ RRF 初融 + Reranker 精排）</strong>；
+            ③ <strong>大模型增强生成（Lost-in-the-Middle 上下文组装 ➔ 强约束 Grounded Prompt 与护栏 ➔ SSE 流式生成与引用溯源）</strong>。
+          </div>
+
+          <div class="pitch-box">
+            <div class="pitch-header">
+              <span class="pitch-title">🎙️ 面试 45 秒开口即答（结合真实业务落地逐字稿）</span>
+              <button class="copy-pitch-btn" type="button" data-copy-target="pitch-q1">复制话术</button>
+            </div>
+            <p id="pitch-q1">“面试官您好，结合我主导过的《优车智选》智能导购与质检问答系统（承载了 259 项车辆检测手册、各品牌车型通病库及交易过户政策），我们的生产级 RAG 流程严格划分为三个阶段：第一是<strong>离线知识库构建阶段</strong>，核心解决‘脏数据与语义割裂’——我们用解析引擎提取 PDF/Markdown 中的文本和表格，按 Markdown 标题层级做结构化递归切分（子块 400 字用于精准检索，关联父块 1500 字用于还原上下文），并注入品牌、年款、文档生效时间等 Metadata，最后通过 <code>text-embedding-v3</code> 生成稠密向量与 BM25 稀疏词频同步写入 Milvus 集群；第二是<strong>在线检索召回阶段</strong>，核心解决‘搜不准与召回不全’——买家提问后，先做意图识别与多轮指代消解改写 Query，接着在 Milvus 中先按 Metadata（如品牌=宝马、状态=有效）预过滤，再并行发起 Dense 语义检索（Top-20）与 Sparse BM25 关键词检索（Top-20，精准命中发动机代号如 B48），经 RRF 倒数秩融合后，用 <code>bge-reranker-large</code> 交叉编码器精排截取高置信度 Top-5；第三是<strong>大模型生成阶段</strong>，核心解决‘幻觉与可信度’——我们将 Top-5 父块按首尾高权重重排注入 Prompt，强令模型仅依据参考块作答并输出角标引用（Citation），通过 SSE 流式返回前端，将回答准确率从纯向量检索的 72% 提升到了 91% 以上。”</p>
+          </div>
+
+          <div class="answer-body">
+            <h4 id="q1-s1">1. 结合业务的 RAG 三阶段全链路工程细节表</h4>
+            <div class="table-wrapper">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>阶段划分</th>
+                    <th>核心工程环节</th>
+                    <th>业务落地痛点（以智能导购/质检知识库为例）</th>
+                    <th>生产级技术方案与关键参数</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>阶段一：<br>离线知识库构建<br>(Offline Indexing)</strong></td>
+                    <td><strong>1. 多源异构解析 (ETL)<br>2. 语义/父子切片<br>3. 元数据增强与向量化<br>4. 增量同步与版本控制</strong></td>
+                    <td>PDF 质检报告含大量跨页表格；机械参数被定长切片截断后丢失主语（不知道是哪款车的油耗/故障）。</td>
+                    <td>• 版面分析转 Markdown，表格转结构化键值对或独立摘要。<br>• 每个 Chunk 头部强行拼接文档路径前缀：<code>[品牌:宝马 | 车系:3系 | 章节:发动机通病]</code>。<br>• 基于文档 <code>doc_id + content_hash</code> 在 <a href="https://milvus.io/docs/multi-vector-search.md" target="_blank" rel="noopener">Milvus 向量库</a>中实现幂等 Upsert 与过期文档软删除。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>阶段二：<br>在线检索召回<br>(Online Retrieval)</strong></td>
+                    <td><strong>1. Query 理解与改写<br>2. Metadata 预过滤<br>3. 稠密+稀疏混合召回<br>4. Rerank 交叉精排</strong></td>
+                    <td>用户口语化提问（“这车漏油严不严重？”指代不明）；纯向量检索对专有型号（如“EA888 Gen3”、“259项第14条”）不敏感。</td>
+                    <td>• <strong>Query Rewrite</strong>：结合历史对话消解代词，复杂问题拆解为 Sub-queries。<br>• <strong>Hybrid Search</strong>：<a href="https://milvus.io/docs/rrf-ranker.md" target="_blank" rel="noopener">Milvus Dense HNSW + Sparse BM25 双路召回</a>，通过 <code>RRFRanker(k=60)</code> 融合。<br>• <strong>Rerank</strong>：使用 Cross-Encoder（如 <code>bge-reranker-v2-m3</code>）对 Top-30 重打分并卡阈值（<code>score &gt; 0.65</code>）取 Top-5。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>阶段三：<br>大模型增强生成<br>(Augmented Generation)</strong></td>
+                    <td><strong>1. 上下文重排与压缩<br>2. 防幻觉 Prompt 组装<br>3. 引用溯源 (Citation)<br>4. 护栏校验与流式输出</strong></td>
+                    <td>召回片段过多导致模型漏看中间关键条款；模型自由发挥编造售后保修政策，引发客诉风险。</td>
+                    <td>• <strong>上下文组织</strong>：将最高分片段置于上下文首尾两端，规避长上下文注意力衰减。<br>• <strong>强约束生成</strong>：System Prompt 设定“拒答阈值”，无依据时触发兜底话术或转人工。<br>• <strong>可观测评估</strong>：异步采集链路日志，使用 <a href="https://docs.langchain.com/langsmith/evaluate-rag-tutorial" target="_blank" rel="noopener">RAGAS / LangSmith</a> 监控忠实度（Faithfulness）。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4 id="q1-s2">2. 生产级 RAG 三阶段架构流转与核心伪代码</h4>
+            <div class="code-block-wrap">
+              <pre><code>【阶段一：离线知识库构建流水线 (Offline Pipeline)】
+原始业务文档(PDF/Word/DB) ──► 版面解析与去噪(OCR/Table提取) ──► 父子层级切分(Parent:1500 / Child:400)
+  ──► 注入业务Metadata(brand/year/doc_id/acl_role) ──► 双路编码(Dense Embedding + BM25 Sparse) ──► 写入 Milvus 2.5
+
+【阶段二 &amp; 三：在线检索召回与大模型生成 (Online Pipeline)】
+用户提问 ──► 1. 多轮指代消解 &amp; Query 改写 (LLM/小模型)
+         ──► 2. 权限与业务标签过滤 (expr="status == 'active' and brand in ['BMW']")
+         ──► 3. 双路并发检索: Dense Top-20 (语义相似) + Sparse BM25 Top-20 (型号/错误码精确匹配)
+         ──► 4. 粗排融合: RRF (Reciprocal Rank Fusion) 合并去重得 Top-25
+         ──► 5. 精排截断: Cross-Encoder Reranker 深度交互打分 ──► 过滤 score &lt; 0.65 ──► 回表拉取 Top-5 父块
+         ──► 6. 组装防幻觉 Prompt (附带 [Doc_ID] 引用约束) ──► LLM SSE 流式输出 + 护栏审计</code></pre>
+            </div>
+
+            <h4 id="q1-s3">3. 面试高频追问：怎么量化评估并迭代这三个阶段？（RAG 评估四象限）</h4>
+            <ul>
+              <li><strong>评估检索召回阶段（Retrieval Metrics）</strong>：重点看 <strong>Context Recall（上下文召回率）</strong>与 <strong>Context Precision / MRR@K（上下文精确率与平均倒数排名）</strong>。如果 Recall 低，优化切片粒度、引入 Query 改写或混合检索；如果 Precision 低，优化 Reranker 模型与过滤阈值。</li>
+              <li><strong>评估大模型生成阶段（Generation Metrics）</strong>：重点看 <strong>Faithfulness（忠实度/无幻觉率：生成的每句话是否都能在召回块中找到依据）</strong>与 <strong>Answer Relevance（答案相关性：是否正面回答了用户问题）</strong>。</li>
+            </ul>
+
+            <div class="bonus-box">
+              <strong>🎯 面试加分项（展现企业级权限与增量更新细节）：</strong>在面试中主动提及<strong>“RBAC 权限过滤下推”</strong>与<strong>“知识库热更新幂等”</strong>会非常加分：千万不要等检索出 Top-K 后再在业务代码里做权限过滤（会导致过滤后只剩 0 条），而必须在离线构建时将 <code>department_id / role_level</code> 存入向量库 Scalar 字段，在检索时作为<strong>前置布尔过滤条件（Pre-filtering）</strong>下推给 Milvus 执行！
+            </div>
+
+            <div class="ref-links">
+              <span>📚 权威参考源：</span>
+              <a href="https://docs.langchain.com/oss/python/deepagents/retrieval" target="_blank" rel="noopener">LangChain Retrieval 架构官方文档</a>
+              <a href="https://milvus.io/docs/multi-vector-search.md" target="_blank" rel="noopener">Milvus Multi-Vector Hybrid Search 指南</a>
+              <a href="https://docs.langchain.com/langsmith/evaluate-rag-tutorial" target="_blank" rel="noopener">LangSmith RAG 评估体系指南</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             Q2: 怎么解决上下文超过大模型限制的问题？
+             =========================================== -->
+        <article class="qa-card" id="q2" data-qnum="Q2" data-qtitle="怎么解决上下文超过大模型限制的问题？">
+          <div class="qa-header">
+            <span class="qa-num">Q2</span>
+            <div class="qa-question-wrap">
+              <h3 class="qa-question">怎么解决上下文超过大模型限制的问题？</h3>
+              <div class="qa-tags">
+                <span class="qa-tag">Context Engineering</span>
+                <span class="qa-tag">多轮记忆裁剪与摘要</span>
+                <span class="qa-tag">Lost in the Middle</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>解决上下文超限（及长上下文导致的高延迟、高 Token 成本与 <em>Lost in the Middle</em> 注意力退化）不能只靠换大窗口模型，必须按<strong>“四大工程维度”</strong>分层治理：
+            ① <strong>针对多轮对话历史超限</strong>：采用<strong>滑动窗口安全裁剪（<code>trim_messages</code> 保证 Tool Call 成对）+ 异步滚动摘要（Rolling Summary）+ 向量长期记忆（Store）</strong>；
+            ② <strong>针对 RAG 检索与 Tool 输出超限</strong>：采用<strong>Rerank 严卡阈值 + 上下文压缩（LLMLingua / Contextual Compression）+ 大文件卸载（Filesystem Offloading）</strong>；
+            ③ <strong>针对超长单文档分析超限</strong>：采用<strong>Map-Reduce 分块并行归纳</strong>或<strong>Refine 迭代精炼</strong>；
+            ④ <strong>针对模型底层架构</strong>：利用位置编码外推（RoPE / YaRN）、KV Cache 量化与 Prefix Caching。
+          </div>
+
+          <div class="pitch-box">
+            <div class="pitch-header">
+              <span class="pitch-title">🎙️ 面试 45 秒开口即答（逐字稿背诵版）</span>
+              <button class="copy-pitch-btn" type="button" data-copy-target="pitch-q2">复制话术</button>
+            </div>
+            <p id="pitch-q2">“面试官您好，在生产环境中，哪怕底座模型支持 128K 甚至 1M 窗口，当输入膨胀时也会出现严重的<strong>首字延迟（TTFT）飙升、Token 费用爆炸以及‘Lost in the Middle（中间信息迷失）’</strong>现象。因此我们在工程上会按<strong>上下文来源</strong>分三类解决：第一类是<strong>多轮对话历史超限</strong>，我们采用‘近期滑动窗口 + 远期滚动摘要’的混合架构——对最近 5 轮对话保留完整原文，对超出 Token 阈值的早期对话触发后台小模型压缩为一段精简的 <code>ConversationSummary</code>，并在裁剪时严格遵守消息边界（确保 <code>SystemMessage</code> 常驻，且 <code>AIMessage(tool_calls)</code> 与 <code>ToolMessage</code> 绝不拆散）；第二类是<strong>RAG 检索或工具返回内容超限</strong>，我们在检索端通过 Cross-Encoder 精排将召回块从 Top-20 压到高置信度 Top-5，并使用上下文提取器（Contextual Compression）剔除块内无关句子，如果工具返回了超大 JSON 或日志，则先卸载到沙箱文件或临时存储，只把摘要和分页游标返回给 LLM；第三类是<strong>超长单文档阅读任务（如百页合同审查）</strong>，我们采用 LangGraph 的 <code>Send</code> API 实现 <strong>Map-Reduce 分治</strong>——先并发提取各章节要点（Map），再汇总生成全局结论（Reduce）。”</p>
+          </div>
+
+          <div class="answer-body">
+            <h4 id="q2-s1">1. 三大超限场景的工程治理方案全景对比</h4>
+            <div class="table-wrapper">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>超限来源场景</th>
+                    <th>核心解决策略</th>
+                    <th>工程落地实现细节</th>
+                    <th>优缺点与适用边界</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>场景 A：<br>多轮对话与 Agent 循环记忆膨胀</strong></td>
+                    <td><strong>1. 令牌级滑动窗口裁剪 (<a href="https://docs.langchain.com/oss/python/langchain/short-term-memory" target="_blank" rel="noopener"><code>trim_messages</code></a>)<br>2. 滚动摘要 (<code>SummarizationMiddleware</code>)<br>3. 外部长期记忆库 (Long-term Store)</strong></td>
+                    <td>• 保留顶层 <code>SystemMessage</code> + 最近 $N$ 个 Token 的消息。<br>• 当 Token 超阈值（如 4000），将旧消息总结为摘要并利用 LangGraph <code>RemoveMessage</code> 清理旧节点状态。<br>• 用户画像与关键事实抽取出存入外部 Vector Store 按需检索。</td>
+                    <td><span class="tag-yes">生产标配</span> 兼顾近期细节精确性与长周期上下文连贯性，Token 消耗恒定可控。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>场景 B：<br>RAG 召回文档 / Tool 返回巨型 JSON</strong></td>
+                    <td><strong>1. Rerank 截断 + 父子按需展开<br>2. 提示词压缩 (Prompt Compression)<br>3. 上下文卸载 (<a href="https://www.langchain.com/blog/context-management-for-deepagents" target="_blank" rel="noopener">Context Offloading</a>)</strong></td>
+                    <td>• 严控注入 LLM 的 Chunk 数量（通常 3~5 块），剔除低分噪声。<br>• 使用 <code>LLMChainExtractor</code> 或 <code>LLMLingua-2</code> 小模型滤除检索块中的冗余修饰词，仅保留核心事实句。<br>• 工具返回超长报表时，截断前 2000 字符并附带分页查询工具。</td>
+                    <td><span class="tag-yes">立竿见影</span> 大幅降低无效 Token 噪声，显著提升模型推理专注度与准确率。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>场景 C：<br>超长单篇文档处理<br>(百页财报/合同/代码库)</strong></td>
+                    <td><strong>1. Map-Reduce 并行分治归纳<br>2. Refine 滚动迭代精炼<br>3. 层次化索引树 (RAPTOR / 章节摘要树)</strong></td>
+                    <td>• <strong>Map-Reduce</strong>：将长文切分为 10 个子段并发调用 LLM 提取子摘要，再由 Reduce 节点合并。<br>• <strong>Refine</strong>：带着前一段的结论顺序阅读下一段，适合强前后逻辑依赖的文档。</td>
+                    <td><span class="tag-partial">高吞吐/高耗时</span> Map-Reduce 适合可并行汇总的分析；Refine 适合连贯性要求高的长文改写。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4 id="q2-s2">2. 为什么“模型窗口够大”依然要做上下文控制？（Lost in the Middle 原理）</h4>
+            <p>面试官常追问：<em>“现在主流模型都支持 128K 甚至 1M 上下文了，直接全塞进去不行吗？”</em> 此时必须从以下三个维度专业反驳：</p>
+            <ul>
+              <li><strong>注意力 U 型衰减效应（<a href="https://arxiv.org/abs/2307.03172" target="_blank" rel="noopener">Stanford "Lost in the Middle" 论文</a>）</strong>：研究表明，大模型对位于上下文<strong>最开头（Primacy Bias）</strong>和<strong>最末尾（Recency Bias）</strong>的信息召回率最高，而当有效信息被淹没在长上下文中间位置时，推理准确率会断崖式下跌（甚至低于不带上下文的盲猜）。<strong>工程解法</strong>：在组装 RAG Prompt 时，采用<strong>首尾交替重排（LongContextReorder）</strong>，把相关性排第 1、2 名的文档放在最开头和最末尾，把排名靠后的放在中间。</li>
+              <li><strong>延迟与算力成本（Quadratic Attention）</strong>：Transformer 自注意力机制在 Prefill 阶段计算复杂度随序列长度呈平方级（$O(N^2)$）或准线性增长，每次携带 50K 历史会导致 TTFT（首 Token 延迟）长达数秒，且每次 API 调用都在为重复历史买单。</li>
+              <li><strong>工具调用完整性破坏（Tool Call Integrity）</strong>：粗暴按字符截断字符串极易把 JSON 结构或一组 <code>AIMessage(tool_calls) -&gt; ToolMessage</code> 拦腰截断，导致 OpenAI / Qwen 接口直接抛出 <code>400 Bad Request (messages with role 'tool' must be a response to a preceding message with 'tool_calls')</code>。</li>
+            </ul>
+
+            <h4 id="q2-s3">3. 生产级代码实战：安全裁剪 `trim_messages` + 滚动摘要状态机</h4>
+            <div class="code-block-wrap">
+              <pre><code>from langchain_core.messages import SystemMessage, RemoveMessage, trim_messages
+from langgraph.graph import MessagesState
+
+def call_model_with_safe_context(state: MessagesState):
+    """【方案一】使用 trim_messages 在调用 LLM 前安全裁剪上下文，绝不破坏 Tool Call 配对"""
+    trimmed_messages = trim_messages(
+        state["messages"],
+        max_tokens=4000,
+        strategy="last",               # 保留最新消息
+        token_counter=llm,             # 使用对应模型的 Tokenizer 精确计费
+        include_system=True,           # 强制保留顶层 SystemMessage 指令
+        allow_partial=False,           # 严禁截断单条消息内部文本
+        start_on="human",              # 确保裁剪后的窗口第一条对话从 HumanMessage 开始，防止孤立的 ToolMessage 报错
+    )
+    response = llm.invoke(trimmed_messages)
+    return {"messages": [response]}
+
+def summarize_conversation_node(state: MessagesState):
+    """【方案二】当对话超长时，将早期历史压缩为滚动摘要，并用 RemoveMessage 物理清理旧消息"""
+    summary = state.get("summary", "")
+    # 仅保留最近 4 条消息原文，将其余早期消息归纳进 summary
+    old_messages = state["messages"][:-4]
+    prompt = f"已有摘要：{summary}\n请将以下新增历史对话浓缩合并进摘要中，保留关键业务参数与用户偏好：\n{old_messages}"
+    new_summary = small_fast_llm.invoke(prompt).content
+    
+    # 利用 LangGraph 的 RemoveMessage 从状态通道中精准剔除已归档的旧消息
+    delete_ops = [RemoveMessage(id=m.id) for m in old_messages]
+    return {"summary": new_summary, "messages": delete_ops}</code></pre>
+            </div>
+
+            <div class="ref-links">
+              <span>📚 权威参考源：</span>
+              <a href="https://docs.langchain.com/oss/python/langchain/short-term-memory" target="_blank" rel="noopener">LangChain Short-term Memory &amp; trim_messages 官方文档</a>
+              <a href="https://docs.langchain.com/oss/python/langchain/context-engineering" target="_blank" rel="noopener">Context Engineering in Agents 官方指南</a>
+              <a href="https://arxiv.org/abs/2307.03172" target="_blank" rel="noopener">Lost in the Middle: How Language Models Use Long Contexts (arXiv:2307.03172)</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             Q3: 什么是 RAG？它解决什么问题
+             =========================================== -->
+        <article class="qa-card" id="q3" data-qnum="Q3" data-qtitle="什么是 RAG？它解决什么问题">
+          <div class="qa-header">
+            <span class="qa-num">Q3</span>
+            <div class="qa-question-wrap">
+              <h3 class="qa-question">什么是 RAG？它解决什么问题</h3>
+              <div class="qa-tags">
+                <span class="qa-tag">核心概念与本质</span>
+                <span class="qa-tag">参数化记忆 vs 非参数化记忆</span>
+                <span class="qa-tag">RAG vs Fine-Tuning</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong><strong>RAG（Retrieval-Augmented Generation，检索增强生成）</strong>是一种在调用大模型生成答案前，先从外部权威知识库中动态检索相关事实片段并注入上下文（In-Context Learning）的架构范式。它本质上把<strong>“大模型的参数化记忆（推理与语言组织能力）”</strong>与<strong>“外部知识库的非参数化记忆（实时、私域、可溯源事实）”</strong>解耦，专门解决原生 LLM 的<strong>四大核心痛点：① 事实性幻觉（Hallucination）、② 知识截止与时效滞后（Knowledge Cutoff）、③ 企业私域数据盲区、④ 缺乏答案溯源与细粒度权限管控</strong>。
+          </div>
+
+          <div class="pitch-box">
+            <div class="pitch-header">
+              <span class="pitch-title">🎙️ 面试 30 秒开口即答（逐字稿背诵版）</span>
+              <button class="copy-pitch-btn" type="button" data-copy-target="pitch-q3">复制话术</button>
+            </div>
+            <p id="pitch-q3">“面试官您好，如果把原生大模型比作‘闭卷考试’，那么 <strong>RAG（检索增强生成）就是让大模型带着企业的权威参考书去‘开卷考试’</strong>。从技术本质上看，大模型的训练权重属于静态的‘参数化记忆’，而 RAG 引入了外部向量库与搜索引擎作为动态的‘非参数化记忆’。它在企业落地中核心解决了四个问题：第一是<strong>抑制事实性幻觉</strong>，强制模型基于检索到的真实文档作答而非凭概率瞎编；第二是<strong>打破知识截止期与高昂的训练成本</strong>，比如我们平台的商品价格、库存状态或最新法规每分钟都在变，不可能每次变动都重新预训练或微调模型，而用 RAG 只需毫秒级更新向量库即可实时生效；第三是<strong>注入企业专有私域知识</strong>，无需将核心机密数据外泄用于训练；第四是<strong>提供可解释的引用溯源（Citation）与文档级权限隔离（RBAC）</strong>，让每一句回答都能定位到具体哪本手册的第几页，满足金融、医疗和电商客服的合规审计要求。”</p>
+          </div>
+
+          <div class="answer-body">
+            <h4 id="q3-s1">1. 原生大模型的四大固有缺陷与 RAG 的破局机制</h4>
+            <ul>
+              <li><strong>解决痛点一：事实性幻觉（Hallucination）</strong> —— 原生 LLM 本质是基于 Token 概率分布做自回归预测，遇到未知的垂直领域细节（如某款二手车型的特殊召回通告）会“一本正经地胡说八道”。RAG 通过将 Ground Truth 事实直接塞进 Prompt，将任务从“凭空回忆”降维成“阅读理解”，大幅压降幻觉率。</li>
+              <li><strong>解决痛点二：知识时效性滞后（Knowledge Cutoff）</strong> —— 预训练模型的知识停留在训练截点，无法感知实时新闻、最新业务政策或动态库存。RAG 只需对增量文档执行 Embedding 入库，即可实现秒级/分钟级知识热更新。</li>
+              <li><strong>解决痛点三：企业私域数据盲区与数据安全</strong> —— 企业内部 SOP、内部 Wiki、客户档案不在公网训练语料中。RAG 允许数据留在企业本地数据库/向量库内，并在检索层结合用户身份（Role-Based Access Control）过滤出该员工有权查看的片段。</li>
+              <li><strong>解决痛点四：黑盒不可解释与无法追责</strong> —— 原生模型输出无法给出真实出处。RAG 可在返回答案的同时返回召回块的 <code>source_url</code>、<code>doc_id</code> 与高亮原文，实现 100% 可审计溯源。</li>
+            </ul>
+
+            <h4 id="q3-s2">2. 面试必考对比：RAG vs 微调（Fine-Tuning / SFT）到底怎么选？</h4>
+            <div class="table-wrapper">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>对比维度</th>
+                    <th>RAG（检索增强生成 — 开卷考试）</th>
+                    <th>Fine-Tuning（监督微调 SFT — 考前特训）</th>
+                    <th>生产最佳实践（RAFT / 组合拳）</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>核心目标定位</strong></td>
+                    <td><strong>补充外部动态知识与事实</strong>（让模型知道“是什么”）。</td>
+                    <td><strong>内化特定说话风格、输出格式、领域黑话或推理范式</strong>（让模型学会“怎么说/按什么格式输出”）。</td>
+                    <td><strong>RAG 管知识，SFT 管格式与路由能力</strong>（如微调模型更好地输出 Tool Calling JSON 或忽略噪声文档）。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>知识更新频率与成本</strong></td>
+                    <td><span class="tag-yes">秒级/分钟级更新</span> 仅需增删改向量库记录，成本极低。</td>
+                    <td><span class="tag-no">天级/周级重训</span> 需重新准备语料、租用 GPU 训练并重新部署，且存在灾难性遗忘风险。</td>
+                    <td>高频变化事实走 RAG + 工具调用；固定不变的行业术语理解与垂域指令遵循走 SFT。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>幻觉抑制与可追溯性</strong></td>
+                    <td><span class="tag-yes">极强（支持精确角标溯源）</span> 可配置无检索结果时直接拒答。</td>
+                    <td><span class="tag-no">较弱（仍可能产生幻觉）</span> 知识融于权重黑盒中，无法给出精确文档引用。</td>
+                    <td>医疗、法务、金融、严谨客服等严肃场景<strong>必须以 RAG 为底座</strong>。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>数据权限隔离 (ACL)</strong></td>
+                    <td><span class="tag-yes">原生支持</span> 可按用户角色在检索阶段做 Metadata 过滤。</td>
+                    <td><span class="tag-no">无法隔离</span> 一旦训练进模型权重，任何能调用该模型的人都可能套出训练数据。</td>
+                    <td>多租户 SaaS 或分级权限知识库只能使用 RAG 实现权限隔离。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4 id="q3-s3">3. RAG 架构的三代演进范式（展现技术视野）</h4>
+            <div class="code-block-wrap">
+              <pre><code>1. 【Naive RAG（初代朴素 RAG）】:
+   Query ──► Embedding ──► 向量 Top-K 检索 ──► 拼接到 Prompt ──► LLM 生成
+   (痛点：切片粗糙、纯向量漏检专有名词、召回噪声直接污染生成结果)
+
+2. 【Advanced RAG（进阶生产级 RAG）】:
+   [检索前 Pre-Retrieval]: Query Rewrite / HyDE (假设性文档嵌入) / 路由分发 / 父子切片与元数据注入
+   [检索中 Retrieval]:     Dense + Sparse BM25 混合检索 (Hybrid Search)
+   [检索后 Post-Retrieval]: RRF 融合 + Cross-Encoder Rerank 精排 + 上下文重排与压缩
+
+3. 【Modular &amp; Agentic RAG（智能体驱动的模块化 RAG — 当前主流）】:
+   基于 LangGraph 构建循环状态图（如 Corrective RAG / Self-RAG）：
+   Agent 自主判断 Query 是否需要检索 ──► 检索后由 Grader 节点评估文档相关性
+   ──► 若不相关则自动触发 Rewrite Query 重新检索或 Fallback 调用 Web Search，直至证据充分再生成答案。</code></pre>
+            </div>
+
+            <div class="ref-links">
+              <span>📚 权威参考源：</span>
+              <a href="https://docs.langchain.com/oss/python/langgraph/agentic-rag" target="_blank" rel="noopener">Build a Custom RAG Agent with LangGraph 官方教程</a>
+              <a href="https://www.datacamp.com/zh/blog/rag-interview-questions" target="_blank" rel="noopener">RAG 检索增强生成核心原理与生产实践</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             Q4: 设计多智能体协作系统（医疗会诊 / 客服 Agent）
+             =========================================== -->
+        <article class="qa-card" id="q4" data-qnum="Q4" data-qtitle="设计多智能体协作系统（医疗会诊 / 客服 Agent）">
+          <div class="qa-header">
+            <span class="qa-num">Q4</span>
+            <div class="qa-question-wrap">
+              <h3 class="qa-question">设计多智能体协作系统（医疗会诊 / 客服 Agent）</h3>
+              <div class="qa-tags">
+                <span class="qa-tag">系统架构设计题</span>
+                <span class="qa-tag">Supervisor vs Swarm Handoff</span>
+                <span class="qa-tag">Map-Reduce 并行会诊</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>为什么要用多智能体（Multi-Agent）？因为当单 Agent 挂载超过 10~15 个工具或融合多重互斥人设时，会出现<strong>工具选择准确率下降与上下文污染</strong>。在架构设计上：
+            ① <strong>医疗多学科会诊系统（MDT）</strong>适合采用<strong>“主治医师 Supervisor + Send 并行扇出专科会诊 + 交叉冲突质控（Critic）+ 主治汇总（Map-Reduce）”</strong>架构；
+            ② <strong>企业级客服系统</strong>适合采用<strong>“意图分诊网关 + Swarm 动态交接（<code>Command</code> Handoff）+ 高危动作人工审批（<code>interrupt</code>）”</strong>架构。
+          </div>
+
+          <div class="pitch-box">
+            <div class="pitch-header">
+              <span class="pitch-title">🎙️ 面试 60 秒开口即答（系统设计高分结构化话术）</span>
+              <button class="copy-pitch-btn" type="button" data-copy-target="pitch-q4">复制话术</button>
+            </div>
+            <p id="pitch-q4">“面试官您好，设计多智能体协作系统时，我的核心原则是<strong>‘职责单一化、上下文按需隔离、控制流有确定性兜底’</strong>。基于 <a href="https://docs.langchain.com/oss/python/langchain/multi-agent" target="_blank" rel="noopener">LangGraph Multi-Agent 架构</a>，针对您提到的两个场景，我会采取不同的拓扑模式：首先，如果是<strong>医疗多学科会诊（MDT）场景</strong>，核心诉求是‘多视角并行推理与用药安全交叉核验’，我采用 <strong>Supervisor（主治医师）+ Map-Reduce 并行子图 + 药师质控节点</strong>架构——先由分诊 Agent 结构化提取患者病历与指标写入全局共享 State，再由主治 Supervisor 通过 LangGraph 的 <code>Send</code> API 并行唤醒心血管、内分泌、影像科等专科 Agent（各自挂载独立的专科指南 RAG 库），各专科结论经 Reducer 汇总后，强制流转至‘临床药师 Critic Agent’做药物相互作用与禁忌症审查，若发现冲突则打回重议，最终输出带文献溯源的会诊方案并触发医生人工确认（HITL）。其次，如果是<strong>智能客服 Agent 场景</strong>（售前导购、物流查询、售后退换货），核心诉求是‘低延迟流转与权限风控’，我采用<strong>分层路由 + Swarm Handoff（动态交接）</strong>架构——不同子 Agent 仅挂载 3~5 个专属工具，通过 <code>Command(goto=..., update=...)</code> 实现会话无缝转交；一旦售后 Agent 判定需执行大额退款，立即触发 <code>interrupt()</code> 挂起状态机等待人工坐席一键审批，兼顾了响应速度与资金安全。”</p>
+          </div>
+
+          <div class="answer-body">
+            <h4 id="q4-s1">1. 两大经典场景的多智能体拓扑架构对比与拆解</h4>
+            <div class="table-wrapper">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>设计维度</th>
+                    <th>场景一：医疗多学科会诊系统 (MDT Multi-Agent)</th>
+                    <th>场景二：全链路智能客服系统 (Customer Support Agent)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>核心拓扑模式</strong></td>
+                    <td><strong>中心化编排 + 并行扇出评审（Supervisor + Map-Reduce + Critic）</strong></td>
+                    <td><strong>意图分诊路由 + 点对点动态移交（Router + <a href="https://reference.langchain.com/python/langgraph-swarm" target="_blank" rel="noopener">Swarm Handoff</a>）</strong></td>
+                  </tr>
+                  <tr>
+                    <td><strong>智能体角色划分<br>(Role &amp; Tools)</strong></td>
+                    <td>1. <strong>分诊采集 Agent</strong>：追问病史，结构化提取症状/检验单指标。<br>2. <strong>专科专家 Agents（心内/内分泌/呼吸等）</strong>：各自绑定独立的专科临床指南 RAG 与医学知识图谱。<br>3. <strong>药师安全审核 Agent (Critic)</strong>：调用药物配伍禁忌库校验处方冲突。<br>4. <strong>主治医师 Agent (<a href="https://reference.langchain.com/python/langgraph-supervisor" target="_blank" rel="noopener">Supervisor</a>)</strong>：综合各方意见输出诊疗报告。</td>
+                    <td>1. <strong>接待分流 Agent (Triage)</strong>：识别情绪与意图，拦截闲聊/恶意注入。<br>2. <strong>售前导购 Agent</strong>：挂载商品/车源 RAG 与比价检索工具。<br>3. <strong>订单履约 Agent</strong>：挂载物流查询、改地址、催单接口。<br>4. <strong>售后理赔 Agent</strong>：挂载退换货规则 RAG、定损评估与退款申请接口。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>状态共享与隔离<br>(State Schema)</strong></td>
+                    <td><strong>主图共享 <code>PatientCaseState</code></strong>（脱敏病历摘要、各科会诊报告列表 <code>Annotated[list, add]</code>）；各专科子图使用私有 <code>SpecialistPrivateState</code> 存放内部检索草稿，避免互相干扰。</td>
+                    <td>共享 <code>active_agent</code>（当前接管坐席标识）、<code>user_profile</code> 与精简的 <code>handoff_summary</code>（交接工单摘要），避免将冗长无用的历史全量塞给新 Agent。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>冲突消解与安全护栏<br>(Guardrails &amp; HITL)</strong></td>
+                    <td>当两个专科给出的用药建议存在肝肾毒性或配伍冲突时，药师 Agent 触发<strong>辩论回环（最多 2 轮）</strong>；最终报告强制经过真人医生签名审批（<code>interrupt</code>）。</td>
+                    <td>小额标准退货自动闭环；当检测到<strong>情绪极度愤怒（Sentiment &lt; -0.8）</strong>或<strong>退款金额 &gt; 200 元</strong>时，自动触发 <code>interrupt()</code> 携工单摘要无缝转接真人客服。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4 id="q4-s2">2. 双场景多智能体协作拓扑图（面试画图模板）</h4>
+            <div class="code-block-wrap">
+              <pre><code>【架构 A：医疗多学科会诊 (MDT) — Supervisor + Map-Reduce 并行会诊 + 药师质控】
+患者症状/检验单 ──► [Node: 预问诊与PII脱敏结构化] ──► [Node: 主治医师 Supervisor 制定会诊科室清单]
+                                                               │ (通过 LangGraph Send API 并行扇出)
+                       ┌───────────────────────────────────────┼───────────────────────────────────────┐
+                       ▼                                       ▼                                       ▼
+          [Subgraph: 心内科专家 Agent]             [Subgraph: 内分泌专家 Agent]             [Subgraph: 影像科专家 Agent]
+          (独立检索心内指南 RAG + 评估)            (独立检索糖尿病指南 RAG + 评估)          (多模态解读CT/检验报告)
+                       └───────────────────────────────────────┼───────────────────────────────────────┘
+                                                               ▼ (经 Reducer: operator.add 自动聚合并行意见)
+                                              [Node: 临床药师 Critic 交叉审查禁忌症]
+                                                   ├─ (发现用药冲突 &amp; 轮次&lt;2) ──► 打回主治/专科重新修正方案
+                                                   └─ (审查通过) ──► [Node: 主治汇总报告 + 医生人工审核 Interrupt]
+
+【架构 B：智能客服系统 — Triage 路由 + Swarm Handoff 动态交接】
+用户提问 ──► [Triage 分诊网关] ──(Command goto)──► [售前导购 Agent] ◄──(用户中途改问退货: Handoff Tool)──► [售后理赔 Agent]
+                                                                                                             │
+                                                                                (若涉及大额退款: 触发 interrupt 挂起等待人工审批)</code></pre>
+            </div>
+
+            <h4 id="q4-s3">3. 基于 LangGraph 的多智能体协作核心代码（含并行会诊 `Send` 与客服 `Command` 交接）</h4>
+            <div class="code-block-wrap">
+              <pre><code>from operator import add
+from typing import Annotated, Literal, TypedDict
+from langgraph.graph import StateGraph, START, END
+from langgraph.types import Command, Send, interrupt
+
+# 1. 定义全局会诊/客服共享状态契约
+class MultiAgentState(TypedDict):
+    patient_summary: str                                  # 结构化患者病历 / 客服工单摘要
+    departments: list[str]                                # 需参与会诊的专科列表
+    specialist_reports: Annotated[list[dict], add]        # 并行专科意见经 add Reducer 自动归并
+    conflict_detected: bool                               # 药师质控是否发现冲突
+    revision_round: int                                   # 协商轮次计数器（防死循环）
+    active_agent: str                                     # 客服 Swarm 当前接管 Agent
+
+# 2. 【医疗会诊模式】主治医师通过 Send 动态并行扇出多个专科子智能体 (Map 阶段)
+def dispatch_specialists(state: MultiAgentState) -&gt; list[Send]:
+    return [
+        Send("specialist_agent_node", {"dept": dept, "case": state["patient_summary"]})
+        for dept in state["departments"]
+    ]
+
+def pharmacist_critic_node(state: MultiAgentState) -&gt; Command[Literal["supervisor_replan", "final_report"]]:
+    """【药师质控节点】检查各专科汇总的处方是否存在药物相互作用冲突"""
+    has_conflict = check_drug_interactions(state["specialist_reports"])
+    if has_conflict and state.get("revision_round", 0) &lt; 2:
+        return Command(
+            update={"conflict_detected": True, "revision_round": state.get("revision_round", 0) + 1},
+            goto="supervisor_replan"  # 打回重新协调剂量
+        )
+    return Command(update={"conflict_detected": False}, goto="final_report")
+
+# 3. 【智能客服模式】使用 Command 同时更新状态并完成跨 Agent 交接 (Swarm Handoff)
+def sales_agent_handoff_to_refund(state: MultiAgentState, order_id: str, reason: str) -&gt; Command[Literal["refund_agent"]]:
+    """售前 Agent 识别到售后退货诉求，生成结构化交接单并直接将控制权移交给售后 Agent"""
+    handoff_note = f"【跨坐席交接单】订单号：{order_id}，用户诉求：{reason}"
+    return Command(
+        update={"patient_summary": handoff_note, "active_agent": "refund_agent"},
+        goto="refund_agent"
+    )</code></pre>
+            </div>
+
+            <div class="bonus-box">
+              <strong>🎯 面试必拿分的三大工程防坑设计：</strong>
+              1. <strong>防上下文雪崩（Context Isolation）</strong>：子 Agent 执行完复杂的检索与工具调用后，<strong>只把精炼后的结构化结论（Report/Summary）写回父图共享 State</strong>，将内部几十条检索草稿留在子图私有状态中销毁；
+              2. <strong>防无限踢皮球（Anti-Ping-Pong Loop）</strong>：在客服 Swarm 交接中，State 必须维护 <code>handoff_count</code>，单次请求跨 Agent 交接超过 3 次立刻强制路由至兜底或人工坐席；
+              3. <strong>状态黏性（Session Stickiness）</strong>：多轮对话中，下一轮用户输入进来时，根据 Checkpointer 记忆的 <code>active_agent</code> 直接路由给当前正在服务他的子 Agent，而不是每句话都重新走顶层分类器。
+            </div>
+
+            <div class="ref-links">
+              <span>📚 权威参考源：</span>
+              <a href="https://docs.langchain.com/oss/python/langchain/multi-agent" target="_blank" rel="noopener">LangChain Multi-Agent 架构模式官方文档</a>
+              <a href="https://reference.langchain.com/python/langgraph-supervisor" target="_blank" rel="noopener">LangGraph Supervisor 官方参考手册</a>
+              <a href="https://reference.langchain.com/python/langgraph-swarm" target="_blank" rel="noopener">LangGraph Swarm 动态交接架构参考</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             Q5: 文档切片怎么切？切片大小怎么定？
+             =========================================== -->
+        <article class="qa-card" id="q5" data-qnum="Q5" data-qtitle="文档切片怎么切？切片大小怎么定？">
+          <div class="qa-header">
+            <span class="qa-num">Q5</span>
+            <div class="qa-question-wrap">
+              <h3 class="qa-question">文档切片怎么切？切片大小怎么定？</h3>
+              <div class="qa-tags">
+                <span class="qa-tag">Chunking 策略选型</span>
+                <span class="qa-tag">Parent-Child 父子索引</span>
+                <span class="qa-tag">Chunk Size &amp; Overlap 黄金法则</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>
+            <strong>① 怎么切（按文档形态分级治理）</strong>：通用文本首选<strong>结构化标题切分（Markdown/HTML Header）+ 递归字符切分（<code>RecursiveCharacterTextSplitter</code>）</strong>；高价值复杂文档采用<strong>父子分层切片（Parent-Child：小块检索引擎算相似度、大块喂给大模型保语义）</strong>；长篇无格式文本采用<strong>语义断点切分（Semantic Chunking）或延迟分块（Late Chunking）</strong>；表格与代码块<strong>严禁拦腰切断</strong>。
+            <strong>② 切片大小怎么定（四大决定因素）</strong>：取决于<strong>Embedding 模型最大窗口与甜点区、用户 Query 粒度（事实点查询 vs 宏观总结）、文档信息密度、以及重排/生成 Token 预算</strong>。生产黄金经验值：<strong>检索块（Child）定在 <code>256 ~ 512 Tokens</code>（中文约 350~600 字），重叠率（Overlap）定在 <code>10% ~ 20%</code>（约 50~100 Tokens），生成父块（Parent）定在 <code>1024 ~ 2048 Tokens</code></strong>。
+          </div>
+
+          <div class="pitch-box">
+            <div class="pitch-header">
+              <span class="pitch-title">🎙️ 面试 45 秒开口即答（结合项目调优数据背诵版）</span>
+              <button class="copy-pitch-btn" type="button" data-copy-target="pitch-q5">复制话术</button>
+            </div>
+            <p id="pitch-q5">“面试官您好，文档切片的本质是在<strong>‘检索向量的语义纯粹度（块越小越聚焦）’</strong>与<strong>‘生成上下文的语义完整性（块越大背景越全）’</strong>之间做权衡。在实际项目中，我们绝不用一刀切的定长切分，而是采用<strong>‘结构化感知 + 父子双层索引（Small-to-Big）’</strong>方案：首先在<strong>怎么切</strong>上，我们先将 PDF/Word 解析为带层级标题的 Markdown，第一层先用 <code>MarkdownHeaderTextSplitter</code> 按章节标题切出 1200~1500 字的<strong>父块（Parent Chunk）</strong>保证逻辑完整，第二层再在父块内部用 <code>RecursiveCharacterTextSplitter</code> 按段落、句号、分号优先级递归切出 <strong>400 字左右、重叠 50 字（约 12% Overlap）的子块（Child Chunk）</strong>，并在每个子块头部拼上章节标题和文档元数据前缀，解决跨段指代丢失问题；对于文档中的表格，我们单独提取为 Markdown Table 或 JSON 行并生成自然语言摘要，绝不拆碎表头。其次在<strong>切片大小怎么定</strong>上，我们依据四个维度实测校准：① Embedding 模型的最佳表征甜点区（如 <code>bge-large</code> / <code>text-embedding-v3</code> 在 256~512 Tokens 时向量信噪比最高，超过 1000 字向量会被均值池化稀释）；② 业务问题类型（精确参数查询用 256~512 Tokens，政策流程问答依靠回表父块补充到 1500 字）；③ 结合 RAGAS 离线评测集跑网格实验（对比 256 / 512 / 1024 下的 Context Recall 与 Faithfulness），最终定下‘子块 400 字检索 + 父块 1500 字生成’的黄金组合。”</p>
+          </div>
+
+          <div class="answer-body">
+            <h4 id="q5-s1">1. 六大主流文档切片（Chunking）策略选型全景表</h4>
+            <div class="table-wrapper">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>切片策略名称</th>
+                    <th>核心切分原理</th>
+                    <th>核心优势</th>
+                    <th>局限性与适用文档场景</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>1. 固定长度切分<br>(Fixed-size Chunking)</strong></td>
+                    <td>机械按每 $N$ 个字符/Token 硬切，配固定滑动窗口 Overlap。</td>
+                    <td>实现最简单，计算开销几乎为零。</td>
+                    <td><span class="tag-no">生产慎用</span> 极易把完整句子、表格或代码拦腰斩断，造成严重语义残缺。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>2. 递归字符切分<br>(<a href="https://docs.langchain.com/oss/python/integrations/splitters" target="_blank" rel="noopener">RecursiveCharacter</a>)</strong></td>
+                    <td>按分隔符优先级列表 <code>["\n\n", "\n", "。", "！", "？", "；", " "]</code> 自顶向下递归切分，直到块小于目标阈值。</td>
+                    <td>最大程度尊重自然段落与句子边界，性价比最高。</td>
+                    <td><span class="tag-yes">通用基座标配</span> 适合大多数常规文本文档、FAQ 与规章制度。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>3. 文档结构感知切分<br>(Markdown / HTML / AST)</strong></td>
+                    <td>按 Markdown 的 <code># / ## / ###</code> 标题树、HTML DOM 标签或代码语法树（Class/Function）切分。</td>
+                    <td>天然保留章节归属关系，可将各级标题自动提取进 <code>metadata</code>。</td>
+                    <td><span class="tag-yes">技术手册/SOP首选</span> 适合结构规范的技术文档、API 手册、法律条文与代码库。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>4. 父子分层索引<br>(Parent-Child / Small-to-Big)</strong></td>
+                    <td>用细粒度子块（如 300 字）建向量索引保证高相似度命中；命中后通过 <code>parent_id</code> 取出大父块（如 1500 字）喂给 LLM。</td>
+                    <td><strong>完美解耦“检索要准（块小）”与“生成要全（块大）”的矛盾！</strong></td>
+                    <td><span class="tag-yes">企业级生产黄金方案</span> 适合长篇业务手册、质检规范、医疗指南与复杂合同。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>5. 语义断点切分<br>(<a href="https://developers.llamaindex.ai/python/examples/node_parsers/semantic_chunking/" target="_blank" rel="noopener">Semantic Chunking</a>)</strong></td>
+                    <td>计算相邻句子 Embedding 的余弦距离，当语义突变超过百分位阈值（如 95%）时在此处切开。</td>
+                    <td>不依赖排版格式，确保每个 Chunk 内部讨论的是同一个高内聚主题。</td>
+                    <td><span class="tag-partial">构建耗时较高</span> 离线构建需对每句话算向量；适合缺乏标点/标题排版的会议转录稿或长访谈。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>6. 上下文增强与延迟分块<br>(Contextual Retrieval / Late Chunking)</strong></td>
+                    <td>切块后调用低成本模型（结合 Prompt Caching）为每个块生成 50 字全局背景前缀；或先过长窗口 Embedding 再按 Token 池化。</td>
+                    <td>彻底解决子块脱离原文后“主语/指代丢失”（如块内只写“它的保修期为3年”，不知“它”是谁）。</td>
+                    <td><span class="tag-yes">高阶提分利器</span> 显著降低顶层检索失误率，适合高价值核心知识库。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4 id="q5-s2">2. 切片大小（Chunk Size）与重叠度（Overlap）到底怎么定？</h4>
+            <p>当面试官问“切片大小怎么定”时，切忌只报一个死数字，必须先讲<strong>权衡曲线（Trade-off）</strong>，再给<strong>场景化参考表</strong>：</p>
+            <ul>
+              <li><strong>Chunk Size 太小（如 &lt; 128 Tokens）的弊端</strong>：向量表征虽然极度聚焦，但丢失了前因后果与主语指代（Context Fragmentation），即使检索命中了，LLM 看着半句话也无法推理出完整答案。</li>
+              <li><strong>Chunk Size 太大（如 &gt; 1024 Tokens）的弊端</strong>：一段话里包含多个不同主题，经过 Embedding 模型均值池化（Mean Pooling）后，向量特征被严重“稀释平均化”（Semantic Dilution），导致与具体问题的余弦相似度反而下降，且浪费生成端 Token 预算。</li>
+              <li><strong>Overlap（重叠窗口）定多少</strong>：通用法则是 <strong>Chunk Size 的 10% ~ 20%</strong>（例如 400 字配 50~80 字 Overlap），作用是防止关键过渡句刚好落在切分边界上被一劈为二。</li>
+            </ul>
+
+            <div class="table-wrapper">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>业务文档类型</th>
+                    <th>推荐检索块大小 (Chunk Size)</th>
+                    <th>推荐重叠大小 (Overlap)</th>
+                    <th>特殊处理与工程配套要求</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>高频 FAQ / 客服标准问答对</strong></td>
+                    <td><strong>单条 Q&amp;A 独立成块</strong>（约 100 ~ 300 字）</td>
+                    <td><code>0</code>（无需跨问答重叠）</td>
+                    <td>仅对 <code>Question</code>（或 Q+同义问法扩展）做向量化检索，命中后将完整 <code>Q + A</code> 作为 Context 返回。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>规章制度 / 产品手册 / 医疗指南</strong></td>
+                    <td><strong>子块 350 ~ 500 字</strong><br>（父块 1200 ~ 1800 字）</td>
+                    <td><strong>子块 50 ~ 80 字</strong><br>（约 12% ~ 15%）</td>
+                    <td>采用 <code>MarkdownHeader + Recursive</code> 两级切分，每个子块头部强制拼接 <code>[文档名 &gt; 一级标题 &gt; 二级标题]</code>。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>表格密集型文档（财报 / 车型参数表）</strong></td>
+                    <td><strong>整表独立 或 按 N 行带表头切分</strong></td>
+                    <td><strong>重复携带表头行 (Header Row)</strong></td>
+                    <td>切分超长表格时，<strong>每个子块第一行必须强制保留 Markdown 表头</strong>；同时用 LLM 生成一段文字描述该表核心指标用于向量检索。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4 id="q5-s3">3. 生产级代码实战：结构化标题感知 + 中文标点递归切分 + 上下文注入</h4>
+            <div class="code-block-wrap">
+              <pre><code>from langchain_text_splitters import MarkdownHeaderTextSplitter, RecursiveCharacterTextSplitter
+
+def split_enterprise_document(md_text: str, doc_title: str):
+    # 第一步：按 Markdown 章节标题树切分，保留天然的业务语义边界与层级 Metadata
+    headers_to_split_on = [
+        ("#", "h1"),
+        ("##", "h2"),
+        ("###", "h3"),
+    ]
+    md_splitter = MarkdownHeaderTextSplitter(headers_to_split_on=headers_to_split_on, strip_headers=False)
+    header_docs = md_splitter.split_text(md_text)
+
+    # 第二步：针对中文语料定制分隔符优先级，在章节内部递归切分细粒度检索块
+    recursive_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=450,
+        chunk_overlap=60,  # 约 13% 重叠度，防止句群边界语义断裂
+        separators=["\n\n", "\n", "。", "！", "？", "；", "，", " ", ""],
+    )
+    child_chunks = recursive_splitter.split_documents(header_docs)
+
+    # 第三步：Contextual Header Injection（将文档标题与章节路径注入块首，解决指代丢失）
+    for chunk in child_chunks:
+        breadcrumb = " &gt; ".join(
+            filter(None, [doc_title, chunk.metadata.get("h1"), chunk.metadata.get("h2"), chunk.metadata.get("h3")])
+        )
+        chunk.page_content = f"【所属章节：{breadcrumb}】\n{chunk.page_content}"
+    return child_chunks</code></pre>
+            </div>
+
+            <div class="ref-links">
+              <span>📚 权威参考源：</span>
+              <a href="https://docs.langchain.com/oss/python/integrations/splitters" target="_blank" rel="noopener">LangChain Text Splitters 官方集成文档</a>
+              <a href="https://www.llamaindex.ai/glossary/document-chunking-strategies" target="_blank" rel="noopener">LlamaIndex Document Chunking Strategies 权威指南</a>
+              <a href="https://developers.llamaindex.ai/python/examples/node_parsers/semantic_chunking/" target="_blank" rel="noopener">LlamaIndex Semantic Chunker 文档</a>
+            </div>
+          </div>
+        </article>
+
+      </section>
+    </main>
+  </div>
+
+  <!-- Floating Action Buttons -->
+  <div class="floating-tools">
+    <button class="float-btn mobile-only-fab" id="fabTocBtn" type="button" title="打开题目目录" aria-label="打开题目目录">📑</button>
+    <button class="float-btn" id="backToTopBtn" type="button" title="回到顶部" aria-label="回到顶部">↑</button>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-msg" id="toastMsg">已复制到剪贴板</div>
+
+  <script>
+    (function () {
+      // ==========================================
+      // 1. Safe Storage Helpers
+      // ==========================================
+      function safeGetStorage(key) {
+        try {
+          return localStorage.getItem(key);
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function safeSetStorage(key, val) {
+        try {
+          localStorage.setItem(key, val);
+        } catch (e) {
+          // ignore in restricted sandbox
+        }
+      }
+
+      // ==========================================
+      // 2. Theme Toggle (Light / Dark)
+      // ==========================================
+      const themeToggleBtn = document.getElementById('themeToggle');
+      const themeIcon = document.getElementById('themeIcon');
+
+      function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        if (themeIcon) {
+          themeIcon.textContent = theme === 'dark' ? '☀️' : '🌓';
+        }
+      }
+
+      const savedTheme = safeGetStorage('theme_1024');
+      if (savedTheme) {
+        applyTheme(savedTheme);
+      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        applyTheme('dark');
+      }
+
+      if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', function () {
+          const current = document.documentElement.getAttribute('data-theme');
+          const next = current === 'dark' ? 'light' : 'dark';
+          applyTheme(next);
+          safeSetStorage('theme_1024', next);
+        });
+      }
+
+      // ==========================================
+      // 3. Recite Mode Toggle (速背模式)
+      // ==========================================
+      const reciteToggleBtn = document.getElementById('reciteToggle');
+      let isReciteMode = false;
+
+      if (reciteToggleBtn) {
+        reciteToggleBtn.addEventListener('click', function () {
+          isReciteMode = !isReciteMode;
+          document.body.classList.toggle('recite-mode', isReciteMode);
+          reciteToggleBtn.classList.toggle('active-mode', isReciteMode);
+          showToast(isReciteMode ? '⚡ 已开启速背模式（仅显示核心速记与口述逐字稿）' : '📖 已恢复完整精讲模式');
+          setTimeout(updateScrollSpy, 60);
+        });
+      }
+
+      // ==========================================
+      // 4. Mobile Drawer Control (Zero-Bug Mobile UX)
+      // ==========================================
+      const sidebar = document.getElementById('sidebar');
+      const backdrop = document.getElementById('sidebarBackdrop');
+      const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+      const mobileOpenTocBtn = document.getElementById('mobileOpenTocBtn');
+      const mobileStatusTrigger = document.getElementById('mobileStatusTrigger');
+      const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+      const fabTocBtn = document.getElementById('fabTocBtn');
+
+      function openMobileDrawer() {
+        if (!sidebar || !backdrop) return;
+        sidebar.classList.add('open');
+        backdrop.classList.add('show');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeMobileDrawer() {
+        if (!sidebar || !backdrop) return;
+        sidebar.classList.remove('open');
+        backdrop.classList.remove('show');
+        document.body.style.overflow = '';
+      }
+
+      [mobileMenuBtn, mobileOpenTocBtn, mobileStatusTrigger, fabTocBtn].forEach(function (btn) {
+        if (btn) {
+          btn.addEventListener('click', function () {
+            if (sidebar && sidebar.classList.contains('open')) {
+              closeMobileDrawer();
+            } else {
+              openMobileDrawer();
+            }
+          });
+        }
+      });
+
+      if (sidebarCloseBtn) {
+        sidebarCloseBtn.addEventListener('click', closeMobileDrawer);
+      }
+
+      if (backdrop) {
+        backdrop.addEventListener('click', closeMobileDrawer);
+      }
+
+      window.addEventListener('resize', function () {
+        if (window.innerWidth > 900 && sidebar && sidebar.classList.contains('open')) {
+          closeMobileDrawer();
+        }
+        updateScrollSpy();
+      });
+
+      // ==========================================
+      // 5. High-Precision ScrollSpy & Navigation Sync
+      // ==========================================
+      const qaCards = Array.from(document.querySelectorAll('.qa-card'));
+      const navItems = Array.from(document.querySelectorAll('.nav-item'));
+      const mainNavLinks = Array.from(document.querySelectorAll('.nav-item > a'));
+      const subNavLinks = Array.from(document.querySelectorAll('.sub-nav-item a'));
+      const subHeadings = Array.from(document.querySelectorAll('.answer-body h4[id]'));
+
+      const sidebarProgressText = document.getElementById('sidebarProgressText');
+      const sidebarActiveName = document.getElementById('sidebarActiveName');
+      const mobileCurrentNum = document.getElementById('mobileCurrentNum');
+      const mobileCurrentTitle = document.getElementById('mobileCurrentTitle');
+      const readingProgress = document.getElementById('readingProgress');
+
+      let isClickScrolling = false;
+      let clickScrollTimer = null;
+
+      function setActiveQuestion(activeId, activeSubId) {
+        let activeIndex = 0;
+        let activeCardEl = null;
+
+        qaCards.forEach(function (card, idx) {
+          const isMatch = card.id === activeId;
+          card.classList.toggle('active-card', isMatch);
+          if (isMatch) {
+            activeIndex = idx;
+            activeCardEl = card;
+          }
+        });
+
+        navItems.forEach(function (item) {
+          const targetId = item.getAttribute('data-target');
+          const link = item.querySelector(':scope > a');
+          const isMatch = targetId === activeId;
+          item.classList.toggle('expanded', isMatch);
+          if (link) {
+            link.classList.toggle('active', isMatch);
+            if (isMatch && sidebar) {
+              const linkRect = link.getBoundingClientRect();
+              const sidebarRect = sidebar.getBoundingClientRect();
+              if (linkRect.top < sidebarRect.top + 60 || linkRect.bottom > sidebarRect.bottom - 60) {
+                sidebar.scrollTo({
+                  top: link.offsetTop - sidebar.clientHeight / 3,
+                  behavior: 'smooth'
+                });
+              }
+            }
+          }
+        });
+
+        subNavLinks.forEach(function (subLink) {
+          const href = subLink.getAttribute('href');
+          subLink.classList.toggle('sub-active', activeSubId && href === '#' + activeSubId);
+        });
+
+        if (activeCardEl) {
+          const qNum = activeCardEl.getAttribute('data-qnum') || ('Q' + (activeIndex + 1));
+          const qTitle = activeCardEl.getAttribute('data-qtitle') || '';
+          const visibleCount = qaCards.filter(function (c) { return c.style.display !== 'none'; }).length || qaCards.length;
+
+          if (sidebarProgressText) {
+            sidebarProgressText.textContent = (activeIndex + 1) + ' / ' + visibleCount;
+          }
+          if (sidebarActiveName) {
+            sidebarActiveName.textContent = qNum + ' · ' + qTitle;
+          }
+          if (mobileCurrentNum) {
+            mobileCurrentNum.textContent = qNum;
+          }
+          if (mobileCurrentTitle) {
+            mobileCurrentTitle.textContent = qTitle;
+          }
+        }
+      }
+
+      function updateScrollSpy() {
+        const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+        const docHeight = Math.max(
+          document.body.scrollHeight,
+          document.documentElement.scrollHeight
+        ) - window.innerHeight;
+
+        if (readingProgress) {
+          const pct = docHeight > 0 ? Math.min(100, Math.max(0, (scrollTop / docHeight) * 100)) : 100;
+          readingProgress.style.width = pct.toFixed(1) + '%';
+        }
+
+        if (isClickScrolling) return;
+
+        const visibleCards = qaCards.filter(function (card) {
+          return card.style.display !== 'none';
+        });
+        if (visibleCards.length === 0) return;
+
+        const isMobile = window.innerWidth <= 900;
+        const triggerOffset = isMobile ? 140 : 120;
+
+        const atBottom = (window.innerHeight + scrollTop) >= (document.documentElement.scrollHeight - 36);
+        let currentCard = visibleCards[0];
+
+        if (atBottom) {
+          currentCard = visibleCards[visibleCards.length - 1];
+        } else {
+          for (let i = 0; i < visibleCards.length; i++) {
+            const rect = visibleCards[i].getBoundingClientRect();
+            if (rect.top <= triggerOffset) {
+              currentCard = visibleCards[i];
+            } else {
+              break;
+            }
+          }
+        }
+
+        let currentSubId = null;
+        if (!isReciteMode && currentCard) {
+          const cardSubs = subHeadings.filter(function (h) {
+            return currentCard.contains(h);
+          });
+          if (cardSubs.length > 0) {
+            currentSubId = cardSubs[0].id;
+            for (let j = 0; j < cardSubs.length; j++) {
+              const sRect = cardSubs[j].getBoundingClientRect();
+              if (sRect.top <= triggerOffset + 40) {
+                currentSubId = cardSubs[j].id;
+              } else {
+                break;
+              }
+            }
+          }
+        }
+
+        setActiveQuestion(currentCard.id, currentSubId);
+      }
+
+      let ticking = false;
+      window.addEventListener('scroll', function () {
+        if (!ticking) {
+          window.requestAnimationFrame(function () {
+            updateScrollSpy();
+            ticking = false;
+          });
+          ticking = true;
+        }
+      }, { passive: true });
+
+      let targetScrollPos = null;
+
+      function releaseClickScrollLock() {
+        isClickScrolling = false;
+        targetScrollPos = null;
+        if (clickScrollTimer) {
+          clearTimeout(clickScrollTimer);
+          clickScrollTimer = null;
+        }
+        updateScrollSpy();
+      }
+
+      window.addEventListener('scroll', function () {
+        if (!isClickScrolling) return;
+        const currentY = window.scrollY || document.documentElement.scrollTop || 0;
+        if (targetScrollPos !== null && Math.abs(currentY - targetScrollPos) <= 6) {
+          if (clickScrollTimer) clearTimeout(clickScrollTimer);
+          clickScrollTimer = setTimeout(releaseClickScrollLock, 80);
+          return;
+        }
+        if (clickScrollTimer) clearTimeout(clickScrollTimer);
+        clickScrollTimer = setTimeout(releaseClickScrollLock, 180);
+      }, { passive: true });
+
+      function handleNavClick(e, targetId, parentQId) {
+        e.preventDefault();
+        const targetEl = document.getElementById(targetId);
+        if (!targetEl) return;
+
+        if (window.innerWidth <= 900) {
+          closeMobileDrawer();
+        }
+
+        isClickScrolling = true;
+        if (clickScrollTimer) clearTimeout(clickScrollTimer);
+
+        const qId = parentQId || targetId;
+        const subId = parentQId ? targetId : null;
+        setActiveQuestion(qId, subId);
+
+        const isMobile = window.innerWidth <= 900;
+        const headerOffset = isMobile ? 114 : 80;
+        const rect = targetEl.getBoundingClientRect();
+        const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+        targetScrollPos = Math.min(maxScroll, Math.max(0, rect.top + window.scrollY - headerOffset));
+
+        window.scrollTo({
+          top: targetScrollPos,
+          behavior: 'smooth'
+        });
+
+        clickScrollTimer = setTimeout(releaseClickScrollLock, 250);
+      }
+
+      mainNavLinks.forEach(function (link) {
+        link.addEventListener('click', function (e) {
+          const href = link.getAttribute('href') || '';
+          if (href.startsWith('#')) {
+            handleNavClick(e, href.slice(1), null);
+          }
+        });
+      });
+
+      subNavLinks.forEach(function (subLink) {
+        subLink.addEventListener('click', function (e) {
+          const href = subLink.getAttribute('href') || '';
+          const parentId = subLink.getAttribute('data-parent');
+          if (href.startsWith('#')) {
+            handleNavClick(e, href.slice(1), parentId);
+          }
+        });
+      });
+
+      // ==========================================
+      // 6. Search / Filter Questions
+      // ==========================================
+      const searchInput = document.getElementById('searchInput');
+      const searchClearBtn = document.getElementById('searchClearBtn');
+
+      function filterQuestions() {
+        if (!searchInput) return;
+        const query = searchInput.value.toLowerCase().trim();
+        if (searchClearBtn) {
+          searchClearBtn.style.display = query ? 'block' : 'none';
+        }
+
+        qaCards.forEach(function (card) {
+          const text = card.textContent.toLowerCase();
+          const match = !query || text.includes(query);
+          card.style.display = match ? '' : 'none';
+
+          const navItem = document.querySelector('.nav-item[data-target="' + card.id + '"]');
+          if (navItem) {
+            navItem.style.display = match ? '' : 'none';
+          }
+        });
+
+        updateScrollSpy();
+      }
+
+      if (searchInput) {
+        searchInput.addEventListener('input', filterQuestions);
+      }
+
+      if (searchClearBtn) {
+        searchClearBtn.addEventListener('click', function () {
+          searchInput.value = '';
+          filterQuestions();
+          searchInput.focus();
+        });
+      }
+
+      // ==========================================
+      // 7. Copy Oral Pitch & Back to Top
+      // ==========================================
+      const toastMsg = document.getElementById('toastMsg');
+      let toastTimer = null;
+
+      function showToast(text) {
+        if (!toastMsg) return;
+        toastMsg.textContent = text;
+        toastMsg.classList.add('show');
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () {
+          toastMsg.classList.remove('show');
+        }, 2200);
+      }
+
+      function copyTextToClipboard(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(function () {
+            showToast('✅ 背诵话术已复制到剪贴板');
+          }).catch(function () {
+            fallbackCopy(text);
+          });
+        } else {
+          fallbackCopy(text);
+        }
+      }
+
+      function fallbackCopy(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          showToast('✅ 背诵话术已复制到剪贴板');
+        } catch (e) {
+          showToast('复制失败，请手动选中复制');
+        }
+        document.body.removeChild(ta);
+      }
+
+      document.querySelectorAll('.copy-pitch-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const targetId = btn.getAttribute('data-copy-target');
+          const targetEl = document.getElementById(targetId);
+          if (targetEl) {
+            copyTextToClipboard(targetEl.textContent.trim());
+          }
+        });
+      });
+
+      const backToTopBtn = document.getElementById('backToTopBtn');
+      if (backToTopBtn) {
+        backToTopBtn.addEventListener('click', function () {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      }
+
+      // Initial ScrollSpy trigger
+      updateScrollSpy();
+    })();
+  </script>
+</body>
+</html>
