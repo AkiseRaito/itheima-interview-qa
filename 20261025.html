@@ -1,0 +1,2294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>2026年10月25日面试题精讲 — 混合检索多路召回、向量索引、Milvus vs ES 与从0到1落地</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --primary-border: #bfdbfe;
+      --accent: #0284c7;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --bg-body: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-sidebar: #ffffff;
+      --bg-header: rgba(255, 255, 255, 0.92);
+      --border-color: #e2e8f0;
+      --tag-bg: #f1f5f9;
+      --code-bg: #f1f5f9;
+      --code-color: #0f172a;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --purple: #7c3aed;
+      --sidebar-width: 330px;
+      --header-height: 64px;
+      --mobile-bar-height: 44px;
+    }
+
+    [data-theme="dark"] {
+      --primary: #3b82f6;
+      --primary-hover: #60a5fa;
+      --primary-light: #1e293b;
+      --primary-border: #1e3a8a;
+      --accent: #38bdf8;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --bg-body: #0f172a;
+      --bg-card: #1e293b;
+      --bg-sidebar: #111827;
+      --bg-header: rgba(17, 24, 39, 0.92);
+      --border-color: #334155;
+      --tag-bg: #334155;
+      --code-bg: #090d16;
+      --code-color: #e2e8f0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+      max-width: 100vw;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      line-height: 1.68;
+      overflow-x: hidden;
+      max-width: 100vw;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top Reading Progress Bar */
+    .reading-progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #2563eb, #06b6d4, #10b981);
+      width: 0%;
+      z-index: 200;
+      transition: width 0.1s ease-out;
+    }
+
+    /* Header */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--header-height);
+      background-color: var(--bg-header);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 120;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: var(--primary-light);
+      border: 1px solid var(--primary-border);
+      color: var(--primary);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .mobile-menu-btn:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .badge-sub {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      color: white;
+      font-size: 0.75rem;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      font-weight: 600;
+      flex-shrink: 0;
+      letter-spacing: 0.02em;
+    }
+
+    .header-title-text {
+      font-size: 1.12rem;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .action-btn {
+      background: var(--tag-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.84rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .action-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .action-btn.active-mode {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* Mobile Sticky Status Bar (only shown on <=900px) */
+    .mobile-status-bar {
+      display: none;
+      position: fixed;
+      top: var(--header-height);
+      left: 0;
+      right: 0;
+      height: var(--mobile-bar-height);
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0 16px;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 110;
+      font-size: 0.82rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    }
+
+    .mobile-current-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .mobile-current-pill {
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.72rem;
+      padding: 2px 7px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .mobile-current-title {
+      color: var(--text-main);
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mobile-open-toc {
+      color: var(--primary);
+      font-weight: 600;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 6px;
+      flex-shrink: 0;
+      font-size: 0.8rem;
+    }
+
+    /* Backdrop for Mobile Drawer */
+    .sidebar-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      z-index: 130;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      backdrop-filter: blur(2px);
+    }
+
+    .sidebar-backdrop.show {
+      display: block;
+      opacity: 1;
+    }
+
+    /* Main Container */
+    .container {
+      display: flex;
+      margin-top: var(--header-height);
+      min-height: calc(100vh - var(--header-height));
+      width: 100%;
+    }
+
+    /* Sidebar */
+    aside.sidebar {
+      width: var(--sidebar-width);
+      position: fixed;
+      top: var(--header-height);
+      bottom: 0;
+      left: 0;
+      background-color: var(--bg-sidebar);
+      border-right: 1px solid var(--border-color);
+      overflow-y: auto;
+      padding: 18px 16px 40px;
+      z-index: 140;
+      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      overscroll-behavior: contain;
+    }
+
+    .sidebar-mobile-header {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 14px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .sidebar-mobile-header span {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text-main);
+    }
+
+    .sidebar-close-btn {
+      background: var(--tag-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .search-box {
+      margin-bottom: 14px;
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 9px 32px 9px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--bg-body);
+      color: var(--text-main);
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-box input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .search-clear-btn {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: none;
+      padding: 2px 4px;
+    }
+
+    .sidebar-status-card {
+      background: var(--primary-light);
+      border: 1px solid var(--primary-border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 16px;
+      font-size: 0.78rem;
+    }
+
+    .sidebar-status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+      color: var(--text-muted);
+    }
+
+    .sidebar-status-row strong {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .sidebar-active-indicator {
+      color: var(--text-main);
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .nav-day-group {
+      margin-bottom: 20px;
+    }
+
+    .nav-day-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      padding: 6px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-day-badge {
+      background: var(--tag-bg);
+      color: var(--text-muted);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .nav-list {
+      list-style: none;
+      margin-top: 6px;
+    }
+
+    .nav-item {
+      margin-bottom: 4px;
+    }
+
+    .nav-item > a {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 9px 10px;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-radius: 8px;
+      transition: all 0.18s ease-in-out;
+      line-height: 1.42;
+      border-left: 3px solid transparent;
+      position: relative;
+    }
+
+    .nav-item > a .nav-q-badge {
+      background: var(--tag-bg);
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-top: 1px;
+      transition: all 0.18s;
+    }
+
+    .nav-item > a:hover {
+      background-color: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .nav-item > a.active {
+      background-color: var(--primary-light);
+      color: var(--primary);
+      font-weight: 600;
+      border-left-color: var(--primary);
+      box-shadow: inset 0 0 0 1px var(--primary-border);
+    }
+
+    .nav-item > a.active .nav-q-badge {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    /* Sub-navigation under each Question */
+    .sub-nav-list {
+      list-style: none;
+      margin: 2px 0 6px 22px;
+      padding-left: 10px;
+      border-left: 1px dashed var(--border-color);
+      display: none;
+    }
+
+    .nav-item.expanded .sub-nav-list {
+      display: block;
+    }
+
+    .sub-nav-item a {
+      display: block;
+      padding: 4px 8px;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-radius: 5px;
+      line-height: 1.35;
+      transition: all 0.15s;
+      margin-bottom: 2px;
+    }
+
+    .sub-nav-item a:hover {
+      color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .sub-nav-item a.sub-active {
+      color: var(--primary);
+      font-weight: 600;
+      background: var(--primary-light);
+    }
+
+    /* Content Area */
+    main.content {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      min-width: 0;
+      width: 100%;
+      padding: 32px 48px 96px;
+      max-width: 1080px;
+    }
+
+    .day-section {
+      margin-bottom: 48px;
+      scroll-margin-top: 84px;
+    }
+
+    .day-header {
+      padding-bottom: 18px;
+      border-bottom: 2px solid var(--border-color);
+      margin-bottom: 28px;
+    }
+
+    .day-tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .day-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      background: var(--primary-light);
+      border: 1px solid var(--primary-border);
+      padding: 4px 12px;
+      border-radius: 9999px;
+    }
+
+    .day-meta-pill {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      background: var(--tag-bg);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-weight: 500;
+    }
+
+    .day-title {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.3;
+    }
+
+    .day-desc {
+      color: var(--text-muted);
+      font-size: 0.94rem;
+      margin-top: 6px;
+    }
+
+    /* Question Card */
+    .qa-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 28px;
+      margin-bottom: 32px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      scroll-margin-top: 84px;
+      transition: border-color 0.25s, box-shadow 0.25s;
+      min-width: 0;
+      width: 100%;
+      overflow-wrap: break-word;
+    }
+
+    .qa-card.active-card {
+      border-color: var(--primary);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.08);
+    }
+
+    .qa-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .qa-num {
+      background: var(--primary);
+      color: white;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 6px;
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+
+    .qa-question-wrap {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .qa-question {
+      font-size: 1.24rem;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.42;
+    }
+
+    .qa-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .qa-tag {
+      font-size: 0.73rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: var(--tag-bg);
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Highlight Banner (核心速记) */
+    .highlight-box {
+      background: var(--primary-light);
+      border-left: 4px solid var(--primary);
+      padding: 14px 16px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 16px;
+      font-size: 0.93rem;
+      color: var(--text-main);
+    }
+
+    .highlight-box strong {
+      color: var(--primary);
+    }
+
+    /* Oral Verbatim Pitch Box (面试30秒开口背诵话术) */
+    .pitch-box {
+      background: linear-gradient(to right, rgba(124, 58, 237, 0.06), rgba(37, 99, 235, 0.04));
+      border: 1px solid rgba(124, 58, 237, 0.25);
+      border-left: 4px solid var(--purple);
+      padding: 14px 16px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 20px;
+      font-size: 0.92rem;
+      color: var(--text-main);
+      position: relative;
+    }
+
+    .pitch-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      gap: 8px;
+    }
+
+    .pitch-title {
+      font-weight: 700;
+      color: var(--purple);
+      font-size: 0.86rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    [data-theme="dark"] .pitch-title {
+      color: #a78bfa;
+    }
+
+    .copy-pitch-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.74rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .copy-pitch-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* Bonus Banner */
+    .bonus-box {
+      background: rgba(16, 185, 129, 0.08);
+      border-left: 4px solid var(--success);
+      padding: 13px 16px;
+      border-radius: 0 8px 8px 0;
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: var(--text-main);
+    }
+
+    .bonus-box strong {
+      color: var(--success);
+    }
+
+    /* Warning Banner */
+    .warning-box {
+      background: rgba(245, 158, 11, 0.08);
+      border-left: 4px solid var(--warning);
+      padding: 13px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+      font-size: 0.9rem;
+      color: var(--text-main);
+    }
+
+    .warning-box strong {
+      color: var(--warning);
+    }
+
+    .answer-body {
+      font-size: 0.95rem;
+      color: var(--text-main);
+      min-width: 0;
+    }
+
+    /* Quick Recite Mode hides deep answer-body details and shows only core summary + oral pitch */
+    body.recite-mode .answer-body {
+      display: none;
+    }
+
+    .answer-body h4 {
+      font-size: 1.04rem;
+      font-weight: 700;
+      margin: 22px 0 10px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      scroll-margin-top: 96px;
+    }
+
+    .answer-body p {
+      margin-bottom: 12px;
+    }
+
+    .answer-body ul, .answer-body ol {
+      margin-left: 20px;
+      margin-bottom: 16px;
+    }
+
+    .answer-body li {
+      margin-bottom: 8px;
+    }
+
+    .answer-body a {
+      color: var(--primary);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      font-weight: 500;
+    }
+
+    .answer-body a:hover {
+      color: var(--primary-hover);
+    }
+
+    /* Responsive Table Wrapper */
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 14px 0 20px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .custom-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.87rem;
+      min-width: 540px;
+    }
+
+    .custom-table th, .custom-table td {
+      border-bottom: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      padding: 10px 14px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .custom-table th:last-child, .custom-table td:last-child {
+      border-right: none;
+    }
+
+    .custom-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .custom-table th {
+      background-color: var(--tag-bg);
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .custom-table tr:nth-child(even) td {
+      background-color: rgba(0, 0, 0, 0.015);
+    }
+
+    [data-theme="dark"] .custom-table tr:nth-child(even) td {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Code & Pre */
+    code {
+      background-color: var(--code-bg);
+      color: var(--primary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.86em;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      word-break: break-word;
+    }
+
+    .code-block-wrap {
+      position: relative;
+      margin: 14px 0 18px;
+    }
+
+    pre {
+      background-color: var(--code-bg);
+      color: var(--code-color);
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      font-size: 0.84rem;
+      border: 1px solid var(--border-color);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      line-height: 1.55;
+      max-width: 100%;
+    }
+
+    pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+      word-break: normal;
+    }
+
+    /* Status Tags */
+    .tag-yes {
+      background: #dcfce7;
+      color: #15803d;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    .tag-no {
+      background: #fee2e2;
+      color: #b91c1c;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    .tag-partial {
+      background: #fef3c7;
+      color: #b45309;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    /* Reference Footer inside Card */
+    .ref-links {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border-color);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    /* Floating Back to Top & Mobile Quick Index Button */
+    .floating-tools {
+      position: fixed;
+      right: 20px;
+      bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 105;
+    }
+
+    .float-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    .float-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .float-btn.mobile-only-fab {
+      display: none;
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    /* Toast message */
+    .toast-msg {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #0f172a;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s ease;
+      z-index: 300;
+    }
+
+    .toast-msg.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ==========================================
+       RESPONSIVE DESIGN (Mobile & Tablet Zero-Bug)
+       ========================================== */
+    @media (max-width: 900px) {
+      header {
+        padding: 0 14px;
+      }
+
+      .mobile-menu-btn {
+        display: inline-flex;
+      }
+
+      .badge-sub {
+        display: none;
+      }
+
+      .header-title-text {
+        font-size: 0.96rem;
+      }
+
+      .action-btn span.btn-label {
+        display: none;
+      }
+
+      .action-btn {
+        padding: 6px 10px;
+      }
+
+      .mobile-status-bar {
+        display: flex;
+      }
+
+      .container {
+        margin-top: calc(var(--header-height) + var(--mobile-bar-height));
+      }
+
+      aside.sidebar {
+        top: 0;
+        width: min(84vw, 320px);
+        transform: translateX(-105%);
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.18);
+        padding-top: 16px;
+      }
+
+      aside.sidebar.open {
+        transform: translateX(0);
+      }
+
+      .sidebar-mobile-header {
+        display: flex;
+      }
+
+      main.content {
+        margin-left: 0;
+        padding: 20px 14px 80px;
+        max-width: 100%;
+      }
+
+      .day-section {
+        scroll-margin-top: 118px;
+      }
+
+      .qa-card {
+        padding: 18px 15px;
+        margin-bottom: 22px;
+        scroll-margin-top: 118px;
+      }
+
+      .answer-body h4 {
+        scroll-margin-top: 122px;
+        font-size: 0.98rem;
+      }
+
+      .day-title {
+        font-size: 1.32rem;
+      }
+
+      .qa-question {
+        font-size: 1.08rem;
+      }
+
+      .highlight-box, .pitch-box, .bonus-box, .warning-box {
+        padding: 11px 12px;
+        font-size: 0.88rem;
+      }
+
+      pre {
+        padding: 12px;
+        font-size: 0.78rem;
+      }
+
+      .float-btn.mobile-only-fab {
+        display: flex;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .header-title-text {
+        font-size: 0.88rem;
+      }
+      .qa-header {
+        gap: 8px;
+      }
+      .qa-num {
+        font-size: 0.78rem;
+        padding: 2px 7px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Reading Progress -->
+  <div class="reading-progress-bar" id="readingProgress"></div>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="header-left">
+      <button class="mobile-menu-btn" id="mobileMenuBtn" type="button" aria-label="打开题目目录">
+        <span>📑</span>
+        <span>索引</span>
+      </button>
+      <span class="badge-sub">10月25日专场</span>
+      <h1 class="header-title-text">混合检索多路召回、向量索引与从0到1工程落地精讲</h1>
+    </div>
+    <div class="header-actions">
+      <button class="action-btn" id="reciteToggle" type="button" title="切换仅看速记与口述背诵版">
+        <span>⚡</span>
+        <span class="btn-label">速背模式</span>
+      </button>
+      <button class="action-btn" id="themeToggle" type="button" title="切换深色/浅色主题">
+        <span id="themeIcon">🌓</span>
+        <span class="btn-label">暗黑模式</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Sticky Current-Viewing Bar -->
+  <div class="mobile-status-bar" id="mobileStatusBar">
+    <div class="mobile-current-label" id="mobileStatusTrigger">
+      <span class="mobile-current-pill" id="mobileCurrentNum">Q1</span>
+      <span class="mobile-current-title" id="mobileCurrentTitle">什么是混合检索？多路召回怎么实现？</span>
+    </div>
+    <button class="mobile-open-toc" id="mobileOpenTocBtn" type="button">目录 ▾</button>
+  </div>
+
+  <!-- Mobile Backdrop -->
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <div class="container">
+    <!-- Left Sidebar Table of Contents -->
+    <aside class="sidebar" id="sidebar" aria-label="面试题导航索引">
+      <div class="sidebar-mobile-header">
+        <span>📑 10月25日面试题索引</span>
+        <button class="sidebar-close-btn" id="sidebarCloseBtn" type="button" aria-label="关闭目录">✕</button>
+      </div>
+
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="🔍 搜索题目或关键词 (如 HNSW / RRF / Milvus)..." aria-label="搜索面试题">
+        <button class="search-clear-btn" id="searchClearBtn" type="button" title="清空搜索">✕</button>
+      </div>
+
+      <div class="sidebar-status-card">
+        <div class="sidebar-status-row">
+          <span>当前查看题目</span>
+          <strong id="sidebarProgressText">1 / 5</strong>
+        </div>
+        <div class="sidebar-active-indicator" id="sidebarActiveName">Q1 · 混合检索与多路召回实现</div>
+      </div>
+
+      <!-- 10月25日 Group 1: 向量检索底层架构与召回调优 -->
+      <div class="nav-day-group">
+        <div class="nav-day-title">
+          <span>10月25日 · 混合检索、索引与召回调优</span>
+          <span class="nav-day-badge">Q1 - Q4</span>
+        </div>
+        <ul class="nav-list">
+          <li class="nav-item expanded" data-target="q1">
+            <a href="#q1" id="nav-q1" class="active">
+              <span class="nav-q-badge">Q1</span>
+              <span>什么是混合检索？多路召回怎么实现？</span>
+            </a>
+            <ul class="sub-nav-list">
+              <li class="sub-nav-item"><a href="#q1-s1" data-parent="q1">1. 稠密向量 vs 稀疏检索互补矩阵</a></li>
+              <li class="sub-nav-item"><a href="#q1-s2" data-parent="q1">2. 多路召回并发扇出与 RRF 融合</a></li>
+              <li class="sub-nav-item"><a href="#q1-s3" data-parent="q1">3. Milvus Hybrid Search 实战代码</a></li>
+            </ul>
+          </li>
+
+          <li class="nav-item" data-target="q2">
+            <a href="#q2" id="nav-q2">
+              <span class="nav-q-badge">Q2</span>
+              <span>向量索引有哪些？</span>
+            </a>
+            <ul class="sub-nav-list">
+              <li class="sub-nav-item"><a href="#q2-s1" data-parent="q2">1. 六大主流向量索引全方位对比</a></li>
+              <li class="sub-nav-item"><a href="#q2-s2" data-parent="q2">2. IVF / HNSW / PQ 核心参数剖析</a></li>
+              <li class="sub-nav-item"><a href="#q2-s3" data-parent="q2">3. 生产环境内存估算与选型决策树</a></li>
+            </ul>
+          </li>
+
+          <li class="nav-item" data-target="q3">
+            <a href="#q3" id="nav-q3">
+              <span class="nav-q-badge">Q3</span>
+              <span>Milvus 和 ES 怎么选？</span>
+            </a>
+            <ul class="sub-nav-list">
+              <li class="sub-nav-item"><a href="#q3-s1" data-parent="q3">1. 架构基因与核心能力深度对比表</a></li>
+              <li class="sub-nav-item"><a href="#q3-s2" data-parent="q3">2. ES 向量检索在千万级下的瓶颈</a></li>
+              <li class="sub-nav-item"><a href="#q3-s3" data-parent="q3">3. 企业级选型四条铁律与双栈实践</a></li>
+            </ul>
+          </li>
+
+          <li class="nav-item" data-target="q4">
+            <a href="#q4" id="nav-q4">
+              <span class="nav-q-badge">Q4</span>
+              <span>RAG 怎么提高召回率？检索不准 / 召回失败怎么办？</span>
+            </a>
+            <ul class="sub-nav-list">
+              <li class="sub-nav-item"><a href="#q4-s1" data-parent="q4">1. 检索不准/失败四大根因诊断表</a></li>
+              <li class="sub-nav-item"><a href="#q4-s2" data-parent="q4">2. 提振召回率“四阶十二法”全景</a></li>
+              <li class="sub-nav-item"><a href="#q4-s3" data-parent="q4">3. HyDE + Multi-Query + CRAG 代码</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <!-- 10月25日 Group 2: 团队匹配与从0到1独当一面能力 -->
+      <div class="nav-day-group">
+        <div class="nav-day-title">
+          <span>10月25日 · 全栈闭环与工程文化匹配</span>
+          <span class="nav-day-badge">Q5</span>
+        </div>
+        <ul class="nav-list">
+          <li class="nav-item" data-target="q5">
+            <a href="#q5" id="nav-q5">
+              <span class="nav-q-badge">Q5</span>
+              <span>我们是小公司需要从0到1开发，可以做到吗？</span>
+            </a>
+            <ul class="sub-nav-list">
+              <li class="sub-nav-item"><a href="#q5-s1" data-parent="q5">1. 面试官潜台词拆解与得分逻辑</a></li>
+              <li class="sub-nav-item"><a href="#q5-s2" data-parent="q5">2. 小团队从0到1三周 MVP 路线图</a></li>
+              <li class="sub-nav-item"><a href="#q5-s3" data-parent="q5">3. 高分定制话术与三大避坑红线</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Main Content Panel -->
+    <main class="content">
+
+      <!-- ==========================================
+           DAY SECTION: 2026年10月25日面试题
+           =========================================== -->
+      <section class="day-section" id="day-1025">
+        <div class="day-header">
+          <div class="day-tag-row">
+            <div class="day-tag">📅 2026年10月25日 面试题</div>
+            <span class="day-meta-pill">🧠 混合检索多路召回 · ANN 向量索引 · Milvus vs ES 选型 · 召回率调优 · 从0到1全栈落地</span>
+          </div>
+          <h2 class="day-title">RAG 检索引擎深水区与全栈从 0 到 1 交付精讲</h2>
+          <p class="day-desc">深入拆解 Dense + Sparse BM25 混合检索与 RRF 多路召回架构、HNSW/IVF/PQ/DiskANN 向量索引底层原理、Milvus 与 Elasticsearch 生产选型边界、RAG 召回失败全链路排障及小微团队从 0 到 1 敏捷建站打法。</p>
+        </div>
+
+        <!-- ==========================================
+             Q1: 什么是混合检索？多路召回怎么实现？
+             =========================================== -->
+        <article class="qa-card active-card" id="q1" data-qnum="Q1" data-qtitle="什么是混合检索？多路召回怎么实现？">
+          <div class="qa-header">
+            <span class="qa-num">Q1</span>
+            <div class="qa-question-wrap">
+              <h3 class="qa-question">什么是混合检索？多路召回怎么实现？</h3>
+              <div class="qa-tags">
+                <span class="qa-tag">Dense + Sparse BM25</span>
+                <span class="qa-tag">RRF 倒数秩融合</span>
+                <span class="qa-tag">Cross-Encoder 精排</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>
+            <strong>① 什么是混合检索（Hybrid Search）</strong>：将基于深度学习表征的<strong>稠密向量检索（Dense Vector，擅长同义词、跨语言与意图泛化理解）</strong>与基于词项精确匹配的<strong>稀疏检索（Sparse Vector / BM25 倒排索引，擅长专有名词、零件型号、错误码、人名精确命中）</strong>相结合的检索范式。
+            <strong>② 多路召回（Multi-way Recall）怎么实现</strong>：采用<strong>“并发扇出检索（Fan-out）➔ 异构分数归一化/RRF 粗排合并 ➔ 交叉编码器（Cross-Encoder）精排截断”</strong>三步架构，同时从向量库、全文检索引擎、知识图谱/结构化 SQL 库、高频 QA 缓存中并发拉取候选集，彻底消除单路检索的召回盲区。
+          </div>
+
+          <div class="pitch-box">
+            <div class="pitch-header">
+              <span class="pitch-title">🎙️ 面试 45 秒开口即答（结合真实项目落地逐字稿）</span>
+              <button class="copy-pitch-btn" type="button" data-copy-target="pitch-q1">复制话术</button>
+            </div>
+            <p id="pitch-q1">“面试官您好，<strong>混合检索（Hybrid Search）</strong>的核心是把‘懂语义泛化的稠密向量检索’和‘懂字面精确匹配的 BM25 稀疏检索’结合起来。举个我做《优车智选》智能导购项目的真实例子：当买家搜‘2021款宝马 B48 发动机防冻液渗漏通病’时，纯向量检索能理解‘防冻液渗漏=冷却液漏水’，但对‘B48、2021款’这种字母数字编号很不敏感，容易召回成 N20 发动机的文档；反过来，纯 BM25 能死死咬住‘B48’，却搜不出正文写着‘冷却管路老化滴漏’的文档。为了解决这个问题，我们在工程上落地了<strong>四步走的多路召回架构</strong>：第一步是<strong>前置改写与并发扇出</strong>，利用异步协程或线程池（<code>asyncio.gather</code> / <code>CompletableFuture</code>）同时发起三路召回——① Milvus Dense HNSW 语义向量路（取 Top-25）、② BM25/SPLADE 稀疏关键词路（取 Top-25）、③ 高频黄金 QA 对精确匹配路（取 Top-5）；第二步是<strong>异构结果粗排融合</strong>，因为余弦相似度（0~1）和 BM25 分数（0~几十）量纲完全不同，我们采用无需调参归一化的 <strong>RRF（Reciprocal Rank Fusion，倒数秩融合算法，$k=60$）</strong>按各路排名位置合并去重，筛选出 Top-30；第三步是<strong>Cross-Encoder 深度精排</strong>，调用 <code>bge-reranker-v2-m3</code> 对 Query 和这 30 个候选块做 Token 级交叉注意力打分，卡阈值 <code>score &gt; 0.65</code> 截取最终 Top-5 喂给大模型，使线上综合召回准确率从 72% 跃升至 91%。”</p>
+          </div>
+
+          <div class="answer-body">
+            <h4 id="q1-s1">1. 为什么单一检索不够用？稠密向量 vs 稀疏词频 vs 图谱检索互补矩阵</h4>
+            <div class="table-wrapper">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>召回通道类型</th>
+                    <th>底层表征与打分机制</th>
+                    <th>核心优势（擅长什么）</th>
+                    <th>致命盲区（为什么需要其他路互补）</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>第一路：稠密向量召回<br>(Dense Vector Search)</strong></td>
+                    <td>通过双塔 Embedding 模型（如 <code>text-embedding-v3</code> / <code>bge-m3</code>）编码为 768~1536 维连续浮点数，计算 Cosine / IP 距离。</td>
+                    <td><span class="tag-yes">语义泛化极强</span> 能理解同义表达（如“省油”≈“百公里油耗低”）、口语化提问及跨语言检索。</td>
+                    <td><span class="tag-no">专有名词漂移</span> 对未见过的新词（OOV）、商品 SKU 编码、故障码（如 <code>Err-0x8007</code>）、精确年份数字极易漏检或张冠李戴。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>第二路：稀疏词频召回<br>(BM25 / Sparse SPLADE)</strong></td>
+                    <td>基于 TF-IDF + 文档长度归一化的倒排索引（如 <a href="https://milvus.io/docs/multi-vector-search.md" target="_blank" rel="noopener">Milvus BM25 / ES 倒排</a>），或基于神经稀疏表征的 SPLADE。</td>
+                    <td><span class="tag-yes">字面精确打击</span> 只要包含罕见型号、订单号、法条编号（如“第 142 条第 3 款”），高 IDF 权重保证必排前列。</td>
+                    <td><span class="tag-no">词汇鸿沟 (Vocabulary Mismatch)</span> 换个同义词（搜“笔记本死机”而文档写“电脑蓝屏无响应”）就会 0 召回。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>第三路：高频 FAQ / 知识图谱路<br>(QA Cache &amp; GraphRAG)</strong></td>
+                    <td>针对历史高频问题库做 Question-to-Question 检索，或通过实体识别（NER）在 Neo4j 图谱做 1~2 跳子图扩展。</td>
+                    <td><span class="tag-yes">高确定性 &amp; 多跳关联</span> 解决“某药与某药能否同服”等多跳关系推理，或秒级命中运营人工精修过的标准答案。</td>
+                    <td>覆盖面受限于已构建的图谱实体关系与 FAQ 库规模，需要向量+全文路做广度兜底。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4 id="q1-s2">2. 多路召回的核心枢纽：两阶段排序（RRF 粗排融合 + Reranker 精排）</h4>
+            <p>面试官必追问：<em>“多路召回回来的结果，向量余弦距离是 <code>0.82</code>，BM25 得分是 <code>18.6</code>，怎么把它们排到一起？”</em></p>
+            <ul>
+              <li><strong>方案 A：倒数秩融合算法（<a href="https://milvus.io/docs/rrf-ranker.md" target="_blank" rel="noopener">RRF, Reciprocal Rank Fusion</a> — 工业界首选）</strong>
+                <br>不看原始分数的绝对值，只看文档 $d$ 在每一路召回列表 $r \in R$ 中的<strong>名次（Rank，从 1 开始）</strong>。计算公式为：
+                <code>RRF_Score(d) = Σ 1 / (k + rank_r(d))</code>（其中平滑常数 $k$ 通常取 <code>60</code>）。如果某篇文档在向量路排第 2、在 BM25 路排第 1，它的双路叠加秩分就会远高于只在单路出现的文档，且完全不受分数量纲差异影响。</li>
+              <li><strong>方案 B：相对分归一化加权融合（Relative Score Fusion / Weighted Ranker）</strong>
+                <br>先对每一路的原始得分做 Min-Max 归一化：<code>norm_score = (s - s_min) / (s_max - s_min)</code>，再按业务特性赋权求和：<code>Final = α * Dense_Norm + (1 - α) * BM25_Norm</code>（例如代码/型号检索场景设 $\alpha=0.3$，通用问答场景设 $\alpha=0.7$）。</li>
+              <li><strong>方案 C：Cross-Encoder 重排序模型精排（<a href="https://milvus.io/docs/reranking.md" target="_blank" rel="noopener">Reranking</a> — 决定最终上限）</strong>
+                <br>双塔向量检索为了快，Query 和 Document 是分开独立编码的（没有早期交互）；而粗排合并出 Top-30 后，数据量已经很小，此时使用单塔交叉编码器（如 <code>bge-reranker-large</code> 或 <code>Cohere Rerank</code>）将 <code>[CLS] Query [SEP] Chunk [SEP]</code> 拼在一起过 Transformer 全注意力层，精准剔除“字面沾边但逻辑无关”的伪正例。</li>
+            </ul>
+
+            <h4 id="q1-s3">3. 生产级代码实战：Milvus 2.5 原生多向量混合检索 + RRF + Reranker</h4>
+            <div class="code-block-wrap">
+              <pre><code>from pymilvus import MilvusClient, AnnSearchRequest, RRFRanker
+from FlagEmbedding import FlagReranker
+
+client = MilvusClient(uri="http://localhost:19530")
+reranker = FlagReranker("BAAI/bge-reranker-v2-m3", use_fp16=True)
+
+def multi_way_hybrid_recall(query: str, brand_filter: str, top_k: int = 5):
+    query_dense_vec = embedding_model.encode_queries([query])[0]
+    filter_expr = f"status == 'active' and brand == '{brand_filter}'"
+
+    # 第 1 路：稠密语义向量检索 (Dense HNSW)
+    dense_req = AnnSearchRequest(
+        data=[query_dense_vec],
+        anns_field="dense_vector",
+        param={"metric_type": "COSINE", "params": {"ef": 64}},
+        limit=25,
+        expr=filter_expr,
+    )
+
+    # 第 2 路：稀疏关键词全文检索 (Milvus 内置 BM25 Sparse Vector)
+    sparse_req = AnnSearchRequest(
+        data=[query],  # Milvus 2.5+ BM25 Function 自动将文本转为稀疏词频向量
+        anns_field="sparse_bm25_vector",
+        param={"metric_type": "BM25", "params": {"drop_ratio_search": 0.2}},
+        limit=25,
+        expr=filter_expr,
+    )
+
+    # 阶段一（粗排融合）：在存储引擎层并发执行双路检索，并通过 RRF (k=60) 融合取 Top-25
+    coarse_results = client.hybrid_search(
+        collection_name="ucar_knowledge_base",
+        reqs=[dense_req, sparse_req],
+        ranker=RRFRanker(k=60),
+        limit=25,
+        output_fields=["chunk_text", "parent_text", "doc_id", "source_url"],
+    )[0]
+
+    # 阶段二（Cross-Encoder 精排）：对粗排 Top-25 进行深度语义交叉打分并卡阈值截断
+    candidates = [hit["entity"] for hit in coarse_results]
+    pairs = [[query, c["chunk_text"]] for c in candidates]
+    scores = reranker.compute_score(pairs, normalize=True)
+
+    scored_docs = sorted(zip(candidates, scores), key=lambda x: x[1], reverse=True)
+    # 过滤掉精排得分低于 0.65 的噪声块，并返回对应的完整父块 (Parent Chunk)
+    return [doc for doc, sc in scored_docs[:top_k] if sc &gt;= 0.65]</code></pre>
+            </div>
+
+            <div class="ref-links">
+              <span>📚 权威参考源：</span>
+              <a href="https://milvus.io/docs/multi-vector-search.md" target="_blank" rel="noopener">Milvus Multi-Vector Hybrid Search 官方文档</a>
+              <a href="https://milvus.io/docs/rrf-ranker.md" target="_blank" rel="noopener">Milvus RRF Ranker 算法原理与实现</a>
+              <a href="https://www.elastic.co/what-is/hybrid-search" target="_blank" rel="noopener">Elastic Hybrid Search 架构白皮书</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             Q2: 向量索引有哪些？
+             =========================================== -->
+        <article class="qa-card" id="q2" data-qnum="Q2" data-qtitle="向量索引有哪些？">
+          <div class="qa-header">
+            <span class="qa-num">Q2</span>
+            <div class="qa-question-wrap">
+              <h3 class="qa-question">向量索引有哪些？</h3>
+              <div class="qa-tags">
+                <span class="qa-tag">ANN 近似最近邻</span>
+                <span class="qa-tag">FLAT / IVF / HNSW</span>
+                <span class="qa-tag">SQ8 / PQ 量化与 DiskANN</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>高维向量检索若挨个算距离（暴力搜索）在百万级以上延迟不可接受，因此工业界普遍采用 <strong>ANN（Approximate Nearest Neighbor，近似最近邻）索引</strong>，用极小的召回率折损换取百倍性能提升或内存压缩。按底层数据结构分为<strong>四大核心流派</strong>：
+            ① <strong>暴力精确搜索（<code>FLAT</code>）</strong>：无压缩不建图，100% 召回率，适合 &lt;5 万条小规模数据；
+            ② <strong>基于倒排分桶聚类（<code>IVF_FLAT</code> / <code>IVF_SQ8</code> / <code>IVF_PQ</code>）</strong>：K-Means 划分聚类中心（Voronoi 胞腔），查询仅扫描最近的 <code>nprobe</code> 个桶，配合标量/乘积量化大幅省内存；
+            ③ <strong>基于分层导航小世界图（<code>HNSW</code>）</strong>：跳表（SkipList）+ NSW 近邻图，查询速度最快、召回率极高，但比较吃内存，是<strong>生产环境最主流首选</strong>；
+            ④ <strong>基于磁盘图索引（<code>DiskANN</code>）</strong>：Vamana 图结合 NVMe SSD 落盘，单机少量内存即可支撑亿级~十亿级向量。
+          </div>
+
+          <div class="pitch-box">
+            <div class="pitch-header">
+              <span class="pitch-title">🎙️ 面试 45 秒开口即答（结构化分类背诵版）</span>
+              <button class="copy-pitch-btn" type="button" data-copy-target="pitch-q2">复制话术</button>
+            </div>
+            <p id="pitch-q2">“面试官您好，向量索引本质上是在<strong>‘召回精度（Recall）’、‘查询延迟（QPS/Latency）’和‘内存占用（RAM）’这个不可能三角</strong>里做权衡。按底层算法流派，主流向量索引可以分为四类：第一类是<strong>暴力平铺索引 <code>FLAT</code></strong>，不做任何预处理，全量计算精确距离，召回率 100%，但时间复杂度是 $O(N)$，只适合几万条以内的小表或用来跑评测基准；第二类是<strong>基于倒排聚类的 <code>IVF</code> 系列</strong>，离线用 K-Means 把向量空间切成 <code>nlist</code> 个聚类桶，在线查询时只去距离 Query 最近的 <code>nprobe</code> 个桶里找，如果叠加上 <code>SQ8</code>（8位标量量化，float32 转 uint8，内存省 75%）或 <code>PQ</code>（乘积量化，高维空间切子空间码本编码，内存省 90% 以上），非常适合内存受限的千万级数据；第三类是<strong>基于多层图的 <code>HNSW</code>（分层可导航小世界图）</strong>，它借鉴跳表思想，上层稀疏图做大步长快速逼近、底层稠密图做精细搜索，时间复杂度达到 $O(\log N)$，延迟极低且召回率高达 98%+，是我们线上百万~千万级 RAG 知识库的首选；第四类是<strong>面向超大规模落盘的 <code>DiskANN</code></strong>，只把轻量级 PQ 压缩向量放内存导航，完整向量和 Vamana 图边存在高速 NVMe SSD 上，用四分之一的机器成本就能抗住亿级向量检索。”</p>
+          </div>
+
+          <div class="answer-body">
+            <h4 id="q2-s1">1. 六大主流向量索引全方位性能与选型对比表</h4>
+            <div class="table-wrapper">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>索引类型 (<a href="https://milvus.io/docs/index-explained.md" target="_blank" rel="noopener">Milvus 标准</a>)</th>
+                    <th>底层数据结构与量化原理</th>
+                    <th>查询性能 (QPS)</th>
+                    <th>召回率 (Recall)</th>
+                    <th>内存占用 (以 100万 1536维为例)</th>
+                    <th>最佳适用场景</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong><code>FLAT</code></strong><br>(暴力全表扫描)</td>
+                    <td>无索引结构，原样存储 <code>float32</code> 向量，逐条计算距离。</td>
+                    <td><span class="tag-no">极慢 O(N)</span></td>
+                    <td><span class="tag-yes">100% 精确</span></td>
+                    <td>~6.1 GB（原始大小）</td>
+                    <td>数据量 &lt; 5 万条，或金融/医疗要求 100% 零精度损失的小库。</td>
+                  </tr>
+                  <tr>
+                    <td><strong><code>IVF_FLAT</code></strong><br>(倒排文件平铺)</td>
+                    <td>K-Means 聚出 <code>nlist</code> 个质心桶，桶内保存原始 <code>float32</code> 向量。</td>
+                    <td><span class="tag-yes">快</span></td>
+                    <td><span class="tag-yes">高 (92%~98%)</span></td>
+                    <td>~6.2 GB（略高于 FLAT）</td>
+                    <td>百万级规模、追求构建速度快且能接受全量向量驻留内存。</td>
+                  </tr>
+                  <tr>
+                    <td><strong><code>IVF_SQ8</code></strong><br>(倒排 + 标量量化)</td>
+                    <td>在 IVF 基础上，将每个维度的 4 字节 <code>float32</code> 有损量化为 1 字节 <code>uint8</code>。</td>
+                    <td><span class="tag-yes">极快 (CPU Cache友好)</span></td>
+                    <td><span class="tag-partial">中高 (90%~95%)</span></td>
+                    <td><strong>~1.6 GB（节省约 75%）</strong></td>
+                    <td>服务器内存吃紧，但又希望保持高吞吐与较小精度损失。</td>
+                  </tr>
+                  <tr>
+                    <td><strong><code>IVF_PQ</code></strong><br>(倒排 + 乘积量化)</td>
+                    <td>将 $D$ 维向量切分为 $m$ 个子向量，各自聚类编码为 1 字节质心 ID（Codebook）。</td>
+                    <td><span class="tag-yes">极快 (查表加速)</span></td>
+                    <td><span class="tag-no">中 (80%~88%，需重排补偿)</span></td>
+                    <td><strong>~0.3~0.6 GB（节省 90%+）</strong></td>
+                    <td>千万~亿级海量数据、内存极度受限（通常多召回 3 倍再用原始向量重排精修）。</td>
+                  </tr>
+                  <tr>
+                    <td><strong><code>HNSW</code></strong><br>(分层可导航小世界图)</td>
+                    <td>多层近邻图（类似跳表），顶层长边快速跳跃定位区域，底层密集边精细搜索。</td>
+                    <td><span class="tag-yes">最快 O(log N)</span></td>
+                    <td><span class="tag-yes">极高 (96%~99%+)</span></td>
+                    <td>~8.5~11 GB（原始向量 + 图边指针开销）</td>
+                    <td><strong>企业级 RAG 生产首选！</strong>对检索延迟（&lt;10ms）与高召回率有严苛要求的在线业务。</td>
+                  </tr>
+                  <tr>
+                    <td><strong><code>DiskANN</code></strong><br>(磁盘图混合索引)</td>
+                    <td>基于 Vamana 单层图，内存中仅存 PQ 压缩向量做粗导航，SSD 存全精度向量。</td>
+                    <td><span class="tag-partial">中等 (受 SSD IOPS 影响，约 15~30ms)</span></td>
+                    <td><span class="tag-yes">高 (95%+)</span></td>
+                    <td><strong>~1.2 GB 内存 + SSD 磁盘</strong></td>
+                    <td>亿级~十亿级超大规模知识库，大幅降低昂贵的 DRAM 内存服务器成本。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4 id="q2-s2">2. 面试高频追问：HNSW 和 IVF 的核心参数怎么调？代表什么物理意义？</h4>
+            <div class="code-block-wrap">
+              <pre><code>【一、HNSW 三大核心参数调优（以 Milvus / Elasticsearch 为例）】
+  Level 2 (顶层稀疏):  [A] ─────────────────────────────► [F]        (大步跨越，快速接近目标邻域)
+                        │                                  │
+  Level 1 (中层过渡):  [A] ──────────► [C] ─────────────► [F] ──► [H]
+                        │               │                  │       │
+  Level 0 (底层全量):  [A] ──► [B] ──► [C] ──► [D] ──► [E] ──► [F] ──► [H] (精细游走，找出 Top-K)
+
+  1. M (每个节点的最大出边邻居数，通常取 16 ~ 64):
+     - M 越大：图的连通性越好，高维复杂分布下召回率越高，但内存占用线性上涨、建索引变慢。
+  2. efConstruction (建索引时的动态候选队列大小，通常取 100 ~ 500):
+     - 决定了建图时找最近邻的精细程度。值越大图质量越高，不影响在线查询内存，只增加离线构建耗时。
+  3. ef (在线查询时的搜索宽度，必须 &gt;= Top-K，通常取 64 ~ 256):
+     - 在线可动态调整！ef 越大，遍历的候选节点越多，召回率越高，但查询延迟（Latency）成正比增加。
+
+【二、IVF_FLAT / IVF_PQ 两大核心参数调优】
+  1. nlist (K-Means 聚类桶总数，通常取 4 * sqrt(N)，如 100万数据取 1024 ~ 4096):
+     - 桶太少则单桶内向量过多退化为暴力扫描；桶太多则建索引慢且质心计算开销大。
+  2. nprobe (在线查询时扫描的最近聚类桶数量，通常取 nlist 的 1% ~ 5%，如 16 ~ 128):
+     - 解决“边界效应”（目标向量刚好落在相邻桶边界另一侧）：增大 nprobe 可显著提升召回率，代价是扫描量变大。</code></pre>
+            </div>
+
+            <h4 id="q2-s3">3. 生产环境内存估算公式与选型决策树（架构师视角）</h4>
+            <p>在面试中给出<strong>定量内存估算公式</strong>能瞬间体现你的生产实战经验：一条 <code>1536</code> 维（如 OpenAI / 通义千问默认维度）的 <code>float32</code> 向量占 <code>1536 × 4 Bytes = 6 KB</code>。</p>
+            <ul>
+              <li><strong>100 万条 1536 维向量</strong>：原始向量约 <code>6 GB</code>；若用 <code>HNSW (M=32)</code>，加上图边拓扑与系统冗余，需准备约 <strong>12 ~ 16 GB 内存</strong>。</li>
+              <li><strong>选型口诀</strong>：<strong>5 万以内无脑 <code>FLAT</code>；5 万到 2000 万且内存够用首选 <code>HNSW</code>（或 <code>HNSW_SQ</code> 折中省内存）；千万到亿级内存受限选 <code>IVF_SQ8 / IVF_PQ</code>；上亿级配高速 NVMe 盘选 <code>DiskANN</code>；有空闲 GPU 卡追求万级并发吞吐选 <code>GPU_CAGRA</code></strong>。</li>
+            </ul>
+
+            <div class="ref-links">
+              <span>📚 权威参考源：</span>
+              <a href="https://milvus.io/docs/index-explained.md" target="_blank" rel="noopener">Milvus Vector Index Explained 官方文档</a>
+              <a href="https://milvus.io/docs/index-vector-fields.md" target="_blank" rel="noopener">Milvus Index Vector Fields 参数手册</a>
+              <a href="https://milvus.io/docs/ivf-flat.md" target="_blank" rel="noopener">IVF_FLAT 倒排索引原理与边界问题解析</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             Q3: Milvus 和 ES 怎么选？
+             =========================================== -->
+        <article class="qa-card" id="q3" data-qnum="Q3" data-qtitle="Milvus 和 ES 怎么选？">
+          <div class="qa-header">
+            <span class="qa-num">Q3</span>
+            <div class="qa-question-wrap">
+              <h3 class="qa-question">Milvus 和 ES 怎么选？</h3>
+              <div class="qa-tags">
+                <span class="qa-tag">技术架构选型</span>
+                <span class="qa-tag">专用向量库 vs 搜索引擎</span>
+                <span class="qa-tag">存算分离与段合并瓶颈</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>选型本质是看<strong>“业务重心是传统复杂搜索优先，还是海量高维向量优先”</strong>：
+            ① <strong>选 Elasticsearch（ES 8.x+）</strong>：当团队<strong>已有成熟 ES 运维底座</strong>、向量规模在<strong>百万级以内</strong>，且业务强依赖<strong>复杂多条件 DSL 过滤、IK 中文分词高亮、拼音纠错、Geo 地理位置检索及多维聚合统计（Aggregations）</strong>时，直接用 ES 的 <code>dense_vector (HNSW) + BM25</code> 一栈搞定，避免维护两套分布式系统的双写一致性成本；
+            ② <strong>选 Milvus（2.4 / 2.5+）</strong>：当向量规模达到<strong>千万~十亿级</strong>、维度高（1024~4096维）、追求<strong>极致 ANN 向量吞吐与低延迟</strong>、需要灵活使用 <strong>DiskANN / IVF_PQ / GPU 加速 / 多模态多向量列</strong>，或构建云原生存算分离的 AI Native 知识中台时，必须选专用向量数据库 Milvus。
+          </div>
+
+          <div class="pitch-box">
+            <div class="pitch-header">
+              <span class="pitch-title">🎙️ 面试 45 秒开口即答（结合自身双项目实战背诵版）</span>
+              <button class="copy-pitch-btn" type="button" data-copy-target="pitch-q3">复制话术</button>
+            </div>
+            <p id="pitch-q3">“面试官您好，我在《优车智选》和《云尚严选》两个项目里同时深度使用过 Elasticsearch 8.11 和 Milvus，对它们的选型边界非常清楚。这两者的底层基因完全不同：<strong>ES 是基于 JVM 和 Lucene 倒排索引演进出来的全文检索引擎</strong>，虽然 8.0 之后加了 HNSW 向量支持，但它的强项依然是复杂的布尔 DSL 组合过滤、分词高亮、模糊纠错和分桶聚合（Aggregations）；而 <strong>Milvus 是用 C++/Go 编写、底层针对 SIMD 指令集和 GPU 做过极致优化的云原生存算分离向量数据库</strong>。在实际架构选型上，我遵循三条铁律：第一看<strong>数据规模与硬件成本</strong>——如果向量在一两百万条以内，且公司本来就有 ES 集群，直接用 ES 8.x 的 kNN + BM25 做混合检索最划算，省去了多维护一套组件的运维成本；但如果向量突破千万级甚至上亿级，ES 在 Lucene Segment 段合并（Merge）时会频繁重建 HNSW 图，导致磁盘 I/O 和 JVM 堆外内存飙升，这时必须上支持 IVF_PQ、DiskANN 和读写分离的 Milvus；第二看<strong>查询负载特征</strong>——重度聚合统计与多字段文本搜索选 ES，重度高维多模态 Embedding（文本+图片多向量列）与高频向量增量更新选 Milvus；第三看<strong>当前演进趋势</strong>——Milvus 2.5 已经原生内置了高性能 Sparse BM25 与 RRF 混合检索，如果是一个从零新建的纯 AI Agent / RAG 知识库项目，我现在会优先推荐用 Milvus 单栈闭环。”</p>
+          </div>
+
+          <div class="answer-body">
+            <h4 id="q3-s1">1. Milvus vs Elasticsearch (8.x) 核心架构与能力深度对比表</h4>
+            <div class="table-wrapper">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>对比维度</th>
+                    <th>Milvus (2.4 / 2.5+ 专用云原生向量数据库)</th>
+                    <th>Elasticsearch (8.x+ 全文检索引擎 + 向量扩展)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>底层内核与语言</strong></td>
+                    <td>Go 控制面 + <strong>C++ 计算引擎（Knowhere）</strong>，深度集成 AVX512 SIMD 指令集与 NVIDIA RAFT GPU 加速。</td>
+                    <td>基于 <strong>Java (JVM) + Apache Lucene</strong>，向量检索作为 Lucene Segment 内部的一个附加结构运行。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>分布式架构形态</strong></td>
+                    <td><span class="tag-yes">云原生存算分离</span> QueryNode（读）与 DataNode（写）、IndexNode（建索引）完全解耦，可独立按需弹性扩缩容。</td>
+                    <td><span class="tag-partial">存算一体分片架构</span> 每个 Shard 同时承担写入、Lucene 段合并、倒排查询与向量计算，资源容易互相挤占。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>支持的向量索引丰富度</strong></td>
+                    <td><span class="tag-yes">极其丰富</span> 支持 <code>FLAT</code>、<code>IVF_FLAT</code>、<code>IVF_SQ8</code>、<code>IVF_PQ</code>、<code>HNSW</code>、<code>DiskANN</code>、<code>SCaNN</code> 及 <code>GPU_CAGRA</code>。</td>
+                    <td><span class="tag-no">相对单一</span> 主体仅支持基于 Lucene 的 <code>HNSW</code>（及 <code>int8/int4/bbq</code> 量化）与暴力 <code>exact_search</code>。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>全文检索与复杂过滤聚合</strong></td>
+                    <td>2.5+ 原生支持 BM25 稀疏向量与标量布尔过滤，但<strong>不支持复杂的多级分桶统计（Aggregations）、高亮（Highlight）与同义词/拼音分词器生态</strong>。</td>
+                    <td><span class="tag-yes">行业绝对霸主</span> 拥有极其成熟的 IK/拼音分词、模糊容错（Fuzziness）、Geo 地理位置检索、Nested 对象及复杂 Aggregation 报表能力。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>高频写入与段合并代价</strong></td>
+                    <td>IndexNode 异步独立构建索引，完全不阻塞在线 QueryNode 的低延迟读取。</td>
+                    <td>写入触发 Lucene Segment Merge 时，需要在后台重新合并构建 HNSW 图，消耗大量 CPU 与磁盘 I/O，易引发查询毛刺。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>十亿级规模扩展性</strong></td>
+                    <td><span class="tag-yes">原生支撑十亿~百亿级</span> 配合 S3/MinIO 对象存储与 DiskANN，单集群轻松水平扩展。</td>
+                    <td><span class="tag-no">成本高昂</span> 千万~亿级高维向量需全部常驻操作系统 Page Cache（Off-heap），服务器内存成本极高。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4 id="q3-s2">2. 为什么千万级高维向量场景下 ES 容易遇到瓶颈？（底层原理剖析）</h4>
+            <p>当面试官深挖：<em>“ES 8 也有 HNSW 甚至 int8 量化，为什么大数据量下还要上 Milvus？”</em> 回答出以下两点直接体现高级架构功底：</p>
+            <ul>
+              <li><strong>Lucene Segment 不可变性与 Merge 放大效应</strong>：ES 底层每个分片由多个不可变的 Lucene Segment 组成。每次检索向量时，ES 必须<strong>在分片内的每一个 Segment 的 HNSW 图上分别跑一遍搜索再合并结果</strong>（Segment 越多越慢）；而当后台触发 Segment Merge（段合并）把多个小段合成大段时，HNSW 图不像倒排链表那样能简单顺序归并，而是必须<strong>把所有向量重新插入构建一张全新的大图</strong>，极其消耗 CPU，直接抢占在线搜索算力。而在 Milvus 中，建索引由独立的 <code>IndexNode</code> 节点池异步完成，写完推入 MinIO，<code>QueryNode</code> 直接加载，彻底做到读写算力隔离。</li>
+              <li><strong>JVM 与 Page Cache 内存争夺</strong>：ES 的 JVM Heap 需要留一半内存给倒排词典和聚合缓存，另一半 OS Page Cache 用来锁住 HNSW 图文件；一旦向量达到数千万条，Page Cache 不足引发磁盘随机读 Page Fault，HNSW 图游走延迟会从 5ms 暴涨到几百毫秒。</li>
+            </ul>
+
+            <h4 id="q3-s3">3. 企业级选型决策树：什么时候用 ES？什么时候用 Milvus？</h4>
+            <div class="code-block-wrap">
+              <pre><code>                   [企业需要落地向量检索 / RAG 知识库]
+                                   │
+         ┌─────────────────────────┴─────────────────────────┐
+         ▼ (向量规模 &lt; 300万 &amp; 已有 ES 集群)                  ▼ (向量规模 &gt; 500万 或 纯 AI 知识中台)
+【场景 A：优先选 Elasticsearch 8.x+ 一栈式方案】      【场景 B：优先选 Milvus 2.5+ 专用向量数据库】
+ • 典型业务：电商商品搜索、二手车多维筛选+语义搜、     • 典型业务：全公司级千万篇文档 RAG 中台、多模态以图搜图、
+   企业内部中小型 Wiki/工单库。                          海量长周期 Agent 记忆库、推荐系统召回层。
+ • 核心理由：                                          • 核心理由：
+   1. 复用现有 ES 运维体系，零新增中间件；               1. 存算分离，IndexNode 独立建图不卡在线查询；
+   2. 强依赖复杂 DSL 聚合统计、拼音/IK分词与高亮；       2. 支持 DiskANN / IVF_PQ / GPU 索引，硬件成本低 60%；
+   3. 原生支持 kNN + BM25 + RRF，无跨库双写一致性负担。  3. 原生支持单表多向量列（如标题向量+正文向量+图片向量+BM25）。</code></pre>
+            </div>
+
+            <div class="ref-links">
+              <span>📚 权威参考源：</span>
+              <a href="https://milvus.io/docs/index-explained.md" target="_blank" rel="noopener">Milvus 架构与向量索引官方文档</a>
+              <a href="https://www.elastic.co/docs/solutions/search/hybrid-search" target="_blank" rel="noopener">Elasticsearch Hybrid Search &amp; kNN 官方指南</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             Q4: RAG 怎么提高召回率？检索不准 / 召回失败怎么办？
+             =========================================== -->
+        <article class="qa-card" id="q4" data-qnum="Q4" data-qtitle="RAG 怎么提高召回率？检索不准 / 召回失败怎么办？">
+          <div class="qa-header">
+            <span class="qa-num">Q4</span>
+            <div class="qa-question-wrap">
+              <h3 class="qa-question">RAG 怎么提高召回率？检索不准 / 召回失败怎么办？</h3>
+              <div class="qa-tags">
+                <span class="qa-tag">高频核心实战题</span>
+                <span class="qa-tag">Query Rewrite / HyDE / Multi-Query</span>
+                <span class="qa-tag">Parent-Child &amp; CRAG 自愈</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>RAG 出现“检索不准（Precision 低）”或“召回失败（Recall 低）”，绝不能头疼医头，必须按<strong>“四阶全链路排查调优法”</strong>系统作答：
+            ① <strong>离线数据与索引层（治本）</strong>：改定长切片为<strong>结构感知 + 父子索引（Small-to-Big）</strong>、为每个切片注入<strong>文档标题/章节面包屑与反向生成假设问题（Reverse HyDE）</strong>、微调垂域 Embedding；
+            ② <strong>检索前 Query 增强层（Pre-Retrieval）</strong>：<strong>多轮指代消解 + 多视角扩写（<code>MultiQuery</code>）+ 复杂问题拆解（Sub-Query）+ 假设性文档生成（<code>HyDE</code>）</strong>；
+            ③ <strong>检索中多路召回层（Retrieval）</strong>：<strong>Dense 向量 + BM25 稀疏混合检索 + Metadata 预过滤</strong>；
+            ④ <strong>检索后精排与自愈层（Post-Retrieval）</strong>：<strong>Cross-Encoder Rerank 严卡阈值 + LangGraph Corrective RAG（CRAG）相关性评估打回重写 / Web 搜索兜底</strong>。
+          </div>
+
+          <div class="pitch-box">
+            <div class="pitch-header">
+              <span class="pitch-title">🎙️ 面试 50 秒开口即答（排障思路 + 提分组合拳背诵版）</span>
+              <button class="copy-pitch-btn" type="button" data-copy-target="pitch-q4">复制话术</button>
+            </div>
+            <p id="pitch-q4">“面试官您好，线上遇到 RAG 检索不准或召回失败，我会先把 Bad Case 拉出来，区分到底是<strong>‘库里有但没搜出来（Recall 召回失败）’</strong>，还是<strong>‘搜出来一堆沾边但没用的噪声把正确文档挤下去了（Precision 排序不准）’</strong>，然后从四个环节下刀优化：第一是<strong>优化离线切片与表征（源头治理）</strong>，很多时候搜不到是因为切片丢了主语或表格被切碎，我们通过‘父子双层切片（小块 400 字检索、大块 1500 字生成）’并在每个子块头部强行拼接<code>[文档名 &gt; 章节路径]</code>，同时离线用大模型为每个文档块预生成 3 个‘用户可能会怎么问这个问题’的假设 Query 一并建向量索引（Doc2Query），让短问题搜短问题，匹配度极高；第二是<strong>优化检索前 Query 理解</strong>，针对用户口语化、指代不明或超短提问，我们先做历史对话指代消解，对抽象问题使用 <strong>HyDE（先让小模型生成一个假设性回答，拿回答的向量去搜真实文档）</strong>或 <strong>Multi-Query（扩写出 3 个不同表述并发检索取并集）</strong>；第三是<strong>优化检索中多路召回</strong>，用 Milvus Dense + BM25 稀疏检索 + RRF 融合，补齐型号和专有名词短板；第四是<strong>检索后精排与 Agentic 自愈闭环</strong>，接入 <code>bge-reranker-large</code> 交叉重排并卡死最低置信度阈值（如 <code>0.65</code>），如果结合 LangGraph 的 <strong>Corrective RAG</strong> 评估节点发现召回内容全都不达标，自动触发 <code>Rewrite Query</code> 换词重搜或降级调用外部搜索 API，彻底闭环解决召回失败问题。”</p>
+          </div>
+
+          <div class="answer-body">
+            <h4 id="q4-s1">1. 线上“检索不准 / 召回失败”五大高频病灶与对症下药诊断表</h4>
+            <div class="table-wrapper">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>线上典型故障现象 (Bad Case)</th>
+                    <th>底层根因诊断</th>
+                    <th>针对性工程根治手段</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>病灶 1：搜专有型号/法条号/人名完全搜不到或张冠李戴</strong><br>（如搜 <code>iPhone 15 Pro</code> 却召回一堆 <code>iPhone 14 Pro</code>）</td>
+                    <td>纯稠密 Embedding 模型把两者都映射到高维空间的“苹果旗舰手机”相近区域，缺乏字面硬约束。</td>
+                    <td>1. 引入 <strong>BM25 稀疏检索 + RRF 混合召回</strong>；<br>2. 用 LLM/正则从 Query 中抽取出结构化实体（<code>model="iPhone 15 Pro"</code>），下推为向量库的 <strong>Metadata 精确过滤条件</strong>。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>病灶 2：用户提问太短/太口语化，与专业文档表述脱节</strong><br>（如用户问“车子冷启动哒哒响”，文档写“液压挺柱机油泄压异响”）</td>
+                    <td><strong>非对称检索鸿沟（Asymmetric Search Gap）</strong>：5 个字的口语短句与 500 字的专业长段落向量余弦相似度天然偏低。</td>
+                    <td>1. <strong>在线端上 HyDE / Query Expansion</strong>：先让 LLM 注入同义专业术语改写 Query 或生成假设答案去搜；<br>2. <strong>离线端上 Reverse HyDE (Doc2Query)</strong>：入库时为每个文档块预生成 3~5 个口语化常见问题，用问题向量匹配问题向量！</td>
+                  </tr>
+                  <tr>
+                    <td><strong>病灶 3：切片丢失主语上下文，导致应该命中的块没命中</strong><br>（如文档第 1 段写“宝马3系”，第 5 段只写“它的质保期为 3 年/10万公里”）</td>
+                    <td>第 5 段单独切成一个 Chunk 后，里面根本没有“宝马3系”四个字，用户搜“宝马3系质保期”时该块得分极低。</td>
+                    <td>实施 <strong>Contextual Retrieval（上下文增强切片）</strong>：在离线切片时，将文档标题、章节面包屑乃至 LLM 生成的 50 字全文背景摘要<strong>前置拼接到每一个 Chunk 头部</strong>再算 Embedding。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>病灶 4：跨多个维度的复合问题召回不全</strong><br>（如“对比一下 A 车型和 B 车型的保养成本与保值率”）</td>
+                    <td>单条复合 Query 的 Embedding 向量位于 A 和 B 两个主题的中间地带，导致两边都没搜全。</td>
+                    <td>引入 <strong>Sub-Query Decomposition（子问题拆解）</strong>：将复合问题拆解为 <code>["A车型保养成本与保值率", "B车型保养成本与保值率"]</code> 并发独立检索后再汇总。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>病灶 5：召回了正确文档，但排在第 15 名被 Top-5 截断丢弃了</strong></td>
+                    <td>双塔 Embedding 模型属于粗粒度全局池化表征，无法精细判别长句间的逻辑蕴含关系。</td>
+                    <td>扩大初检召回窗口（如 <code>Recall Top-30 ~ Top-50</code>），后接 <strong>Cross-Encoder Reranker（如 <code>bge-reranker-v2-m3</code>）</strong>做精排重打分后再截取 <code>Top-5</code>。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4 id="q4-s2">2. 提振 RAG 召回率与准确率的“四阶十二法”架构全景图</h4>
+            <div class="code-block-wrap">
+              <pre><code>┌───────────────────────────────────────────────────────────────────────────────────────────┐
+│ 【第 1 阶：离线索引增强 (Offline Indexing)】                                              │
+│  ① 结构化 + 父子切片 (Small-to-Big)  ② 块首注入章节路径与上下文摘要  ③ 离线生成假设问句(Doc2Query) │
+└─────────────────────────────────────────────┬─────────────────────────────────────────────┘
+                                              ▼
+┌───────────────────────────────────────────────────────────────────────────────────────────┐
+│ 【第 2 阶：检索前 Query 工程 (Pre-Retrieval)】                                            │
+│  ④ 多轮对话指代消解  ⑤ Multi-Query 多视角同义扩写  ⑥ 复杂问题拆解(Sub-Query)  ⑦ HyDE 假设文档生成 │
+└─────────────────────────────────────────────┬─────────────────────────────────────────────┘
+                                              ▼
+┌───────────────────────────────────────────────────────────────────────────────────────────┐
+│ 【第 3 阶：检索中多路混合召回 (Hybrid Retrieval)】                                        │
+│  ⑧ 实体提取 + Metadata 前置过滤    ⑨ Dense 语义向量 + Sparse BM25 多路并发 + RRF 倒数秩融合 │
+└─────────────────────────────────────────────┬─────────────────────────────────────────────┘
+                                              ▼
+┌───────────────────────────────────────────────────────────────────────────────────────────┐
+│ 【第 4 阶：检索后精排与自愈闭环 (Post-Retrieval &amp; Corrective RAG)】                       │
+│  ⑩ Cross-Encoder Rerank 精排截断   ⑪ 上下文去噪压缩   ⑫ Grader 评估不达标则自动重写重搜/Web兜底 │
+└───────────────────────────────────────────────────────────────────────────────────────────┘</code></pre>
+            </div>
+
+            <h4 id="q4-s3">3. 生产级代码实战：Multi-Query 多视角扩写 + Corrective RAG 召回失败自愈</h4>
+            <div class="code-block-wrap">
+              <pre><code>from pydantic import BaseModel, Field
+from typing import Literal
+
+# 1. 结构化输出 Schema：用于多视角 Query 扩写与召回文档相关性评估
+class ExpandedQueries(BaseModel):
+    queries: list[str] = Field(description="从不同专业术语角度改写的 3 个等价搜索查询词")
+
+class GradeHallucinationAndRelevance(BaseModel):
+    is_relevant: bool = Field(description="召回的文档是否包含足以回答用户问题的核心事实依据")
+    rewrite_hint: str = Field(description="若不相关，给出下一步改写搜索词的建议方向")
+
+def multi_query_hybrid_retrieve(user_query: str):
+    """【提振召回率】将单一口语化问题扩写为 3 个专业检索词，并发检索后通过 RRF 去重合并"""
+    expander = llm.with_structured_output(ExpandedQueries)
+    res = expander.invoke(f"请将用户问题扩写为 3 个覆盖同义专业术语的检索词：{user_query}")
+    all_queries = [user_query] + res.queries[:3]
+    
+    # 对所有扩写 Query 并发执行混合检索并汇总去重
+    merged_docs = {}
+    for q in all_queries:
+        for doc in hybrid_search_with_rerank(q, top_k=5):
+            merged_docs[doc["doc_id"]] = doc
+    return list(merged_docs.values())
+
+def corrective_rag_grader_node(state: dict) -&gt; Literal["generate_answer", "rewrite_and_retry", "web_search_fallback"]:
+    """【召回失败兜底：Corrective RAG】当检索结果为空或相关性评估不通过时，触发重写或外部搜索兜底"""
+    docs = state.get("retrieved_docs", [])
+    if not docs:
+        return "rewrite_and_retry" if state.get("retry_count", 0) &lt; 2 else "web_search_fallback"
+        
+    grader = llm.with_structured_output(GradeHallucinationAndRelevance)
+    grade = grader.invoke(f"用户问题：{state['query']}\n召回文档：{docs}")
+    if grade.is_relevant:
+        return "generate_answer"
+    if state.get("retry_count", 0) &lt; 2:
+        return "rewrite_and_retry"
+    return "web_search_fallback"  # 私域库彻底无结果时，优雅降级至联网搜索或转人工客服</code></pre>
+            </div>
+
+            <div class="ref-links">
+              <span>📚 权威参考源：</span>
+              <a href="https://reference.langchain.com/python/langchain-classic/retrievers/multi_query/MultiQueryRetriever" target="_blank" rel="noopener">LangChain MultiQueryRetriever 官方参考</a>
+              <a href="https://reference.langchain.com/python/langchain-classic/retrievers/contextual_compression/ContextualCompressionRetriever" target="_blank" rel="noopener">ContextualCompressionRetriever 上下文压缩文档</a>
+              <a href="https://docs.langchain.com/oss/python/langgraph/agentic-rag" target="_blank" rel="noopener">LangGraph Agentic &amp; Corrective RAG 官方指南</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             Q5: 我们是小公司需要从0到1开发，可以做到吗？
+             =========================================== -->
+        <article class="qa-card" id="q5" data-qnum="Q5" data-qtitle="我们是小公司需要从0到1开发，可以做到吗？">
+          <div class="qa-header">
+            <span class="qa-num">Q5</span>
+            <div class="qa-question-wrap">
+              <h3 class="qa-question">我们是小公司需要从0到1开发，可以做到吗？</h3>
+              <div class="qa-tags">
+                <span class="qa-tag">综合实战与动机必考</span>
+                <span class="qa-tag">全栈一人成军闭环</span>
+                <span class="qa-tag">MVP 敏捷演进与成本控制</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="highlight-box">
+            <strong>💡 核心速记：</strong>小公司/新业务线老板或技术负责人问这道题，核心担心三件事：<strong>① 你是不是只会拧螺丝、离开大厂基建就写不出代码？② 你会不会过度设计（Over-engineering），上来就搞天价算力集群拖垮进度？③ 遇到前后端、部署、数据清洗的脏活累活你愿不愿意干？</strong>
+            高分回答公式 = <strong>“斩钉截铁给吃定心丸” + “亮出全栈闭环交付硬实力（需求➔前后端➔AI编排➔Docker上线）” + “给出省钱高效的从 0 到 1 三阶段 MVP 落地方法论”</strong>。
+          </div>
+
+          <div class="pitch-box">
+            <div class="pitch-header">
+              <span class="pitch-title">🎙️ 面试 45 秒开口即答（结合个人全栈复合背景定制版逐字稿）</span>
+              <button class="copy-pitch-btn" type="button" data-copy-target="pitch-q5">复制话术</button>
+            </div>
+            <p id="pitch-q5">“面试官您好，<strong>完全可以做到，而且这正是我最擅长、也最享受的工作状态</strong>。首先从<strong>能力闭环</strong>上说，我不是那种只守着单一模块拧螺丝的开发者——我早年在立讯精密做过产品设计工程，养成了极强的‘死磕交付与成本控制’意识；随后 5 年深耕 Java 分布式后端（Spring Boot / Cloud）与 AI 应用全栈开发（Spring AI / LangGraph / RAG / 前端交互与 Docker 容器化部署）。在过往项目里，从梳理业务痛点、设计数据库 DDL 与接口协议，到搭建 Milvus 知识库、编写 Agent 状态图、再到前端联调和线上监控排障，我都能独立拉通闭环。其次，我非常清楚<strong>小团队从 0 到 1 的核心命脉是‘快验证、省成本、稳迭代’</strong>，绝不搞脱离实际的过度设计：如果我进来负责从 0 到 1，<strong>第一周</strong>我会先用成熟轻量的技术栈（如 FastAPI/Spring Boot + 云端大模型 API + 轻量向量库）把核心业务流跑通，交出可演示、可内测的 MVP 最小可行性产品；<strong>第二到四周</strong>收集真实种子用户产生的 Bad Case，针对性打磨混合检索召回率、补齐缓存限流与异常兜底；<strong>等业务跑出正向现金流或高并发瓶颈后</strong>，再平滑演进分布式与自部署小模型。所以我来了不需要漫长的适应期，上手就能直接帮团队把产品立起来。”</p>
+          </div>
+
+          <div class="answer-body">
+            <h4 id="q5-s1">1. 深度拆解：面试官问这句话背后的“三大顾虑”与满分回应策略</h4>
+            <div class="table-wrapper">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>面试官内心深处的真实顾虑</th>
+                    <th>低分回答（容易踩坑被刷）</th>
+                    <th>满分回答策略（展现全栈独当一面）</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>顾虑 1：缺乏中台支撑能否独立干活？</strong><br>（小公司没有专门的 DBA、运维、算法数据清洗团队）</td>
+                    <td><span class="tag-no">危险回答</span> “只要公司配齐算法工程师、前端和运维，我负责写后端接口没问题。”</td>
+                    <td><span class="tag-yes">给足安全感</span> 强调自己是<strong>“AI 应用全栈工程师”</strong>：数据 ETL 解析、Prompt 调优、后端微服务、前端页面联调、Docker/Linux 部署监控全链路一肩挑。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>顾虑 2：会不会眼高手低、过度设计？</strong><br>（怕你上来就要买 8 张 H100 显卡、搭十几个微服务，三个月不出活）</td>
+                    <td><span class="tag-no">危险回答</span> “从 0 到 1 必须先把 K8s、分库分表、自研大模型集群全部搭好才能写业务。”</td>
+                    <td><span class="tag-yes">务实架构观</span> 提出<strong>“先跑通业务价值闭环（MVP），再按瓶颈渐进式演进”</strong>，善用高性价比云 API、Prompt Caching 与开源成熟组件，帮公司省钱省时间。</td>
+                  </tr>
+                  <tr>
+                    <td><strong>顾虑 3：面对需求频繁变动与早期脏活的心态？</strong><br>（从 0 到 1 阶段需求极不明确，经常需要边摸索边改）</td>
+                    <td><span class="tag-no">危险回答</span> “我习惯按详细 PRD 文档开发，需求老变的话没法做。”</td>
+                    <td><span class="tag-yes">产品主人翁意识</span> 结合过往从硬件产品工程到软件全栈的经历，主动帮业务方把模糊想法转化为可落地的技术方案，把模块化做好以拥抱快速迭代。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4 id="q5-s2">2. 面试现场可直接展示的“小公司从 0 到 1 四步落地路线图”</h4>
+            <p>当面试官追问：<em>“那如果让你下周入职开始从 0 到 1 搭我们这套系统，你具体怎么推进？”</em> 用下面这四步回答，专业度直接拉满：</p>
+            <div class="code-block-wrap">
+              <pre><code>【Phase 1：第 1 周 — 极速跑通 MVP 最小闭环（活下来、看得见）】
+  • 目标：不追求大而全，聚焦最核心的 1~2 个高频业务场景，7 天内交付内部可交互的原型系统。
+  • 选型：单体模块化架构（Spring Boot 3 / FastAPI）+ 成熟大模型 API（配合语义缓存省 Token）+ 轻量级向量存储 + 极简可观测日志（LangSmith）。
+
+【Phase 2：第 2 ~ 3 周 — 数据飞轮与核心指标攻坚（搜得准、答得稳）】
+  • 目标：构建第一批 100 条真实业务黄金评测集（Golden Dataset），把准确率从 60 分推到 85+ 分。
+  • 动作：落地父子文档切片、Dense + BM25 混合检索与 Reranker 精排；在 LangGraph 中加上确定性护栏、工具参数校验与超时降级兜底。
+
+【Phase 3：第 4 ~ 6 周 — 生产级工程化加固（抗住压、可运维）】
+  • 目标：正式面向真实客户放量上线，保障高可用与资金/数据安全。
+  • 动作：补齐 Redis 多级缓存、Redisson 分布式锁与接口幂等、SSE 流式网关、敏感词与权限过滤（RBAC）以及 Docker Compose 一键部署与告警。
+
+【Phase 4：业务增长期 — 降本增效与架构演进（降成本、扩规模）】
+  • 目标：当调用量放大后压降 Token 与算力成本。
+  • 动作：利用线上积累的高质量 Trace 数据，将简单高频的意图分类/信息抽取路由给低成本小模型（如 Qwen-Turbo / 本地部署 7B 模型），实现大小模型协同。</code></pre>
+            </div>
+
+            <h4 id="q5-s3">3. 回答此题的“三大避坑红线”与收尾反问技巧</h4>
+            <div class="warning-box">
+              <strong>⚠️ 回答“小公司从 0 到 1”问题的三个避坑提醒：</strong>
+              <ol style="margin-top: 6px; margin-bottom: 0;">
+                <li><strong>不要把“从 0 到 1 快”说成“代码随便糊弄”</strong>：一定要补充强调——“虽然前期架构要轻，但<strong>核心数据表结构设计、接口幂等防重、以及代码解耦规范</strong>我从第一天就会写扎实，绝不给团队埋下后面推倒重写的巨额技术债。”</li>
+                <li><strong>不要贬低小公司资源少</strong>：把“小公司缺基建”正向定义为“<strong>技术决策链路短、没有大厂部门墙内耗、工程师能直接看到代码转化为业务价值的成就感</strong>”。</li>
+                <li><strong>巧妙顺势反问，掌握面试主动权</strong>：回答完后可以自然追问一句——<em>“借这个机会我也想请教一下，咱们这个从 0 到 1 的项目，期望在入职后第一个月达到的核心里程碑（Milestone）是什么？目前最卡脖子的痛点是在数据整理侧还是在工程架构侧？”</em> 这句话一出，面试官会立刻把你当成已经在替他操心项目的自己人！</li>
+              </ol>
+            </div>
+          </div>
+        </article>
+
+      </section>
+    </main>
+  </div>
+
+  <!-- Floating Action Buttons -->
+  <div class="floating-tools">
+    <button class="float-btn mobile-only-fab" id="fabTocBtn" type="button" title="打开题目目录" aria-label="打开题目目录">📑</button>
+    <button class="float-btn" id="backToTopBtn" type="button" title="回到顶部" aria-label="回到顶部">↑</button>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-msg" id="toastMsg">已复制到剪贴板</div>
+
+  <script>
+    (function () {
+      // ==========================================
+      // 1. Safe Storage Helpers
+      // ==========================================
+      function safeGetStorage(key) {
+        try {
+          return localStorage.getItem(key);
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function safeSetStorage(key, val) {
+        try {
+          localStorage.setItem(key, val);
+        } catch (e) {
+          // ignore in restricted sandbox
+        }
+      }
+
+      // ==========================================
+      // 2. Theme Toggle (Light / Dark)
+      // ==========================================
+      const themeToggleBtn = document.getElementById('themeToggle');
+      const themeIcon = document.getElementById('themeIcon');
+
+      function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        if (themeIcon) {
+          themeIcon.textContent = theme === 'dark' ? '☀️' : '🌓';
+        }
+      }
+
+      const savedTheme = safeGetStorage('theme_1025');
+      if (savedTheme) {
+        applyTheme(savedTheme);
+      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        applyTheme('dark');
+      }
+
+      if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', function () {
+          const current = document.documentElement.getAttribute('data-theme');
+          const next = current === 'dark' ? 'light' : 'dark';
+          applyTheme(next);
+          safeSetStorage('theme_1025', next);
+        });
+      }
+
+      // ==========================================
+      // 3. Recite Mode Toggle (速背模式)
+      // ==========================================
+      const reciteToggleBtn = document.getElementById('reciteToggle');
+      let isReciteMode = false;
+
+      if (reciteToggleBtn) {
+        reciteToggleBtn.addEventListener('click', function () {
+          isReciteMode = !isReciteMode;
+          document.body.classList.toggle('recite-mode', isReciteMode);
+          reciteToggleBtn.classList.toggle('active-mode', isReciteMode);
+          showToast(isReciteMode ? '⚡ 已开启速背模式（仅显示核心速记与口述逐字稿）' : '📖 已恢复完整精讲模式');
+          setTimeout(updateScrollSpy, 60);
+        });
+      }
+
+      // ==========================================
+      // 4. Mobile Drawer Control (Zero-Bug Mobile UX)
+      // ==========================================
+      const sidebar = document.getElementById('sidebar');
+      const backdrop = document.getElementById('sidebarBackdrop');
+      const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+      const mobileOpenTocBtn = document.getElementById('mobileOpenTocBtn');
+      const mobileStatusTrigger = document.getElementById('mobileStatusTrigger');
+      const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+      const fabTocBtn = document.getElementById('fabTocBtn');
+
+      function openMobileDrawer() {
+        if (!sidebar || !backdrop) return;
+        sidebar.classList.add('open');
+        backdrop.classList.add('show');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeMobileDrawer() {
+        if (!sidebar || !backdrop) return;
+        sidebar.classList.remove('open');
+        backdrop.classList.remove('show');
+        document.body.style.overflow = '';
+      }
+
+      [mobileMenuBtn, mobileOpenTocBtn, mobileStatusTrigger, fabTocBtn].forEach(function (btn) {
+        if (btn) {
+          btn.addEventListener('click', function () {
+            if (sidebar && sidebar.classList.contains('open')) {
+              closeMobileDrawer();
+            } else {
+              openMobileDrawer();
+            }
+          });
+        }
+      });
+
+      if (sidebarCloseBtn) {
+        sidebarCloseBtn.addEventListener('click', closeMobileDrawer);
+      }
+
+      if (backdrop) {
+        backdrop.addEventListener('click', closeMobileDrawer);
+      }
+
+      window.addEventListener('resize', function () {
+        if (window.innerWidth > 900 && sidebar && sidebar.classList.contains('open')) {
+          closeMobileDrawer();
+        }
+        updateScrollSpy();
+      });
+
+      // ==========================================
+      // 5. High-Precision ScrollSpy & Navigation Sync
+      // ==========================================
+      const qaCards = Array.from(document.querySelectorAll('.qa-card'));
+      const navItems = Array.from(document.querySelectorAll('.nav-item'));
+      const mainNavLinks = Array.from(document.querySelectorAll('.nav-item > a'));
+      const subNavLinks = Array.from(document.querySelectorAll('.sub-nav-item a'));
+      const subHeadings = Array.from(document.querySelectorAll('.answer-body h4[id]'));
+
+      const sidebarProgressText = document.getElementById('sidebarProgressText');
+      const sidebarActiveName = document.getElementById('sidebarActiveName');
+      const mobileCurrentNum = document.getElementById('mobileCurrentNum');
+      const mobileCurrentTitle = document.getElementById('mobileCurrentTitle');
+      const readingProgress = document.getElementById('readingProgress');
+
+      let isClickScrolling = false;
+      let clickScrollTimer = null;
+
+      function setActiveQuestion(activeId, activeSubId) {
+        let activeIndex = 0;
+        let activeCardEl = null;
+
+        qaCards.forEach(function (card, idx) {
+          const isMatch = card.id === activeId;
+          card.classList.toggle('active-card', isMatch);
+          if (isMatch) {
+            activeIndex = idx;
+            activeCardEl = card;
+          }
+        });
+
+        navItems.forEach(function (item) {
+          const targetId = item.getAttribute('data-target');
+          const link = item.querySelector(':scope > a');
+          const isMatch = targetId === activeId;
+          item.classList.toggle('expanded', isMatch);
+          if (link) {
+            link.classList.toggle('active', isMatch);
+            if (isMatch && sidebar) {
+              const linkRect = link.getBoundingClientRect();
+              const sidebarRect = sidebar.getBoundingClientRect();
+              if (linkRect.top < sidebarRect.top + 60 || linkRect.bottom > sidebarRect.bottom - 60) {
+                sidebar.scrollTo({
+                  top: link.offsetTop - sidebar.clientHeight / 3,
+                  behavior: 'smooth'
+                });
+              }
+            }
+          }
+        });
+
+        subNavLinks.forEach(function (subLink) {
+          const href = subLink.getAttribute('href');
+          subLink.classList.toggle('sub-active', activeSubId && href === '#' + activeSubId);
+        });
+
+        if (activeCardEl) {
+          const qNum = activeCardEl.getAttribute('data-qnum') || ('Q' + (activeIndex + 1));
+          const qTitle = activeCardEl.getAttribute('data-qtitle') || '';
+          const visibleCount = qaCards.filter(function (c) { return c.style.display !== 'none'; }).length || qaCards.length;
+
+          if (sidebarProgressText) {
+            sidebarProgressText.textContent = (activeIndex + 1) + ' / ' + visibleCount;
+          }
+          if (sidebarActiveName) {
+            sidebarActiveName.textContent = qNum + ' · ' + qTitle;
+          }
+          if (mobileCurrentNum) {
+            mobileCurrentNum.textContent = qNum;
+          }
+          if (mobileCurrentTitle) {
+            mobileCurrentTitle.textContent = qTitle;
+          }
+        }
+      }
+
+      function updateScrollSpy() {
+        const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+        const docHeight = Math.max(
+          document.body.scrollHeight,
+          document.documentElement.scrollHeight
+        ) - window.innerHeight;
+
+        if (readingProgress) {
+          const pct = docHeight > 0 ? Math.min(100, Math.max(0, (scrollTop / docHeight) * 100)) : 100;
+          readingProgress.style.width = pct.toFixed(1) + '%';
+        }
+
+        if (isClickScrolling) return;
+
+        const visibleCards = qaCards.filter(function (card) {
+          return card.style.display !== 'none';
+        });
+        if (visibleCards.length === 0) return;
+
+        const isMobile = window.innerWidth <= 900;
+        const triggerOffset = isMobile ? 140 : 120;
+
+        const atBottom = (window.innerHeight + scrollTop) >= (document.documentElement.scrollHeight - 36);
+        let currentCard = visibleCards[0];
+
+        if (atBottom) {
+          currentCard = visibleCards[visibleCards.length - 1];
+        } else {
+          for (let i = 0; i < visibleCards.length; i++) {
+            const rect = visibleCards[i].getBoundingClientRect();
+            if (rect.top <= triggerOffset) {
+              currentCard = visibleCards[i];
+            } else {
+              break;
+            }
+          }
+        }
+
+        let currentSubId = null;
+        if (!isReciteMode && currentCard) {
+          const cardSubs = subHeadings.filter(function (h) {
+            return currentCard.contains(h);
+          });
+          if (cardSubs.length > 0) {
+            currentSubId = cardSubs[0].id;
+            for (let j = 0; j < cardSubs.length; j++) {
+              const sRect = cardSubs[j].getBoundingClientRect();
+              if (sRect.top <= triggerOffset + 40) {
+                currentSubId = cardSubs[j].id;
+              } else {
+                break;
+              }
+            }
+          }
+        }
+
+        setActiveQuestion(currentCard.id, currentSubId);
+      }
+
+      let ticking = false;
+      window.addEventListener('scroll', function () {
+        if (!ticking) {
+          window.requestAnimationFrame(function () {
+            updateScrollSpy();
+            ticking = false;
+          });
+          ticking = true;
+        }
+      }, { passive: true });
+
+      let targetScrollPos = null;
+
+      function releaseClickScrollLock() {
+        isClickScrolling = false;
+        targetScrollPos = null;
+        if (clickScrollTimer) {
+          clearTimeout(clickScrollTimer);
+          clickScrollTimer = null;
+        }
+        updateScrollSpy();
+      }
+
+      window.addEventListener('scroll', function () {
+        if (!isClickScrolling) return;
+        const currentY = window.scrollY || document.documentElement.scrollTop || 0;
+        if (targetScrollPos !== null && Math.abs(currentY - targetScrollPos) <= 6) {
+          if (clickScrollTimer) clearTimeout(clickScrollTimer);
+          clickScrollTimer = setTimeout(releaseClickScrollLock, 80);
+          return;
+        }
+        if (clickScrollTimer) clearTimeout(clickScrollTimer);
+        clickScrollTimer = setTimeout(releaseClickScrollLock, 180);
+      }, { passive: true });
+
+      function handleNavClick(e, targetId, parentQId) {
+        e.preventDefault();
+        const targetEl = document.getElementById(targetId);
+        if (!targetEl) return;
+
+        if (window.innerWidth <= 900) {
+          closeMobileDrawer();
+        }
+
+        isClickScrolling = true;
+        if (clickScrollTimer) clearTimeout(clickScrollTimer);
+
+        const qId = parentQId || targetId;
+        const subId = parentQId ? targetId : null;
+        setActiveQuestion(qId, subId);
+
+        const isMobile = window.innerWidth <= 900;
+        const headerOffset = isMobile ? 114 : 80;
+        const rect = targetEl.getBoundingClientRect();
+        const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+        targetScrollPos = Math.min(maxScroll, Math.max(0, rect.top + window.scrollY - headerOffset));
+
+        window.scrollTo({
+          top: targetScrollPos,
+          behavior: 'smooth'
+        });
+
+        clickScrollTimer = setTimeout(releaseClickScrollLock, 250);
+      }
+
+      mainNavLinks.forEach(function (link) {
+        link.addEventListener('click', function (e) {
+          const href = link.getAttribute('href') || '';
+          if (href.startsWith('#')) {
+            handleNavClick(e, href.slice(1), null);
+          }
+        });
+      });
+
+      subNavLinks.forEach(function (subLink) {
+        subLink.addEventListener('click', function (e) {
+          const href = subLink.getAttribute('href') || '';
+          const parentId = subLink.getAttribute('data-parent');
+          if (href.startsWith('#')) {
+            handleNavClick(e, href.slice(1), parentId);
+          }
+        });
+      });
+
+      // ==========================================
+      // 6. Search / Filter Questions
+      // ==========================================
+      const searchInput = document.getElementById('searchInput');
+      const searchClearBtn = document.getElementById('searchClearBtn');
+
+      function filterQuestions() {
+        if (!searchInput) return;
+        const query = searchInput.value.toLowerCase().trim();
+        if (searchClearBtn) {
+          searchClearBtn.style.display = query ? 'block' : 'none';
+        }
+
+        qaCards.forEach(function (card) {
+          const text = card.textContent.toLowerCase();
+          const match = !query || text.includes(query);
+          card.style.display = match ? '' : 'none';
+
+          const navItem = document.querySelector('.nav-item[data-target="' + card.id + '"]');
+          if (navItem) {
+            navItem.style.display = match ? '' : 'none';
+          }
+        });
+
+        updateScrollSpy();
+      }
+
+      if (searchInput) {
+        searchInput.addEventListener('input', filterQuestions);
+      }
+
+      if (searchClearBtn) {
+        searchClearBtn.addEventListener('click', function () {
+          searchInput.value = '';
+          filterQuestions();
+          searchInput.focus();
+        });
+      }
+
+      // ==========================================
+      // 7. Copy Oral Pitch & Back to Top
+      // ==========================================
+      const toastMsg = document.getElementById('toastMsg');
+      let toastTimer = null;
+
+      function showToast(text) {
+        if (!toastMsg) return;
+        toastMsg.textContent = text;
+        toastMsg.classList.add('show');
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () {
+          toastMsg.classList.remove('show');
+        }, 2200);
+      }
+
+      function copyTextToClipboard(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(function () {
+            showToast('✅ 背诵话术已复制到剪贴板');
+          }).catch(function () {
+            fallbackCopy(text);
+          });
+        } else {
+          fallbackCopy(text);
+        }
+      }
+
+      function fallbackCopy(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          showToast('✅ 背诵话术已复制到剪贴板');
+        } catch (e) {
+          showToast('复制失败，请手动选中复制');
+        }
+        document.body.removeChild(ta);
+      }
+
+      document.querySelectorAll('.copy-pitch-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const targetId = btn.getAttribute('data-copy-target');
+          const targetEl = document.getElementById(targetId);
+          if (targetEl) {
+            copyTextToClipboard(targetEl.textContent.trim());
+          }
+        });
+      });
+
+      const backToTopBtn = document.getElementById('backToTopBtn');
+      if (backToTopBtn) {
+        backToTopBtn.addEventListener('click', function () {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      }
+
+      // Initial ScrollSpy trigger
+      updateScrollSpy();
+    })();
+  </script>
+</body>
+</html>
